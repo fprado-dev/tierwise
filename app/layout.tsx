@@ -64,12 +64,13 @@ export default function RootLayout({
                       </BreadcrumbItem>
                     </BreadcrumbList>
                   </Breadcrumb>
+                  <ThemeSwitcher />
                 </div>
                 <AuthButton />
               </header>
               <div className="flex flex-1 flex-col gap-4 p-4">
                 {children}
-                <ThemeSwitcher />
+
               </div>
             </SidebarInset>
           </SidebarProvider>

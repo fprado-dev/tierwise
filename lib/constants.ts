@@ -1,4 +1,4 @@
-import { HardwareOption, ImageModel, TextModel, VideoModel } from "./models-types";
+import { HardwareOption, ImageModel, TextModel, VideoModel } from "./model.types";
 
 
 // --- Constants --- (Keep constants here or move to a separate constants file)
@@ -147,85 +147,61 @@ export const VIDEO_MODELS: VideoModel[] = [
   {
     model: "google/veo-2",
     costPerSecond: 0.500,
-    resolution: null,
-    type: "video"
   },
   {
     model: "haiper-ai/haiper-video-2",
     costPerSecond: 0.050,
-    resolution: null,
-    type: "video"
   },
   {
     model: "kwaivgi/kling-v1.6-pro",
     costPerSecond: 0.098,
-    resolution: null,
-    type: "video"
   },
   {
     model: "kwaivgi/kling-v1.6-standard",
     costPerSecond: 0.056,
-    resolution: null,
-    type: "video"
   },
   {
     model: "luma/ray-2-540p",
     costPerSecond: 0.100,
-    resolution: "540p",
-    type: "video"
   },
   {
     model: "luma/ray-2-720p",
     costPerSecond: 0.180,
-    resolution: "720p",
-    type: "video"
   },
   {
     model: "luma/ray-flash-2-540p",
     costPerSecond: 0.033,
-    resolution: "540p",
-    type: "video"
   },
   {
     model: "luma/ray-flash-2-720p",
     costPerSecond: 0.060,
-    resolution: "720p",
-    type: "video"
   },
   {
     model: "wavespeedai/hunyuan-video-fast",
     costPerSecond: 0.200,
-    resolution: null,
-    type: "video"
   },
   {
     model: "wavespeedai/step-video",
     costPerSecond: 0.250,
-    resolution: null,
-    type: "video"
   },
   {
     model: "wavespeedai/wan-2.1-i2v-480p",
     costPerSecond: 0.090,
-    resolution: "480p",
     type: "image-to-video"
   },
   {
     model: "wavespeedai/wan-2.1-i2v-720p",
     costPerSecond: 0.250,
-    resolution: "720p",
     type: "image-to-video"
   },
   {
     model: "wavespeedai/wan-2.1-t2v-480p",
     costPerSecond: 0.070,
-    resolution: "480p",
     type: "text-to-video"
   },
   {
     model: "wavespeedai/wan-2.1-t2v-720p",
     costPerSecond: 0.240,
-    resolution: "720p",
     type: "text-to-video"
   }
 ];
@@ -266,160 +242,137 @@ export const TEXT_MODELS: TextModel[] = [
     inputCostPerMillion: 0.100,
     outputCostPerMillion: 0.500,
     provider: "ibm",
-    size: "20b"
   },
   {
     model: "ibm-granite/granite-3.0-2b-instruct",
     inputCostPerMillion: 0.030,
     outputCostPerMillion: 0.250,
     provider: "ibm",
-    size: "2b"
   },
   {
     model: "ibm-granite/granite-3.0-8b-instruct",
     inputCostPerMillion: 0.050,
     outputCostPerMillion: 0.250,
     provider: "ibm",
-    size: "8b"
   },
   {
     model: "ibm-granite/granite-3.1-2b-instruct",
     inputCostPerMillion: 0.030,
     outputCostPerMillion: 0.250,
     provider: "ibm",
-    size: "2b"
   },
   {
     model: "ibm-granite/granite-3.1-8b-instruct",
     inputCostPerMillion: 0.030,
     outputCostPerMillion: 0.250,
     provider: "ibm",
-    size: "8b"
   },
   {
     model: "ibm-granite/granite-3.2-8b-instruct",
     inputCostPerMillion: 0.030,
     outputCostPerMillion: 0.250,
     provider: "ibm",
-    size: "8b"
   },
   {
     model: "ibm-granite/granite-3.3-8b-instruct",
     inputCostPerMillion: 0.030,
     outputCostPerMillion: 0.250,
     provider: "ibm",
-    size: "8b"
   },
   {
     model: "ibm-granite/granite-8b-code-instruct-128k",
     inputCostPerMillion: 0.050,
     outputCostPerMillion: 0.250,
     provider: "ibm",
-    size: "8b"
   },
   {
     model: "meta/llama-2-13b",
     inputCostPerMillion: 0.100,
     outputCostPerMillion: 0.500,
     provider: "meta",
-    size: "13b"
   },
   {
     model: "meta/llama-2-13b-chat",
     inputCostPerMillion: 0.100,
     outputCostPerMillion: 0.500,
     provider: "meta",
-    size: "13b"
   },
   {
     model: "meta/llama-2-70b",
     inputCostPerMillion: 0.650,
     outputCostPerMillion: 2.750,
     provider: "meta",
-    size: "70b"
   },
   {
     model: "meta/llama-2-70b-chat",
     inputCostPerMillion: 0.650,
     outputCostPerMillion: 2.750,
     provider: "meta",
-    size: "70b"
   },
   {
     model: "meta/llama-2-7b",
     inputCostPerMillion: 0.050,
     outputCostPerMillion: 0.250,
     provider: "meta",
-    size: "7b"
   },
   {
     model: "meta/llama-2-7b-chat",
     inputCostPerMillion: 0.050,
     outputCostPerMillion: 0.250,
     provider: "meta",
-    size: "7b"
   },
   {
     model: "meta/llama-4-maverick-instruct",
     inputCostPerMillion: 0.250,
     outputCostPerMillion: 0.950,
     provider: "meta",
-    family: "llama-4"
   },
   {
     model: "meta/llama-4-scout-instruct",
     inputCostPerMillion: 0.170,
     outputCostPerMillion: 0.650,
     provider: "meta",
-    family: "llama-4"
   },
   {
     model: "meta/meta-llama-3.1-405b-instruct",
     inputCostPerMillion: 9.500,
     outputCostPerMillion: 9.500,
     provider: "meta",
-    size: "405b"
   },
   {
     model: "meta/meta-llama-3-70b",
     inputCostPerMillion: 0.650,
     outputCostPerMillion: 2.750,
     provider: "meta",
-    size: "70b"
   },
   {
     model: "meta/meta-llama-3-70b-instruct",
     inputCostPerMillion: 0.650,
     outputCostPerMillion: 2.750,
     provider: "meta",
-    size: "70b"
   },
   {
     model: "meta/meta-llama-3-8b",
     inputCostPerMillion: 0.050,
     outputCostPerMillion: 0.250,
     provider: "meta",
-    size: "8b"
   },
   {
     model: "meta/meta-llama-3-8b-instruct",
     inputCostPerMillion: 0.050,
     outputCostPerMillion: 0.250,
     provider: "meta",
-    size: "8b"
   },
   {
     model: "mistralai/mistral-7b-instruct-v0.2",
     inputCostPerMillion: 0.050,
     outputCostPerMillion: 0.250,
     provider: "mistral",
-    size: "7b"
   },
   {
     model: "mistralai/mistral-7b-v0.1",
     inputCostPerMillion: 0.050,
     outputCostPerMillion: 0.250,
     provider: "mistral",
-    size: "7b"
   }
 ];

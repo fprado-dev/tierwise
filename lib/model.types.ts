@@ -9,14 +9,11 @@ export interface TextModel {
   inputCostPerMillion: number;
   outputCostPerMillion: number;
   provider?: string;
-  size?: string;
-  family?: string;
 }
 
 export interface VideoModel {
   model: string;
   costPerSecond: number;
-  resolution?: string | null;
   type?: string;
 }
 
