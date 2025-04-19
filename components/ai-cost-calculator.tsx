@@ -19,7 +19,7 @@ import { calculateTierCosts, calculateTotalPrice } from "@/lib/cost-calculator";
 import { ImageModel, TextModel, VideoModel } from "@/lib/model.types";
 import { Tier } from "@/lib/tier.types";
 import { Label } from "@radix-ui/react-dropdown-menu";
-import { Trash2 } from 'lucide-react';
+import { Check, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { TierCreationSheet } from "./tier-creation-sheet";
 import { TierEditSheet } from './tier-edit-sheet';
@@ -152,22 +152,28 @@ function TierCard({
               {tier.models.filter((model): model is TextModel => 'inputCostPerMillion' in model).length > 0 && (
                 <div className="flex flex-col gap-2">
                   <div className="space-y-2">
-                    {tier.models
-                      .filter((model): model is TextModel => 'inputCostPerMillion' in model)
-                      .map((model, index) => {
-                        return (
-                          <Table>
-                            <TableHeader>
-                              <TableRow className="text-xs">
-                                <TableHead>Provider</TableHead>
-                                <TableHead>Input/Output</TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
+
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="text-xs">
+                          <TableHead>Provider</TableHead>
+                          <TableHead>Input/Output</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {tier.models
+                          .filter((model): model is TextModel => 'inputCostPerMillion' in model)
+                          .map((model, index) => {
+                            return (
                               <TableRow>
                                 <TableCell width={"100%"}>
                                   <div className="flex items-start justify-start">
-                                    <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">{model.model}</span>
+                                    <div className="flex items-center gap-2">
+                                      <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">{model.model}</span>
+                                      {tier.models.filter((m): m is TextModel => 'inputCostPerMillion' in m).reduce((prev, curr) =>
+                                        (curr.inputCostPerMillion + curr.outputCostPerMillion) > (prev.inputCostPerMillion + prev.outputCostPerMillion) ? curr : prev
+                                      ).model === model.model && <Check className="w-4 h-4 text-green-500" />}
+                                    </div>
                                   </div>
                                 </TableCell>
                                 <TableCell className="text-green-300">
@@ -177,46 +183,63 @@ function TierCard({
                                   </div>
                                 </TableCell>
                               </TableRow>
-                            </TableBody>
-                          </Table>
-
-                        );
-                      })}
+                            );
+                          })}
+                      </TableBody>
+                    </Table>
                   </div>
                 </div>
               )}
               <div className="space-y-2 flex flex-col gap-2">
-                <div className="flex gap-2">
-                  <div className="flex flex-col gap-1">
-                    <Label className="text-xs">Input</Label>
-                    <Input
-                      type="number"
-                      className="text-xs placeholder:text-xs"
-                      placeholder="Enter input tokens"
-                      value={tier.quantity?.textTokens?.input || ''}
-                      onChange={(e) => handleQuantityChange(tier.id, 'text', 'input', parseInt(e.target.value))}
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id={`useHighestCost-text-${tier.id}`}
+                      checked={tier.useHighestCost?.text || false}
+                      onChange={(e) => {
+                        setTiers(prevTiers => prevTiers.map(t =>
+                          t.id === tier.id ? { ...t, useHighestCost: { ...t.useHighestCost, text: e.target.checked } } : t
+                        ));
+                      }}
+                      className="h-4 w-4 rounded border-gray-300"
                     />
+                    <label htmlFor={`useHighestCost-text-${tier.id}`} className="text-sm text-gray-700">
+                      Calculate using most expensive model only
+                    </label>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="flex flex-col gap-1">
+                      <Label className="text-xs">Input</Label>
+                      <Input
+                        type="number"
+                        className="text-xs placeholder:text-xs"
+                        placeholder="Enter input tokens"
+                        value={tier.quantity?.textTokens?.input || ''}
+                        onChange={(e) => handleQuantityChange(tier.id, 'text', 'input', parseInt(e.target.value))}
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <Label className="text-xs">Output Tokens</Label>
+                      <Input
+                        type="number"
+                        className="placeholder:text-xs"
+                        placeholder="Enter output tokens"
+                        value={tier.quantity?.textTokens?.output || ''}
+                        onChange={(e) => handleQuantityChange(tier.id, 'text', 'output', parseInt(e.target.value))}
+                      />
+                    </div>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <Label className="text-xs">Output Tokens</Label>
+                    <Label className="text-xs">Profit Margin (%)</Label>
                     <Input
                       type="number"
                       className="placeholder:text-xs"
-                      placeholder="Enter output tokens"
-                      value={tier.quantity?.textTokens?.output || ''}
-                      onChange={(e) => handleQuantityChange(tier.id, 'text', 'output', parseInt(e.target.value))}
+                      placeholder="Enter margin percentage"
+                      value={tier.margins?.text || ''}
+                      onChange={(e) => handleMarginChange(tier.id, 'text', parseInt(e.target.value))}
                     />
                   </div>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <Label className="text-xs">Profit Margin (%)</Label>
-                  <Input
-                    type="number"
-                    className="placeholder:text-xs"
-                    placeholder="Enter margin percentage"
-                    value={tier.margins?.text || ''}
-                    onChange={(e) => handleMarginChange(tier.id, 'text', parseInt(e.target.value))}
-                  />
                 </div>
               </div>
             </TabsContent>
@@ -224,23 +247,28 @@ function TierCard({
               {tier.models.filter((model): model is ImageModel => 'costPerImage' in model).length > 0 && (
                 <div className="flex flex-col gap-2">
                   <div className="space-y-2">
-                    {tier.models
-                      .filter((model): model is ImageModel => 'costPerImage' in model)
-                      .map((model, index) => {
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="text-xs">
+                          <TableHead>Provider</TableHead>
+                          <TableHead>Per image</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {tier.models
+                          .filter((model): model is ImageModel => 'costPerImage' in model)
+                          .map((model, index) => {
 
-                        return (
-                          <Table>
-                            <TableHeader>
-                              <TableRow className="text-xs">
-                                <TableHead>Provider</TableHead>
-                                <TableHead>Per image</TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                            return (
                               <TableRow>
                                 <TableCell width={"100%"}>
                                   <div className="flex items-start justify-start">
-                                    <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">{model.model}</span>
+                                    <div className="flex items-center gap-2">
+                                      <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">{model.model}</span>
+                                      {tier.models.filter((m): m is ImageModel => 'costPerImage' in m).reduce((prev, curr) =>
+                                        curr.costPerImage > prev.costPerImage ? curr : prev
+                                      ).model === model.model && <Check className="w-4 h-4 text-green-500" />}
+                                    </div>
                                   </div>
                                 </TableCell>
                                 <TableCell className="text-green-300">
@@ -249,14 +277,30 @@ function TierCard({
                                   </div>
                                 </TableCell>
                               </TableRow>
-                            </TableBody>
-                          </Table>
-                        );
-                      })}
+                            );
+                          })}
+                      </TableBody>
+                    </Table>
                   </div>
                 </div>
               )}
               <div className="space-y-2">
+                <div className="flex items-center gap-2 mb-4">
+                  <input
+                    type="checkbox"
+                    id={`useHighestCost-image-${tier.id}`}
+                    checked={tier.useHighestCost?.image || false}
+                    onChange={(e) => {
+                      setTiers(prevTiers => prevTiers.map(t =>
+                        t.id === tier.id ? { ...t, useHighestCost: { ...t.useHighestCost, image: e.target.checked } } : t
+                      ));
+                    }}
+                    className="h-4 w-4 rounded border-gray-300"
+                  />
+                  <label htmlFor={`useHighestCost-image-${tier.id}`} className="text-sm text-gray-700">
+                    Calculate using most expensive model only
+                  </label>
+                </div>
                 <div className="flex flex-col gap-1 text-xs">
                   <Label className="text-xs">Number of Images</Label>
                   <Input
@@ -283,22 +327,27 @@ function TierCard({
               {tier.models.filter((model): model is VideoModel => 'costPerSecond' in model).length > 0 && (
                 <div className="flex flex-col gap-2">
                   <div className="space-y-2">
-                    {tier.models
-                      .filter((model): model is VideoModel => 'costPerSecond' in model)
-                      .map((model, index) => {
-                        return (
-                          <Table>
-                            <TableHeader>
-                              <TableRow className="text-xs">
-                                <TableHead>Provider</TableHead>
-                                <TableHead>Per image</TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="text-xs">
+                          <TableHead>Provider</TableHead>
+                          <TableHead>Per image</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {tier.models
+                          .filter((model): model is VideoModel => 'costPerSecond' in model)
+                          .map((model, index) => {
+                            return (
                               <TableRow>
                                 <TableCell width={"100%"} align="left">
                                   <div className="flex items-start justify-start">
-                                    <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-0.5 rounded">{model.model}</span>
+                                    <div className="flex items-center gap-2">
+                                      <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-0.5 rounded">{model.model}</span>
+                                      {tier.models.filter((m): m is VideoModel => 'costPerSecond' in m).reduce((prev, curr) =>
+                                        curr.costPerSecond > prev.costPerSecond ? curr : prev
+                                      ).model === model.model && <Check className="w-4 h-4 text-green-500" />}
+                                    </div>
                                   </div>
                                 </TableCell>
                                 <TableCell align="right" className="text-green-300">
@@ -307,14 +356,30 @@ function TierCard({
                                   </div>
                                 </TableCell>
                               </TableRow>
-                            </TableBody>
-                          </Table>
-                        );
-                      })}
+                            );
+                          })}
+                      </TableBody>
+                    </Table>
                   </div>
                 </div>
               )}
               <div className="space-y-2">
+                <div className="flex items-center gap-2 mb-4">
+                  <input
+                    type="checkbox"
+                    id={`useHighestCost-video-${tier.id}`}
+                    checked={tier.useHighestCost?.video || false}
+                    onChange={(e) => {
+                      setTiers(prevTiers => prevTiers.map(t =>
+                        t.id === tier.id ? { ...t, useHighestCost: { ...t.useHighestCost, video: e.target.checked } } : t
+                      ));
+                    }}
+                    className="h-4 w-4 rounded border-gray-300"
+                  />
+                  <label htmlFor={`useHighestCost-video-${tier.id}`} className="text-sm text-gray-700">
+                    Calculate using most expensive model only
+                  </label>
+                </div>
                 <div className="flex flex-col gap-1">
                   <Label className="text-xs">Video Duration (seconds)</Label>
                   <Input

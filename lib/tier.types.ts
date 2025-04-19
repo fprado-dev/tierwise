@@ -6,6 +6,11 @@ export type Tier = {
   models: ModelOption[];
   quantity?: TierQuantity;
   margins?: TierMargins;
+  useHighestCost?: {
+    text?: boolean;
+    image?: boolean;
+    video?: boolean;
+  };
 };
 
 export interface TierQuantity {

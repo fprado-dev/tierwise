@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Sheet,
   SheetContent,
@@ -18,6 +17,7 @@ import { Tier } from "@/lib/tier.types";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { Label } from "./ui/label";
+import MultipleSelector from "./ui/multiselect";
 
 type TierCreationSheetProps = {
   onAddTier: (tier: Tier) => void;
@@ -26,9 +26,9 @@ type TierCreationSheetProps = {
 export function TierCreationSheet({ onAddTier }: TierCreationSheetProps) {
   const [newTierName, setNewTierName] = useState('');
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedTextModel, setSelectedTextModel] = useState<string>('');
-  const [selectedImageModel, setSelectedImageModel] = useState<string>('');
-  const [selectedVideoModel, setSelectedVideoModel] = useState<string>('');
+  const [selectedTextModels, setSelectedTextModels] = useState<string[]>([]);
+  const [selectedImageModels, setSelectedImageModels] = useState<string[]>([]);
+  const [selectedVideoModels, setSelectedVideoModels] = useState<string[]>([]);
 
 
 
@@ -38,22 +38,27 @@ export function TierCreationSheet({ onAddTier }: TierCreationSheetProps) {
 
 
     const selectedModels: ModelOption[] = [
-      TEXT_MODELS.find(m => m.model === selectedTextModel),
-      IMAGE_MODELS.find(m => m.model === selectedImageModel),
-      VIDEO_MODELS.find(m => m.model === selectedVideoModel)
-    ].filter((model) => model !== undefined);
+      ...TEXT_MODELS.filter(m => selectedTextModels.includes(m.model)),
+      ...IMAGE_MODELS.filter(m => selectedImageModels.includes(m.model)),
+      ...VIDEO_MODELS.filter(m => selectedVideoModels.includes(m.model))
+    ];
 
     const newTier: Tier = {
       id: generateTierID,
       name: newTierName,
-      models: selectedModels
+      models: selectedModels,
+      useHighestCost: {
+        text: true,
+        image: true,
+        video: true
+      }
     };
 
     onAddTier(newTier);
     setNewTierName('');
-    setSelectedTextModel("");
-    setSelectedImageModel("");
-    setSelectedVideoModel("");
+    setSelectedTextModels([]);
+    setSelectedImageModels([]);
+    setSelectedVideoModels([]);
     setIsOpen(false);
   };
 
@@ -93,59 +98,50 @@ export function TierCreationSheet({ onAddTier }: TierCreationSheetProps) {
 
             <div className="flex flex-col gap-2">
               <Label className="text-sm font-medium">Text Model</Label>
-              <Select value={selectedTextModel} onValueChange={setSelectedTextModel}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a text model" />
-                </SelectTrigger>
-                <SelectContent>
-                  {TEXT_MODELS.map((model) => (
-                    <SelectItem key={model.model} value={model.model}>
-                      <div className="flex items-center gap-2">
-                        <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">Text</span>
-                        {model.model}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex flex-wrap gap-2">
+                <MultipleSelector
+                  value={selectedTextModels.map(model => ({ value: model, label: model }))}
+                  options={TEXT_MODELS.map(model => ({
+                    value: model.model,
+                    label: model.model,
+                  }))}
+                  onChange={(options) => setSelectedTextModels(options.map(o => o.value))}
+                  placeholder="Select text models"
+                  className="w-full"
+                />
+              </div>
             </div>
 
             <div className="flex flex-col gap-2">
               <Label className="text-sm font-medium">Image Model</Label>
-              <Select value={selectedImageModel} onValueChange={setSelectedImageModel}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select an image model" />
-                </SelectTrigger>
-                <SelectContent>
-                  {IMAGE_MODELS.map((model) => (
-                    <SelectItem key={model.model} value={model.model}>
-                      <div className="flex items-center gap-2">
-                        <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">Image</span>
-                        {model.model}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex flex-wrap gap-2">
+                <MultipleSelector
+                  value={selectedImageModels.map(model => ({ value: model, label: model }))}
+                  options={IMAGE_MODELS.map(model => ({
+                    value: model.model,
+                    label: model.model,
+                  }))}
+                  onChange={(options) => setSelectedImageModels(options.map(o => o.value))}
+                  placeholder="Select image models"
+                  className="w-full"
+                />
+              </div>
             </div>
 
             <div className="flex flex-col gap-2">
               <Label className="text-sm font-medium">Video Model</Label>
-              <Select value={selectedVideoModel} onValueChange={setSelectedVideoModel}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a video model" />
-                </SelectTrigger>
-                <SelectContent>
-                  {VIDEO_MODELS.map((model) => (
-                    <SelectItem key={model.model} value={model.model}>
-                      <div className="flex items-center gap-2">
-                        <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-0.5 rounded">Video</span>
-                        {model.model}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex flex-wrap gap-2">
+                <MultipleSelector
+                  value={selectedVideoModels.map(model => ({ value: model, label: model }))}
+                  options={VIDEO_MODELS.map(model => ({
+                    value: model.model,
+                    label: model.model,
+                  }))}
+                  onChange={(options) => setSelectedVideoModels(options.map(o => o.value))}
+                  placeholder="Select video models"
+                  className="w-full"
+                />
+              </div>
             </div>
           </div>
         </div>
