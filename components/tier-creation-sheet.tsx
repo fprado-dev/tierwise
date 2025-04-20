@@ -21,14 +21,16 @@ import MultipleSelector from "./ui/multiselect";
 
 type TierCreationSheetProps = {
   onAddTier: (tier: Tier) => void;
+  tiers?: Tier[];
 };
 
-export function TierCreationSheet({ onAddTier }: TierCreationSheetProps) {
+export function TierCreationSheet({ onAddTier, tiers = [] }: TierCreationSheetProps) {
   const [newTierName, setNewTierName] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [selectedTextModels, setSelectedTextModels] = useState<string[]>([]);
   const [selectedImageModels, setSelectedImageModels] = useState<string[]>([]);
   const [selectedVideoModels, setSelectedVideoModels] = useState<string[]>([]);
+  const [inheritModels, setInheritModels] = useState(false);
 
 
 
@@ -36,11 +38,22 @@ export function TierCreationSheet({ onAddTier }: TierCreationSheetProps) {
     if (!newTierName) return;
     const generateTierID = crypto.randomUUID();
 
+    let finalTextModels = selectedTextModels;
+    let finalImageModels = selectedImageModels;
+    let finalVideoModels = selectedVideoModels;
+
+    if (inheritModels && tiers.length > 0) {
+      const lastTier = tiers[tiers.length - 1];
+      finalTextModels = Array.from(new Set([...selectedTextModels, ...lastTier.models.filter(m => 'inputCostPerMillion' in m).map(m => m.model)]));
+      finalImageModels = Array.from(new Set([...selectedImageModels, ...lastTier.models.filter(m => 'costPerImage' in m).map(m => m.model)]));
+      finalVideoModels = Array.from(new Set([...selectedVideoModels, ...lastTier.models.filter(m => 'costPerSecond' in m).map(m => m.model)]));
+    }
+
 
     const selectedModels: ModelOption[] = [
-      ...TEXT_MODELS.filter(m => selectedTextModels.includes(m.model)),
-      ...IMAGE_MODELS.filter(m => selectedImageModels.includes(m.model)),
-      ...VIDEO_MODELS.filter(m => selectedVideoModels.includes(m.model))
+      ...TEXT_MODELS.filter(m => finalTextModels.includes(m.model)),
+      ...IMAGE_MODELS.filter(m => finalImageModels.includes(m.model)),
+      ...VIDEO_MODELS.filter(m => finalVideoModels.includes(m.model))
     ];
 
     const newTier: Tier = {
@@ -82,6 +95,20 @@ export function TierCreationSheet({ onAddTier }: TierCreationSheetProps) {
         </SheetHeader>
         <div className="grid gap-4 py-4">
           <div className="flex flex-col gap-4">
+            {tiers.length > 0 && (
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="inheritModels"
+                  checked={inheritModels}
+                  onChange={(e) => setInheritModels(e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300"
+                />
+                <label htmlFor="inheritModels" className="text-sm text-gray-700">
+                  Inherit models from last tier
+                </label>
+              </div>
+            )}
             <div className="flex flex-col gap-2">
               <Label htmlFor="tierName" className="text-sm font-medium">
                 Tier Name

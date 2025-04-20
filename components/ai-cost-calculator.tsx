@@ -45,11 +45,11 @@ export default function AICostCalculator() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex justify-end p-4">
-        <TierCreationSheet onAddTier={handleAddTier} />
+        <TierCreationSheet onAddTier={handleAddTier} tiers={tiers} />
       </div>
 
       <div className="w-full">
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           {tiers.map((tier) => (
             <TierCard
               key={tier.id}
@@ -109,7 +109,7 @@ function TierCard({
   return (
     <div
       key={tier.id}
-      className="w-full"
+      className="w-full h-full"
     >
       <Card
         className={`w-full overflow-hidden transition-all hover:shadow-md flex flex-col justify-between`}
@@ -155,7 +155,7 @@ function TierCard({
 
                     <Table>
                       <TableHeader>
-                        <TableRow className="text-xs">
+                        <TableRow key="provider" className="text-xs">
                           <TableHead>Provider</TableHead>
                           <TableHead>Input/Output</TableHead>
                         </TableRow>
@@ -165,7 +165,7 @@ function TierCard({
                           .filter((model): model is TextModel => 'inputCostPerMillion' in model)
                           .map((model, index) => {
                             return (
-                              <TableRow>
+                              <TableRow key={index}>
                                 <TableCell width={"100%"}>
                                   <div className="flex items-start justify-start">
                                     <div className="flex items-center gap-2">
@@ -249,7 +249,7 @@ function TierCard({
                   <div className="space-y-2">
                     <Table>
                       <TableHeader>
-                        <TableRow className="text-xs">
+                        <TableRow key="provider" className="text-xs">
                           <TableHead>Provider</TableHead>
                           <TableHead>Per image</TableHead>
                         </TableRow>
@@ -260,7 +260,7 @@ function TierCard({
                           .map((model, index) => {
 
                             return (
-                              <TableRow>
+                              <TableRow key={index}>
                                 <TableCell width={"100%"}>
                                   <div className="flex items-start justify-start">
                                     <div className="flex items-center gap-2">
@@ -339,7 +339,7 @@ function TierCard({
                           .filter((model): model is VideoModel => 'costPerSecond' in model)
                           .map((model, index) => {
                             return (
-                              <TableRow>
+                              <TableRow key={index}>
                                 <TableCell width={"100%"} align="left">
                                   <div className="flex items-start justify-start">
                                     <div className="flex items-center gap-2">
