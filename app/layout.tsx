@@ -2,22 +2,17 @@ import { ThemeSwitcher } from "@/components/theme-switcher";
 import { ThemeProvider } from "next-themes";
 import { Geist } from "next/font/google";
 import "./globals.css";
+import { Providers } from "./providers";
 
 import { AppSidebar } from "@/components/app-sidebar";
 import AuthButton from "@/components/header-auth";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList
-} from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-
+import { createClient } from "@/utils/supabase/server";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -34,11 +29,14 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   return (
     <html lang="en" className={geistSans.className} suppressHydrationWarning>
       <body className="bg-background text-foreground">
@@ -48,33 +46,26 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <SidebarProvider>
-            <AppSidebar />
-            <SidebarInset>
-              <header className="flex h-16 shrink-0 items-center gap-2 border-b justify-between px-4">
-                <div className="flex items-center gap-1">
-                  <SidebarTrigger className="-ml-1" />
-                  <Separator orientation="vertical" className="mr-2 h-4" />
-                  <Breadcrumb>
-                    <BreadcrumbList>
-                      <BreadcrumbItem className="hidden md:block">
-                        <BreadcrumbLink href="#">
-                          AI Image Cost Calculator
-                        </BreadcrumbLink>
-                      </BreadcrumbItem>
-                    </BreadcrumbList>
-                  </Breadcrumb>
-                  <ThemeSwitcher />
+          <Providers>
+            <SidebarProvider>
+              {user && <AppSidebar />}
+              <SidebarInset>
+                <header className="flex h-16 shrink-0 items-center gap-2 border-b justify-between px-4">
+                  <div className="flex items-center gap-1">
+                    {user && <>
+                      <SidebarTrigger className="-ml-1" />
+                      <Separator orientation="vertical" className="mr-2 h-4" />
+                    </>}
+                    <ThemeSwitcher />
+                  </div>
+                  <AuthButton />
+                </header>
+                <div className="flex flex-1 flex-col gap-4 p-4">
+                  {children}
                 </div>
-                <AuthButton />
-              </header>
-              <div className="flex flex-1 flex-col gap-4 p-4">
-                {children}
-
-              </div>
-            </SidebarInset>
-          </SidebarProvider>
-
+              </SidebarInset>
+            </SidebarProvider>
+          </Providers>
         </ThemeProvider>
       </body>
     </html>

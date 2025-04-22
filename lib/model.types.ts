@@ -16,6 +16,11 @@ export interface VideoModel {
   costPerSecond: number;
   type?: string;
 }
+export interface AudioModel {
+  model: string;
+  costPerSecond: number;
+  type?: string;
+}
 
 export interface HardwareOption {
   name: string;
@@ -29,7 +34,7 @@ export interface HardwareOption {
 }
 
 // Union type for all possible model/option types
-export type ModelOption = ImageModel | TextModel | VideoModel | HardwareOption;
+export type ModelOption = ImageModel | TextModel | VideoModel | HardwareOption | AudioModel;
 
 // Define ModelType enum or string literal union
-export type ModelType = 'image' | 'text' | 'video' | 'hardware';
+export type ModelType = 'image' | 'text' | 'video' | 'hardware' | 'audio';

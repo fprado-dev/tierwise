@@ -39,7 +39,6 @@ export default function AICostCalculator() {
     setTiers(tiers.filter(tier => tier.id !== id));
   };
 
-  console.log({ tiers });
 
   // TODO: Add tiers to the database
   return (
@@ -49,7 +48,7 @@ export default function AICostCalculator() {
       </div>
 
       <div className="w-full">
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           {tiers.map((tier) => (
             <TierCard
               key={tier.id}
