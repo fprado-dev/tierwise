@@ -1,5 +1,6 @@
 'use client';
 
+import { calculateTierCosts, calculateTotalPrice } from "@/app/tiers/cost-calculator";
 import {
   Card,
   CardContent,
@@ -15,17 +16,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { calculateTierCosts, calculateTotalPrice } from "@/lib/cost-calculator";
 import { ImageModel, TextModel, VideoModel } from "@/lib/model.types";
 import { Tier } from "@/lib/tier.types";
 import { Label } from "@radix-ui/react-dropdown-menu";
 import { Check, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import { Button } from '../../../components/ui/button';
+import { Input } from "../../../components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../components/ui/tabs";
 import { TierCreationSheet } from "./tier-creation-sheet";
-import { TierEditSheet } from './tier-edit-sheet';
-import { Button } from './ui/button';
-import { Input } from "./ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { TierEditSheet } from "./tier-edit-sheet";
 
 export default function AICostCalculator() {
   const [tiers, setTiers] = useState<Tier[]>([]);

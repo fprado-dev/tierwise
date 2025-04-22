@@ -5,6 +5,7 @@ import {
   BotIcon,
   FolderIcon,
   HelpCircleIcon,
+  Layers2Icon,
   LayoutDashboardIcon,
   SearchIcon,
   SettingsIcon
@@ -29,6 +30,11 @@ const data = {
     avatar: "/avatars/shadcn.jpg",
   },
   navMain: [
+    {
+      title: "Tiers",
+      url: "/tiers",
+      icon: Layers2Icon,
+    },
     {
       title: "Dashboard",
       url: "/",

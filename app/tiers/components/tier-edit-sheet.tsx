@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import MultipleSelector from "@/components/ui/multiselect";
 import {
   Sheet,
@@ -17,7 +18,6 @@ import { ImageModel, ModelOption, TextModel, VideoModel } from "@/lib/model.type
 import { Tier } from "@/lib/tier.types";
 import { Cog } from "lucide-react";
 import { useState } from "react";
-import { Label } from "./ui/label";
 
 type TierEditSheetProps = {
   tier: Tier;

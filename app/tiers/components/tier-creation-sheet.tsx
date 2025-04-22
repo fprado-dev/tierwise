@@ -2,6 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import MultipleSelector from "@/components/ui/multiselect";
 import {
   Sheet,
   SheetContent,
@@ -16,8 +18,6 @@ import { ModelOption } from "@/lib/model.types";
 import { Tier } from "@/lib/tier.types";
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import { Label } from "./ui/label";
-import MultipleSelector from "./ui/multiselect";
 
 type TierCreationSheetProps = {
   onAddTier: (tier: Tier) => void;

@@ -1,3 +1,4 @@
+import AICostCalculator from "@/app/tiers/components/ai-cost-calculator";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -14,7 +15,7 @@ export default async function ProtectedPage() {
 
   return (
     <div className="flex-1 w-full flex flex-col gap-12">
-      <h1>Dashboard</h1>
+      <AICostCalculator />
     </div>
   );
 }

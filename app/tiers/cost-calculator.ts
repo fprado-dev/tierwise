@@ -1,5 +1,5 @@
-import { ImageModel, TextModel, VideoModel } from './model.types';
-import { Tier } from './tier.types';
+import { ImageModel, TextModel, VideoModel } from '../../lib/model.types';
+import { Tier } from '../../lib/tier.types';
 
 type CategoryCosts = {
   baseCost: string;
