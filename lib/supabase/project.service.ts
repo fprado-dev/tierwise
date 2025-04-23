@@ -136,6 +136,26 @@ async function setProjectActive(id: string): Promise<Project | null> {
   }
 }
 
+export async function getActiveProject(): Promise<Project | null> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  try {
+    const { data, error } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('owner_id', user?.id)
+      .eq('isActive', true)
+      .single();
+    if (error) {
+      console.error('Error fetching active project:', error.message);
+      return null;
+    }
+    return data as Project;
+  } catch (error) {
+    console.error('Error fetching active project:', error);
+    return null;
+  }
+}
 export {
   createProject, deleteProject, getProjects, setProjectActive, updateProject
 };

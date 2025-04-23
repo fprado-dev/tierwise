@@ -2,6 +2,7 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { encodedRedirect } from "@/utils/utils";
+import { QueryClient } from "@tanstack/react-query";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -130,5 +131,10 @@ export const resetPasswordAction = async (formData: FormData) => {
 export const signOutAction = async () => {
   const supabase = await createClient();
   await supabase.auth.signOut();
+
+  // Clear React Query cache on sign out
+  const queryClient = new QueryClient();
+  await queryClient.clear();
+
   return redirect("/sign-in");
 };

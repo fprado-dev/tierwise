@@ -22,11 +22,12 @@ import { useState } from "react";
 type TierEditSheetProps = {
   tier: Tier;
   onUpdateTier: (updatedTier: Tier) => void;
+  isEditing: boolean;
+  setEditSheetopen: (isEditing: boolean) => void;
 };
 
-export function TierEditSheet({ tier, onUpdateTier }: TierEditSheetProps) {
+export function TierEditSheet({ tier, onUpdateTier, isEditing, setEditSheetopen }: TierEditSheetProps) {
   const [tierName, setTierName] = useState(tier.name);
-  const [isOpen, setIsOpen] = useState(false);
   const [selectedTextModels, setSelectedTextModels] = useState<string[]>(
     tier.models.filter((m): m is TextModel => 'inputCostPerMillion' in m).map(m => m.model)
   );
@@ -53,11 +54,11 @@ export function TierEditSheet({ tier, onUpdateTier }: TierEditSheetProps) {
     };
 
     onUpdateTier(updatedTier);
-    setIsOpen(false);
+    setEditSheetopen(false);
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+    <Sheet open={isEditing} onOpenChange={setEditSheetopen}>
       <SheetTrigger asChild>
         <Button
           variant="outline"
