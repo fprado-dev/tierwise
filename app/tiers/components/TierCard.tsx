@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTiers } from '@/hooks/useTiers';
 import { ProcessedTier } from '@/lib/tier.types';
-import { PencilLineIcon, TrashIcon } from 'lucide-react';
+import { CogIcon, PencilLineIcon, TrashIcon } from 'lucide-react';
 import { useState } from 'react';
 import { ModelSelectionSheet } from './model-selection-sheet';
 import { TabImages } from './tab-image';
@@ -33,6 +33,7 @@ const getTypeColor = (type: string) => {
 export function TierCard({ tier }: TierCardProps) {
   const [isEditing, setEditSheetopen] = useState(false);
   const [modelType, setModelType] = useState<'text' | 'image' | 'video' | undefined>();
+  const [isTabsVisible, setIsTabsVisible] = useState(true);
   const { deleteTier, updateTier, isLoading, isFetching } = useTiers();
 
 
@@ -46,7 +47,9 @@ export function TierCard({ tier }: TierCardProps) {
             <Badge className='text-xs'>{tier.models.length} Models</Badge>
           </div>
           <div className='flex gap-2'>
-
+            <Button size="icon" variant="outline" onClick={() => setIsTabsVisible(prev => !prev)}>
+              <CogIcon />
+            </Button>
             <Button size="icon" variant="outline" onClick={() => setEditSheetopen(prev => !prev)}>
               <PencilLineIcon />
             </Button>
@@ -75,16 +78,22 @@ export function TierCard({ tier }: TierCardProps) {
         />
       </div>
       <CardContent className='flex flex-col gap-2 px-0'>
-        <Tabs defaultValue="text" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="text">Text</TabsTrigger>
-            <TabsTrigger value="image">Image</TabsTrigger>
-            <TabsTrigger value="video">Video</TabsTrigger>
-          </TabsList>
-          <TabText tier={tier} getTypeColor={getTypeColor} setModelType={(modelType) => setModelType(modelType)} />
-          <TabImages tier={tier} getTypeColor={getTypeColor} setModelType={(modelType) => setModelType(modelType)} />
-          <TabVideos tier={tier} getTypeColor={getTypeColor} setModelType={(modelType) => setModelType(modelType)} />
-        </Tabs>
+        {isTabsVisible && (
+          <Tabs defaultValue="text" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="text">Text</TabsTrigger>
+              <TabsTrigger value="image">Image</TabsTrigger>
+              <TabsTrigger value="video">Video</TabsTrigger>
+            </TabsList>
+            <TabText tier={tier} getTypeColor={getTypeColor} setModelType={(modelType) => setModelType(modelType)} />
+            <TabImages tier={tier} getTypeColor={getTypeColor} setModelType={(modelType) => setModelType(modelType)} />
+            <TabVideos tier={tier} getTypeColor={getTypeColor} setModelType={(modelType) => setModelType(modelType)} />
+          </Tabs>
+        )}
+
+        <div>
+          <h1>Summary Tier</h1>
+        </div>
       </CardContent>
     </Card>
   );
