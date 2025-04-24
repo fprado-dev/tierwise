@@ -23,9 +23,10 @@ interface SelectableModelCardProps {
   isSelected: boolean;
   onSelect: (model: any) => void;
   isDefault?: boolean;
+  isLoading?: boolean;
 }
 
-export function SelectableModelCard({ model, isSelected, onSelect, isDefault = false }: SelectableModelCardProps) {
+export function SelectableModelCard({ model, isSelected, onSelect, isDefault = false, isLoading = false }: SelectableModelCardProps) {
 
   const getCostDisplay = (model: Partial<Model>) => {
     switch (model.model_type) {
@@ -57,8 +58,8 @@ export function SelectableModelCard({ model, isSelected, onSelect, isDefault = f
   return (
     <Card
       key={model.id}
-      className={`w-full min-h-30 flex flex-col justify-between gap-2 p-0 hover:shadow-md transition-shadow bg-sidebar relative cursor-pointer ${isSelected ? 'ring-2 ring-primary' : ''}`}
-      onClick={() => onSelect(model)}
+      className={`w-full min-h-32 flex flex-col justify-between gap-2 p-0 hover:shadow-md transition-shadow bg-sidebar relative cursor-pointer ${isSelected ? 'ring-2 ring-primary' : ''} ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+      onClick={() => !isLoading && onSelect(model)}
     >
       {isSelected && (
         <div className="absolute top-2 right-2 bg-primary rounded-full p-1">

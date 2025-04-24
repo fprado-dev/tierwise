@@ -1,9 +1,10 @@
 "use client";
 import * as ProjectServices from '@/lib/supabase/project.service';
+import { mainQueryClient } from '@/providers/projects-provider';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 export function useProjects() {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient(mainQueryClient);
 
   const { data: projects = [], isLoading: loading } = useQuery({
     queryKey: ['projects'],

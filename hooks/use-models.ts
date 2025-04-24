@@ -1,10 +1,11 @@
 "use client";
 import * as ModelServices from '@/lib/supabase/model.service';
 import { CreateModelParams, Model } from '@/lib/supabase/model.service';
+import { mainQueryClient } from '@/providers/projects-provider';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 export function useModels() {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient(mainQueryClient);
 
   const { data: models = [], isLoading: loading } = useQuery<Model[]>({
     queryKey: ['models'],

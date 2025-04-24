@@ -41,7 +41,7 @@ export default function AICostCalculator() {
   }
 
   return (
-    <div className="flex flex-col gap-6 px-2">
+    <div className="flex flex-col gap-6 px-4">
       <div className="w-full">
         <div className="border-b border-gray-200">
           <nav className="-mb-px flex space-x-8 items-center" aria-label="Tiers">

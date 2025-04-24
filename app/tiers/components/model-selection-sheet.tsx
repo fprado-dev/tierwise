@@ -12,7 +12,7 @@ import {
 import { useModels } from "@/hooks/use-models";
 import { useTiers } from "@/hooks/useTiers";
 import { Model } from "@/lib/supabase/model.service";
-import { ProcessedTier, Tier } from "@/lib/tier.types";
+import { ProcessedTier } from "@/lib/tier.types";
 import { useState } from "react";
 import { SelectableModelCard } from "./selectable-model-card";
 
@@ -21,12 +21,12 @@ type ModelSelectionSheetProps = {
   modelType: 'text' | 'image' | 'video';
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onUpdateTier: (updatedTier: Tier) => void;
+  onUpdateTier: (name: string, id: string) => void;
 };
 
 export function ModelSelectionSheet({ tier, modelType, isOpen, onOpenChange }: ModelSelectionSheetProps) {
   const { models: allModels, defaultModels } = useModels();
-  const { addModelToTier, removeModelFromTier } = useTiers();
+  const { addModelToTier, removeModelFromTier, isLoading } = useTiers();
 
   const [selectedModels, setSelectedModels] = useState<string[]>(() => {
     const modelsByType = tier.models.filter(model => model.model_type === modelType);
@@ -43,13 +43,13 @@ export function ModelSelectionSheet({ tier, modelType, isOpen, onOpenChange }: M
 
     if (isSelected) {
       setSelectedModels(prev => prev.filter(id => id !== model.id));
-    } else if (selectedModels.length < 3) {
+    } else if (selectedModels.length < 6) {
       setSelectedModels(prev => [...prev, model.id]);
     }
   };
 
   const handleUpdateModels = () => {
-    if (selectedModels.length > 3) return;
+    if (selectedModels.length > 6) return;
     const modelsByType = tier.models.filter(model => model.model_type === modelType);
     const modelsInTier = modelsByType.map(model => model.id);
 
@@ -59,10 +59,10 @@ export function ModelSelectionSheet({ tier, modelType, isOpen, onOpenChange }: M
 
     // Update the tier with added and removed models
     if (modelsToAdd.length > 0) {
-      addModelToTier({ modelIds: modelsToAdd, tierId: tier.id });
+      addModelToTier(tier.id, modelsToAdd);
     }
     if (modelsToRemove.length > 0) {
-      removeModelFromTier({ modelIds: modelsToRemove, tierId: tier.id });
+      removeModelFromTier(tier.id, modelsToRemove);
     }
 
     onOpenChange(false);
@@ -91,18 +91,17 @@ export function ModelSelectionSheet({ tier, modelType, isOpen, onOpenChange }: M
               Select the models you want to include in this tier.
             </SheetDescription>
           </div>
-          <Button onClick={handleUpdateModels}>
-            Update Models
+          <Button onClick={handleUpdateModels} disabled={isLoading}>
+            {isLoading ? 'Updating...' : 'Update Models'}
           </Button>
         </SheetHeader>
 
-        {selectedModels.length >= 3 && (
-          <Alert className="mx-4 mt-4">
-            <AlertDescription>
-              You can only select up to 3 models per category.
-            </AlertDescription>
-          </Alert>
-        )}
+
+        <Alert className="mx-4 mt-4 bg-sidebar">
+          <AlertDescription>
+            {`You can only select up to ${selectedModels.length}/6 models per category.`}
+          </AlertDescription>
+        </Alert>
         <div className="grid gap-4 px-4 pt-8 pb-12 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 overflow-y-auto h-[calc(100vh-50px)]">
           {getModelOptions().map((model) => (
             <SelectableModelCard
@@ -110,6 +109,7 @@ export function ModelSelectionSheet({ tier, modelType, isOpen, onOpenChange }: M
               model={model}
               isSelected={selectedModels.includes(model.id)}
               onSelect={handleModelSelect}
+              isLoading={isLoading}
             />
           ))}
         </div>

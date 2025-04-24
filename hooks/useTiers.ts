@@ -2,25 +2,32 @@
 
 import * as TierServices from '@/lib/supabase/tier.services';
 import { ProcessedTier } from '@/lib/tier.types';
+import { mainQueryClient } from '@/providers/projects-provider';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 const TIERS_QUERY_KEY = ['tiers'];
 
 export function useTiers() {
-  const queryClient = useQueryClient();
-  const { data: tiers = [], isLoading } = useQuery<ProcessedTier[]>({
+  const queryClient = useQueryClient(mainQueryClient);
+  const { data: tiers = [], isLoading, isFetching } = useQuery<ProcessedTier[]>({
     queryKey: TIERS_QUERY_KEY,
     queryFn: TierServices.getTiers,
   });
 
-  const { mutate: addTier } = useMutation({
+  const createTierMutation = useMutation({
+    mutationKey: ['addTier'],
     mutationFn: TierServices.createTier,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: TIERS_QUERY_KEY });
     },
   });
 
-  const { mutate: updateTier } = useMutation({
+  const addTier = (name: string) => {
+    createTierMutation.mutate(name);
+  };
+
+  const updateTierMutation = useMutation({
+    mutationKey: ['updateTier'],
     mutationFn: ({ id, name }: { id: string; name: string; }) =>
       TierServices.updateTier(id, name),
     onSuccess: () => {
@@ -28,14 +35,24 @@ export function useTiers() {
     },
   });
 
-  const { mutate: deleteTier } = useMutation({
+  const updateTier = (id: string, name: string) => {
+    updateTierMutation.mutate({ id, name });
+  };
+
+  const deleteTierMutation = useMutation({
+    mutationKey: ['deleteTier'],
     mutationFn: TierServices.deleteTier,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: TIERS_QUERY_KEY });
     },
   });
 
-  const { mutate: addModelToTier } = useMutation({
+  const deleteTier = (id: string) => {
+    deleteTierMutation.mutate(id);
+  };
+
+  const addModelsToTierMutation = useMutation({
+    mutationKey: ['addModelToTier'],
     mutationFn: ({ tierId, modelIds }: { tierId: string; modelIds: string[]; }) =>
       TierServices.addModelsToTier({
         modelIds,
@@ -46,7 +63,12 @@ export function useTiers() {
     },
   });
 
-  const { mutate: removeModelFromTier } = useMutation({
+  const addModelToTier = (tierId: string, modelIds: string[]) => {
+    addModelsToTierMutation.mutate({ tierId, modelIds });
+  };
+
+  const removeModelFromTierMutation = useMutation({
+    mutationKey: ['removeModelFromTier'],
     mutationFn: ({ tierId, modelIds }: { tierId: string; modelIds: string[]; }) =>
       TierServices.removeModelsFromTier({
         modelIds,
@@ -57,14 +79,25 @@ export function useTiers() {
     },
   });
 
+  const removeModelFromTier = (tierId: string, modelIds: string[]) => {
+    removeModelFromTierMutation.mutate({ tierId, modelIds });
+  };
+
+
   return {
     tiers,
     addTier,
+    createTierMutation,
     addModelToTier,
+    addModelsToTierMutation,
+    removeModelFromTierMutation,
+    updateTierMutation,
+    deleteTierMutation,
     removeModelFromTier,
     updateTier,
     deleteTier,
-    isLoading,
+    isLoading: isLoading,
+    isFetching: isFetching
   };
 
 }
