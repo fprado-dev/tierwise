@@ -1,5 +1,8 @@
 'use client';
 
+import { useImageModelCalculator } from '@/app/hooks/useImageModelCalculator';
+import { useTextModelCalculator } from '@/app/hooks/useTextModelCalculator';
+import { useVideoModelCalculator } from '@/app/hooks/useVideoModelCalculator';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -37,7 +40,46 @@ export function TierCard({ tier }: TierCardProps) {
   const [isTabsVisible, setIsTabsVisible] = useState(true);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const { deleteTier, updateTier, isLoading, isFetching } = useTiers();
+  const {
+    inputTokens,
+    outputTokens,
+    marginPercentage: textMarginPercentage,
+    useExpensiveModel: textUseExpensiveModel,
+    setInputTokens,
+    setOutputTokens,
+    setMarginPercentage: setTextMarginPercentage,
+    setUseExpensiveModel: setTextUseExpensiveModel,
+    totalBaseCost: textTotalBaseCost,
+    totalProfitValue: textTotalProfitValue,
+    totalCost: textTotalCost,
+    getMostExpensiveModel: getTextMostExpensiveModel,
+  } = useTextModelCalculator(tier);
 
+  const {
+    imageCount,
+    marginPercentage: imageMarginPercentage,
+    useExpensiveModel: imageUseExpensiveModel,
+    setImageCount,
+    setMarginPercentage: setImageMarginPercentage,
+    setUseExpensiveModel: setImageUseExpensiveModel,
+    totalBaseCost: imageTotalBaseCost,
+    totalProfitValue: imageTotalProfitValue,
+    totalCost: imageTotalCost,
+    getMostExpensiveModel: getImageMostExpensiveModel,
+  } = useImageModelCalculator(tier);
+
+  const {
+    videoSeconds,
+    marginPercentage: videoMarginPercentage,
+    useExpensiveModel: videoUseExpensiveModel,
+    setVideoSeconds,
+    setMarginPercentage: setVideoMarginPercentage,
+    setUseExpensiveModel: setVideoUseExpensiveModel,
+    totalBaseCost: videoTotalBaseCost,
+    totalProfitValue: videoTotalProfitValue,
+    totalCost: videoTotalCost,
+    getMostExpensiveModel: getVideoMostExpensiveModel,
+  } = useVideoModelCalculator(tier);
 
   return (
     <Card className=' border-none shadow-none overflow-hidden bg-gradient-to-b from-primary-foreground to-background'>
@@ -113,9 +155,53 @@ export function TierCard({ tier }: TierCardProps) {
               <TabsTrigger className='hover:bg-foreground/5' value="audio" disabled>Audio <Badge className={`ml-2 ${getTypeColor("audio")}`}>Soon</Badge></TabsTrigger>
               <TabsTrigger className='hover:bg-foreground/5' value="harware" disabled>Hardware <Badge className={`ml-2 ${getTypeColor("hardware")}`}>Soon</Badge></TabsTrigger>
             </TabsList>
-            <TabText tier={tier} getTypeColor={getTypeColor} setModelType={(modelType) => setModelType(modelType)} />
-            <TabImage tier={tier} getTypeColor={getTypeColor} setModelType={(modelType) => setModelType(modelType)} />
-            <TabVideo tier={tier} getTypeColor={getTypeColor} setModelType={(modelType) => setModelType(modelType)} />
+            <TabText tier={tier}
+              getTypeColor={getTypeColor}
+              setModelType={(modelType) => setModelType(modelType)}
+              inputTokens={inputTokens}
+              outputTokens={outputTokens}
+              marginPercentage={textMarginPercentage}
+              useExpensiveModel={textUseExpensiveModel}
+              setInputTokens={setInputTokens}
+              setOutputTokens={setOutputTokens}
+              setMarginPercentage={setTextMarginPercentage}
+              setUseExpensiveModel={setTextUseExpensiveModel}
+              totalBaseCost={textTotalBaseCost}
+              totalProfitValue={textTotalProfitValue}
+              totalCost={textTotalCost}
+              getMostExpensiveModel={getTextMostExpensiveModel}
+
+            />
+            <TabImage
+              tier={tier}
+              getTypeColor={getTypeColor}
+              setModelType={(modelType) => setModelType(modelType)}
+              imageCount={imageCount}
+              marginPercentage={imageMarginPercentage}
+              useExpensiveModel={imageUseExpensiveModel}
+              setImageCount={setImageCount}
+              setMarginPercentage={setImageMarginPercentage}
+              setUseExpensiveModel={setImageUseExpensiveModel}
+              totalBaseCost={imageTotalBaseCost}
+              totalProfitValue={imageTotalProfitValue}
+              totalCost={imageTotalCost}
+              getMostExpensiveModel={getImageMostExpensiveModel}
+            />
+            <TabVideo
+              tier={tier}
+              getTypeColor={getTypeColor}
+              setModelType={(modelType) => setModelType(modelType)}
+              videoSeconds={videoSeconds}
+              marginPercentage={videoMarginPercentage}
+              useExpensiveModel={videoUseExpensiveModel}
+              setVideoSeconds={setVideoSeconds}
+              setMarginPercentage={setVideoMarginPercentage}
+              setUseExpensiveModel={setVideoUseExpensiveModel}
+              totalBaseCost={videoTotalBaseCost}
+              totalProfitValue={videoTotalProfitValue}
+              totalCost={videoTotalCost}
+              getMostExpensiveModel={getVideoMostExpensiveModel}
+            />
           </Tabs>
         )}
       </CardContent>

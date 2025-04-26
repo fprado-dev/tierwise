@@ -13,73 +13,39 @@ import {
 import { ProcessedTier } from "@/lib/tier.types";
 import NumberFlow from "@number-flow/react";
 import { Info, Video } from "lucide-react";
-import { useState } from "react";
 import { SelectableModelCard } from "./selectable-model-card";
 
 type TabTextProps = {
   tier: ProcessedTier;
   setModelType: (modelType: "text" | "image" | "video") => void;
   getTypeColor: (modelType: string) => string;
+  inputTokens: number;
+  outputTokens: number;
+  marginPercentage: number;
+  useExpensiveModel: boolean;
+  setInputTokens: (inputTokens: number) => void;
+  setOutputTokens: (outputTokens: number) => void;
+  setMarginPercentage: (marginPercentage: number) => void;
+  setUseExpensiveModel: (useExpensiveModel: boolean) => void;
+  totalBaseCost: number;
+  totalProfitValue: number;
+  totalCost: number;
+  getMostExpensiveModel: () => ProcessedTier['models'][0] | undefined;
+
 };
-export function TabText({ getTypeColor, setModelType, tier }: TabTextProps) {
-  const [inputTokens, setInputTokens] = useState<number>(1000000);
-  const [outputTokens, setOutputTokens] = useState<number>(1000000);
-  const [marginPercentage, setMarginPercentage] = useState<number>(0);
-  const [useExpensiveModel, setUseExpensiveModel] = useState(true);
+export function TabText({ tier, getTypeColor, setModelType, inputTokens,
+  outputTokens,
+  marginPercentage,
+  useExpensiveModel,
+  setInputTokens,
+  setOutputTokens,
+  setMarginPercentage,
+  setUseExpensiveModel,
+  totalBaseCost,
+  totalProfitValue,
+  totalCost,
+  getMostExpensiveModel, }: TabTextProps) {
 
-  const getMostExpensiveModel = () => {
-    return tier.models
-      .filter(model => model.model_type === 'text')
-      .reduce((prev, current) => {
-        const prevCost = (prev.input_cost_per_million || 0) + (prev.output_cost_per_million || 0);
-        const currentCost = (current.input_cost_per_million || 0) + (current.output_cost_per_million || 0);
-        return prevCost > currentCost ? prev : current;
-      }, tier.models[0]);
-  };
-
-  const calculateBaseCost = () => {
-    const textModels = tier.models.filter(model => model.model_type === 'text');
-    if (textModels.length === 0) return 0;
-
-    let baseCost = 0;
-    if (useExpensiveModel) {
-      const model = getMostExpensiveModel();
-      const inputCost = ((model.input_cost_per_million || 0) / 1000000) * inputTokens;
-      const outputCost = ((model.output_cost_per_million || 0) / 1000000) * outputTokens;
-      baseCost = inputCost + outputCost;
-    } else {
-      // Calculate average cost per token across all models (excluding most expensive)
-      const sortedModels = textModels.sort((a, b) => {
-        const aCost = (a.input_cost_per_million || 0) + (a.output_cost_per_million || 0);
-        const bCost = (b.input_cost_per_million || 0) + (b.output_cost_per_million || 0);
-        return bCost - aCost;
-      });
-      const remainingModels = sortedModels;
-      if (remainingModels.length === 0) {
-        const model = sortedModels[0];
-        const inputCost = ((model.input_cost_per_million || 0) / 1000000) * inputTokens;
-        const outputCost = ((model.output_cost_per_million || 0) / 1000000) * outputTokens;
-        baseCost = inputCost + outputCost;
-      } else {
-        const avgInputCost = remainingModels.reduce((sum, model) => sum + (model.input_cost_per_million || 0), 0) / remainingModels.length;
-        const avgOutputCost = remainingModels.reduce((sum, model) => sum + (model.output_cost_per_million || 0), 0) / remainingModels.length;
-        baseCost = ((avgInputCost / 1000000) * inputTokens) + ((avgOutputCost / 1000000) * outputTokens);
-      }
-    }
-    return baseCost;
-  };
-
-  const calculateProfitValue = (baseCost: number) => {
-    return baseCost * (marginPercentage / 100);
-  };
-
-  const calculateTotalCost = (baseCost: number, profitValue: number) => {
-    return baseCost + profitValue;
-  };
-
-  const totalBaseCost = calculateBaseCost();
-  const totalProfitValue = calculateProfitValue(totalBaseCost);
-  const totalCost = calculateTotalCost(totalBaseCost, totalProfitValue);
   return (
     <TabsContent value="text" className="space-y-8">
       <div className='bg-card rounded-xl p-6 shadow-sm border'>
