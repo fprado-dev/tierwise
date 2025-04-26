@@ -4,9 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { TabsContent } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { ProcessedTier } from "@/lib/tier.types";
 import NumberFlow from "@number-flow/react";
-import { Video } from "lucide-react";
+import { Info, Video } from "lucide-react";
 import { useState } from "react";
 import { SelectableModelCard } from "./selectable-model-card";
 
@@ -42,11 +48,23 @@ export function TabText({ getTypeColor, setModelType, tier }: TabTextProps) {
       const outputCost = ((model.output_cost_per_million || 0) / 1000000) * outputTokens;
       baseCost = inputCost + outputCost;
     } else {
-      baseCost = textModels.reduce((total, model) => {
+      // Calculate average cost per token across all models (excluding most expensive)
+      const sortedModels = textModels.sort((a, b) => {
+        const aCost = (a.input_cost_per_million || 0) + (a.output_cost_per_million || 0);
+        const bCost = (b.input_cost_per_million || 0) + (b.output_cost_per_million || 0);
+        return bCost - aCost;
+      });
+      const remainingModels = sortedModels;
+      if (remainingModels.length === 0) {
+        const model = sortedModels[0];
         const inputCost = ((model.input_cost_per_million || 0) / 1000000) * inputTokens;
         const outputCost = ((model.output_cost_per_million || 0) / 1000000) * outputTokens;
-        return total + inputCost + outputCost;
-      }, 0);
+        baseCost = inputCost + outputCost;
+      } else {
+        const avgInputCost = remainingModels.reduce((sum, model) => sum + (model.input_cost_per_million || 0), 0) / remainingModels.length;
+        const avgOutputCost = remainingModels.reduce((sum, model) => sum + (model.output_cost_per_million || 0), 0) / remainingModels.length;
+        baseCost = ((avgInputCost / 1000000) * inputTokens) + ((avgOutputCost / 1000000) * outputTokens);
+      }
     }
     return baseCost;
   };
@@ -64,10 +82,52 @@ export function TabText({ getTypeColor, setModelType, tier }: TabTextProps) {
   const totalCost = calculateTotalCost(totalBaseCost, totalProfitValue);
   return (
     <TabsContent value="text">
+      <div className='py-4'>
+        <h3 className='text-lg font-semibold mb-4'>Cost Breakdown</h3>
+        <div className='space-y-4'>
+          <div className='grid grid-cols-4 gap-6'>
+            <div className='p-4 bg-muted rounded-lg'>
+              <p className='text-sm text-muted-foreground mb-1'>Total Estimated Cost</p>
+              <p className='text-2xl font-bold'>
+                <NumberFlow
+                  format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
+                  value={totalCost} />
+              </p>
+            </div>
+            <div className='p-4 bg-muted rounded-lg'>
+              <p className='text-sm text-muted-foreground mb-1'>Base Cost</p>
+              <p className='text-2xl font-bold'>
+                <NumberFlow
+                  format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
+                  value={totalBaseCost} />
+              </p>
+            </div>
+            <div className='p-4 bg-muted rounded-lg'>
+              <p className='text-sm text-muted-foreground mb-1'>Profit Value</p>
+              <p className='text-2xl font-bold text-green-400'>
+                <NumberFlow
+                  format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
+                  value={totalProfitValue} />
+              </p>
+            </div>
+            <div className='p-4 bg-muted rounded-lg'>
+              <p className='text-sm text-muted-foreground mb-1'>Margin Profit</p>
+              <p className='text-lg font-semibold'>
+                <NumberFlow
+                  format={{ style: 'percent', minimumFractionDigits: 0, maximumFractionDigits: 0 }}
+                  value={marginPercentage / 100} />
+              </p>
+            </div>
 
+          </div>
+
+
+        </div>
+      </div>
       <div className='grid grid-cols-6 gap-6'>
-        <div className='col-span-3 space-y-4'>
-          <div className='flex flex-col items-center justify-start'>
+        <div
+          className='col-span-3 space-y-4 border rounded-lg bg-card p-6' >
+          <div className='flex flex-col  items-center justify-start'>
             <div className="flex w-full items-center justify-between">
               <h3 className='text-lg font-semibold'>Text Models</h3>
               <Button size="sm" variant="outline" onClick={() => setModelType("text")} className={`flex items-center gap-2 ${getTypeColor('text')}`}>
@@ -78,12 +138,12 @@ export function TabText({ getTypeColor, setModelType, tier }: TabTextProps) {
             <div>
               {tier.models.filter(model => model.model_type === 'text').length === 0 && (
                 <div className="col-span-3 text-center py-8 text-muted-foreground">
-                  No video models added to this tier yet
+                  No text models added to this tier yet
                 </div>)
               }
             </div>
           </div>
-          <div className='grid grid-cols-2 gap-4'>
+          <div className='grid grid-cols-3 md:grid-cols-2 gap-4'>
             {tier.models
               .filter(model => model.model_type === 'text')
               .map(model => {
@@ -103,8 +163,24 @@ export function TabText({ getTypeColor, setModelType, tier }: TabTextProps) {
         </div>
 
         <div className='col-span-3 border rounded-lg bg-card'>
-          <div className='p-6 border-b'>
-            <h3 className='text-lg font-semibold mb-4'>Cost Calculator</h3>
+          <div className='p-6'>
+            <div className="flex items-center gap-2 mb-4">
+              <h3 className='text-lg font-semibold'>Cost Calculator</h3>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Info className="h-4 w-4 text-muted-foreground" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Costs are calculated based on your model selection preference:</p>
+                    <ul className="mt-2 text-sm">
+                      <li>• Most expensive model: Uses the highest cost model for calculation</li>
+                      <li>• Average model cost: Calculates using the average cost across all models</li>
+                    </ul>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             <div className='space-y-4'>
               <div className='flex items-center gap-2 p-3 bg-muted rounded-lg'>
                 <Checkbox
@@ -112,7 +188,7 @@ export function TabText({ getTypeColor, setModelType, tier }: TabTextProps) {
                   checked={useExpensiveModel}
                   onCheckedChange={(checked) => setUseExpensiveModel(checked as boolean)}
                 />
-                <label htmlFor="use-expensive" className='text-sm font-medium'>Calculate based on most expensive model</label>
+                <label htmlFor="use-expensive" className='text-xs font-medium'>Calculate based on most expensive model</label>
               </div>
 
               <div className='grid grid-cols-2 gap-4'>
@@ -150,54 +226,9 @@ export function TabText({ getTypeColor, setModelType, tier }: TabTextProps) {
               </div>
             </div>
           </div>
-
-          <div className='p-6'>
-            <h3 className='text-lg font-semibold mb-4'>Cost Breakdown</h3>
-            <div className='space-y-4'>
-              <div className='grid grid-cols-2 gap-4'>
-                <div className='p-4 bg-muted rounded-lg'>
-                  <p className='text-sm text-muted-foreground mb-1'>Base Cost</p>
-                  <p className='text-lg font-semibold'>
-                    <NumberFlow
-                      format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                      value={totalBaseCost} />
-                  </p>
-                </div>
-                <div className='p-4 bg-muted rounded-lg'>
-                  <p className='text-sm text-muted-foreground mb-1'>Profit Value</p>
-                  <p className='text-lg font-semibold text-green-500'>
-                    <NumberFlow
-                      format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                      value={totalProfitValue} />
-                  </p>
-                </div>
-              </div>
-              <div className='grid grid-cols-2 gap-4'>
-                <div className='p-4 bg-muted rounded-lg'>
-                  <p className='text-sm text-muted-foreground mb-1'>Models Count</p>
-                  <p className='text-lg font-semibold'>{tier.models.filter(model => model.model_type === 'text').length}</p>
-                </div>
-                <div className='p-4 bg-muted rounded-lg'>
-                  <p className='text-sm text-muted-foreground mb-1'>Margin {marginPercentage}</p>
-                  <p className='text-lg font-semibold'>
-                    <NumberFlow
-                      format={{ style: 'percent', minimumFractionDigits: 0, maximumFractionDigits: 0 }}
-                      value={marginPercentage / 100} />
-                  </p>
-                </div>
-              </div>
-              <div className='mt-6 p-4 bg-primary/5 rounded-lg'>
-                <p className='text-sm text-muted-foreground mb-1'>Total Estimated Cost</p>
-                <p className='text-2xl font-bold'>
-                  <NumberFlow
-                    format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                    value={totalCost} />
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
+
     </TabsContent>
   );
 }

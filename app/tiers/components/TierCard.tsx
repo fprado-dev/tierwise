@@ -3,15 +3,16 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTiers } from '@/hooks/useTiers';
 import { ProcessedTier } from '@/lib/tier.types';
-import { CogIcon, PencilLineIcon, TrashIcon } from 'lucide-react';
+import { CogIcon, PencilLineIcon, SaveAllIcon, TrashIcon } from 'lucide-react';
 import { useState } from 'react';
 import { ModelSelectionSheet } from './model-selection-sheet';
-import { TabImages } from './tab-image';
+import { TabImage } from './tab-image';
 import { TabText } from './tab-text';
-import { TabVideos } from './tab-videos';
+import { TabVideo } from './tab-videos';
 import { TierEditSheet } from './tier-edit-sheet';
 
 interface TierCardProps {
@@ -34,6 +35,7 @@ export function TierCard({ tier }: TierCardProps) {
   const [isEditing, setEditSheetopen] = useState(false);
   const [modelType, setModelType] = useState<'text' | 'image' | 'video' | undefined>();
   const [isTabsVisible, setIsTabsVisible] = useState(true);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const { deleteTier, updateTier, isLoading, isFetching } = useTiers();
 
 
@@ -47,54 +49,59 @@ export function TierCard({ tier }: TierCardProps) {
             <Badge className='text-xs'>{tier.models.length} Models</Badge>
           </div>
           <div className='flex gap-2'>
-            <Button size="icon" variant="outline" onClick={() => setIsTabsVisible(prev => !prev)}>
+            <Button size="icon" variant="secondary" >
+              <SaveAllIcon />
+            </Button>
+            <Button size="icon" variant="secondary" onClick={() => setIsTabsVisible(prev => !prev)}>
               <CogIcon />
             </Button>
-            <Button size="icon" variant="outline" onClick={() => setEditSheetopen(prev => !prev)}>
+            <Button size="icon" variant="secondary" onClick={() => setEditSheetopen(prev => !prev)}>
               <PencilLineIcon />
             </Button>
-            <Button variant="destructive" onClick={() => deleteTier(tier.id)}>
+            <Button size="icon" variant="destructive" onClick={() => setIsDeleteConfirmOpen(true)}>
               <TrashIcon />
             </Button>
           </div>
         </div>
       </CardHeader>
 
-      <div className="flex gap-4 mt-4">
-        {modelType && (
-          <ModelSelectionSheet
-            tier={tier}
-            modelType={modelType}
-            isOpen={modelType !== undefined}
-            onOpenChange={(open) => !open && setModelType(undefined)}
-            onUpdateTier={updateTier}
-          />
-        )}
-        <TierEditSheet
+      {modelType && (
+        <ModelSelectionSheet
           tier={tier}
-          isOpen={isEditing}
-          onOpenChange={setEditSheetopen}
+          modelType={modelType}
+          isOpen={modelType !== undefined}
+          onOpenChange={(open) => !open && setModelType(undefined)}
           onUpdateTier={updateTier}
         />
-      </div>
+      )}
+      <TierEditSheet
+        tier={tier}
+        isOpen={isEditing}
+        onOpenChange={setEditSheetopen}
+        onUpdateTier={updateTier}
+      />
       <CardContent className='flex flex-col gap-2 px-0'>
         {isTabsVisible && (
           <Tabs defaultValue="text" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="text">Text</TabsTrigger>
-              <TabsTrigger value="image">Image</TabsTrigger>
-              <TabsTrigger value="video">Video</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3 ">
+              <TabsTrigger className='hover:bg-foreground/5' value="text">Text</TabsTrigger>
+              <TabsTrigger className='hover:bg-foreground/5' value="image">Image</TabsTrigger>
+              <TabsTrigger className='hover:bg-foreground/5' value="video">Video</TabsTrigger>
             </TabsList>
             <TabText tier={tier} getTypeColor={getTypeColor} setModelType={(modelType) => setModelType(modelType)} />
-            <TabImages tier={tier} getTypeColor={getTypeColor} setModelType={(modelType) => setModelType(modelType)} />
-            <TabVideos tier={tier} getTypeColor={getTypeColor} setModelType={(modelType) => setModelType(modelType)} />
+            <TabImage tier={tier} getTypeColor={getTypeColor} setModelType={(modelType) => setModelType(modelType)} />
+            <TabVideo tier={tier} getTypeColor={getTypeColor} setModelType={(modelType) => setModelType(modelType)} />
           </Tabs>
         )}
-
-        <div>
-          <h1>Summary Tier</h1>
-        </div>
       </CardContent>
+      <ConfirmDialog
+        isOpen={isDeleteConfirmOpen}
+        onOpenChange={setIsDeleteConfirmOpen}
+        onConfirm={() => deleteTier(tier.id)}
+        title="Delete Tier"
+        description="Are you sure you want to delete this tier? This action cannot be undone."
+        confirmText="Delete"
+      />
     </Card>
   );
 }

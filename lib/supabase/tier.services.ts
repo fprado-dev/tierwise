@@ -22,7 +22,7 @@ export async function getTiers({ }: TGetTiers) {
     `)
     .eq('project_id', activeProject?.id)
     .eq('user_id', user?.id)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: true });
 
   if (error) throw error;
 
