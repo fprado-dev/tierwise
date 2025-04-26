@@ -1,0 +1,92 @@
+{
+  "meta": {
+    "title": "TierWise | Acesso Antecipado Exclusivo",
+    "description": "Acesso antecipado exclusivo ao TierWise - A plataforma definitiva para otimizar a precificação de produtos de IA.",
+    "keywords": "Calculadora de preços de IA, estratégia de preços SaaS, calculadora de custos de IA, níveis de preços, calculadora de margem de lucro, ferramentas de negócios de IA"
+  },
+  "header": {
+    "partnerProgram": "Programa de Parceiros"
+  },
+  "hero": {
+    "title": "Acesso Antecipado Exclusivo",
+    "subtitle": "Seja um dos primeiros a otimizar a precificação dos seus produtos de IA com nossa plataforma especializada.",
+    "emailPlaceholder": "Seu melhor email",
+    "submitButton": "Garantir Meu Acesso Antecipado",
+    "successMessage": "Obrigado! Você receberá atualizações exclusivas em breve.",
+    "benefitsTitle": "Benefícios do Acesso Antecipado"
+  },
+  "benefits": {
+    "exclusivePricing": {
+      "title": "Preços Exclusivos",
+      "description": "Garanta condições especiais de preço como membro fundador."
+    },
+    "prioritySupport": {
+      "title": "Suporte Prioritário",
+      "description": "Receba suporte dedicado e onboarding personalizado."
+    },
+    "influenceProduct": {
+      "title": "Influencie o Produto",
+      "description": "Ajude a moldar o futuro da plataforma com seu feedback."
+    }
+  },
+  "features": {
+    "title": "Recursos exclusivos para sua estratégia de preços",
+    "aiCostCalculator": {
+      "title": "Calculadora de Custos de IA",
+      "description": "Acesso a mais de 250 modelos de IA pré-configurados com custos atualizados semanalmente."
+    },
+    "whatIfSimulator": {
+      "title": "Simulador \"E se...\"",
+      "description": "Teste diferentes cenários de preços e veja o impacto direto na sua margem de lucro e receita."
+    },
+    "tierManager": {
+      "title": "Gerenciador de Tiers",
+      "description": "Crie e gerencie múltiplos tiers de preços com alocações de recursos personalizadas por usuário."
+    },
+    "competitiveAnalysis": {
+      "title": "Análise Competitiva",
+      "description": "Benchmarking de preços de mercado para posicionar seu produto competitivamente no espaço de IA."
+    },
+    "priceAlerts": {
+      "title": "Alertas de Preços",
+      "description": "Receba notificações quando os preços dos provedores de IA mudarem, mantendo seus cálculos atualizados."
+    },
+    "financialProjections": {
+      "title": "Projeções Financeiras",
+      "description": "Visualize projeções de receita e lucro com base em diferentes taxas de crescimento e cenários."
+    }
+  },
+  "targetAudience": {
+    "title": "Quem pode se beneficiar",
+    "aiStartups": {
+      "title": "Startups de IA",
+      "description": "Empresas em estágio inicial que precisam definir sua estratégia de preços para produtos baseados em IA, maximizando margens desde o início."
+    },
+    "saasCompanies": {
+      "title": "Empresas SaaS",
+      "description": "Negócios que estão incorporando recursos de IA em seus produtos existentes e precisam ajustar sua estratégia de preços para refletir o valor adicional."
+    },
+    "developmentAgencies": {
+      "title": "Agências de Desenvolvimento",
+      "description": "Equipes que criam soluções personalizadas com IA e precisam de uma forma confiável de calcular custos e definir preços para seus clientes."
+    },
+    "businessConsultants": {
+      "title": "Consultores de Negócios",
+      "description": "Profissionais especializados em tecnologia e transformação digital que ajudam empresas a otimizar suas estratégias de preços para produtos de IA."
+    }
+  },
+  "cta": {
+    "title": "Pronto para otimizar sua estratégia de preços?",
+    "subtitle": "Junte-se a centenas de fundadores que estão maximizando suas margens com preços estratégicos para produtos de IA.",
+    "button": "Garantir Meu Acesso Antecipado",
+    "limitedSpots": "Vagas limitadas para o programa de acesso antecipado"
+  },
+  "footer": {
+    "copyright": "© 2025 TierWise. Todos os direitos reservados."
+  },
+  "language": {
+    "select": "Idioma",
+    "en": "Inglês",
+    "pt": "Português"
+  }
+}

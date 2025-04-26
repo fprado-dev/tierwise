@@ -1,0 +1,92 @@
+{
+  "meta": {
+    "title": "TierWise | Exclusive Early Access",
+    "description": "Exclusive early access to TierWise - The ultimate platform for optimizing AI product pricing.",
+    "keywords": "AI pricing calculator, SaaS pricing strategy, AI cost calculator, pricing tiers, profit margin calculator, AI business tools"
+  },
+  "header": {
+    "partnerProgram": "Partner Program"
+  },
+  "hero": {
+    "title": "Exclusive Early Access",
+    "subtitle": "Be one of the first to optimize your AI product pricing with our specialized platform.",
+    "emailPlaceholder": "Your best email",
+    "submitButton": "Secure My Early Access",
+    "successMessage": "Thank you! You'll receive exclusive updates soon.",
+    "benefitsTitle": "Early Access Benefits"
+  },
+  "benefits": {
+    "exclusivePricing": {
+      "title": "Exclusive Pricing",
+      "description": "Secure special pricing conditions as a founding member."
+    },
+    "prioritySupport": {
+      "title": "Priority Support",
+      "description": "Receive dedicated support and personalized onboarding."
+    },
+    "influenceProduct": {
+      "title": "Influence the Product",
+      "description": "Help shape the future of the platform with your feedback."
+    }
+  },
+  "features": {
+    "title": "Exclusive features for your pricing strategy",
+    "aiCostCalculator": {
+      "title": "AI Cost Calculator",
+      "description": "Access to over 250 pre-configured AI models with costs updated weekly."
+    },
+    "whatIfSimulator": {
+      "title": "\"What If\" Simulator",
+      "description": "Test different pricing scenarios and see the direct impact on your profit margin and revenue."
+    },
+    "tierManager": {
+      "title": "Tier Manager",
+      "description": "Create and manage multiple pricing tiers with customized resource allocations per user."
+    },
+    "competitiveAnalysis": {
+      "title": "Competitive Analysis",
+      "description": "Market price benchmarking to position your product competitively in the AI space."
+    },
+    "priceAlerts": {
+      "title": "Price Alerts",
+      "description": "Receive notifications when AI provider prices change, keeping your calculations up-to-date."
+    },
+    "financialProjections": {
+      "title": "Financial Projections",
+      "description": "Visualize revenue and profit projections based on different growth rates and scenarios."
+    }
+  },
+  "targetAudience": {
+    "title": "Who can benefit",
+    "aiStartups": {
+      "title": "AI Startups",
+      "description": "Early-stage companies that need to define their pricing strategy for AI-based products, maximizing margins from the start."
+    },
+    "saasCompanies": {
+      "title": "SaaS Companies",
+      "description": "Businesses that are incorporating AI features into their existing products and need to adjust their pricing strategy to reflect the added value."
+    },
+    "developmentAgencies": {
+      "title": "Development Agencies",
+      "description": "Teams that create customized solutions with AI and need a reliable way to calculate costs and set prices for their clients."
+    },
+    "businessConsultants": {
+      "title": "Business Consultants",
+      "description": "Professionals specialized in technology and digital transformation who help companies optimize their pricing strategies for AI products."
+    }
+  },
+  "cta": {
+    "title": "Ready to optimize your pricing strategy?",
+    "subtitle": "Join hundreds of founders who are maximizing their margins with strategic pricing for AI products.",
+    "button": "Secure My Early Access",
+    "limitedSpots": "Limited spots available for the early access program"
+  },
+  "footer": {
+    "copyright": "© 2025 TierWise. All rights reserved."
+  },
+  "language": {
+    "select": "Language",
+    "en": "English",
+    "pt": "Portuguese"
+  }
+}

@@ -1,18 +1,16 @@
-import { ThemeSwitcher } from "@/components/theme-switcher";
 import { ThemeProvider } from "next-themes";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 
 import { AppSidebar } from "@/components/app-sidebar";
-import AuthButton from "@/components/header-auth";
-import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
+  SidebarProvider
 } from "@/components/ui/sidebar";
 import { createClient } from "@/utils/supabase/server";
+import { headers } from "next/headers";
+import { Header } from "./Header";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -34,9 +32,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headersList = await headers();
+  const fullUrl = headersList.get('referer') || "";
+  console.log();
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-
   return (
     <html lang="en" className={geistSans.className} suppressHydrationWarning>
       <body className="bg-background text-foreground">
@@ -50,16 +50,7 @@ export default async function RootLayout({
             <SidebarProvider>
               {user && <AppSidebar />}
               <SidebarInset>
-                <header className="flex h-16 shrink-0 items-center gap-2 border-b justify-between px-4">
-                  <div className="flex items-center gap-1">
-                    {user && <>
-                      <SidebarTrigger className="-ml-1" />
-                      <Separator orientation="vertical" className="mr-2 h-4" />
-                    </>}
-                    <ThemeSwitcher />
-                  </div>
-                  <AuthButton />
-                </header>
+                <Header show={!true} />
                 <div className="flex flex-1 flex-col gap-4">
                   {children}
                 </div>
