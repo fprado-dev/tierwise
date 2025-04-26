@@ -40,6 +40,18 @@ export default function AICostCalculator() {
     );
   }
 
+  if (tiers.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 py-12">
+        <div className="text-center space-y-2">
+          <h3 className="text-lg font-semibold">No Tiers Created Yet</h3>
+          <p className="text-muted-foreground">Create your first tier to start calculating AI costs.</p>
+        </div>
+        <TierCreationSheet onAddTier={addTier} tiers={tiers} />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-6 px-4">
       <div className="w-full">
@@ -60,7 +72,7 @@ export default function AICostCalculator() {
             <TierCreationSheet onAddTier={addTier} tiers={tiers} />
           </nav>
         </div>
-        <div >
+        <div>
           {tiers.map((tier) => (
             <div
               key={tier.id}

@@ -63,7 +63,7 @@ export function TabImages({ getTypeColor, setModelType, tier }: TabImagesProps) 
           <div className='flex flex-col items-center justify-start'>
             <div className="flex w-full items-center justify-between">
               <h3 className='text-lg font-semibold'>Text Models</h3>
-              <Button size="sm" variant="outline" onClick={() => setModelType("text")} className={`flex items-center gap-2 ${getTypeColor('text')}`}>
+              <Button size="sm" variant="outline" onClick={() => setModelType("image")} className={`flex items-center gap-2 ${getTypeColor('text')}`}>
                 <Video className="h-4 w-4" />
                 Manage Models
               </Button>

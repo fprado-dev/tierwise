@@ -64,7 +64,7 @@ export default function ProjectsPage() {
   };
 
   return (
-    <div className="w-full px-4">
+    <div className="w-full px-4 py-4">
       <div className="rounded-lg">
         <div className="flex justify-between items-center mb-4">
           <div className="space-y-1">
