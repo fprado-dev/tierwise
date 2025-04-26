@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -17,21 +18,23 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 
 type TierCreationSheetProps = {
-  onAddTier: (name: string) => void;
+  onAddTier: (name: string, inheritModels?: boolean) => void;
   tiers?: Tier[];
 };
 
-export function TierCreationSheet({ onAddTier }: TierCreationSheetProps) {
+export function TierCreationSheet({ onAddTier, tiers }: TierCreationSheetProps) {
   const [newTierName, setNewTierName] = useState('');
   const [isOpen, setIsOpen] = useState(false);
+  const [inheritModels, setInheritModels] = useState(false);
 
-
-
+  // Check if there are existing tiers to inherit from
+  const hasPreviousTier = tiers && tiers.length > 0;
 
   const handleAddTier = () => {
     if (!newTierName) return;
-    onAddTier(newTierName);
+    onAddTier(newTierName, inheritModels);
     setNewTierName('');
+    setInheritModels(false);
     setIsOpen(false);
   };
 
@@ -67,6 +70,20 @@ export function TierCreationSheet({ onAddTier }: TierCreationSheetProps) {
               className="focus:ring-2 focus:ring-primary"
             />
           </div>
+
+          {hasPreviousTier && (
+            <div className="flex items-center space-x-2 mt-2">
+              <Checkbox
+                id="inheritModels"
+                checked={inheritModels}
+                onCheckedChange={(checked) => setInheritModels(checked as boolean)}
+                className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+              />
+              <Label htmlFor="inheritModels" className="text-sm font-medium cursor-pointer">
+                Inherit models from previous tier
+              </Label>
+            </div>
+          )}
         </div>
         <SheetFooter>
           <Button

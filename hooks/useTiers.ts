@@ -16,14 +16,32 @@ export function useTiers() {
 
   const createTierMutation = useMutation({
     mutationKey: ['addTier'],
-    mutationFn: TierServices.createTier,
+    mutationFn: async (params: { name: string; inheritModels?: boolean; }) => {
+      const { name, inheritModels } = params;
+      const newTier = await TierServices.createTier(name);
+
+      // If inheritModels is true and there are existing tiers, copy models from the last tier
+      if (inheritModels && tiers && tiers.length > 0) {
+        const lastTier = tiers[tiers.length - 1];
+        const modelIds = lastTier.models.map(model => model.id);
+
+        if (modelIds.length > 0) {
+          await TierServices.addModelsToTier({
+            tierId: newTier.id,
+            modelIds
+          });
+        }
+      }
+
+      return newTier;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: TIERS_QUERY_KEY });
     },
   });
 
-  const addTier = (name: string) => {
-    createTierMutation.mutate(name);
+  const addTier = (name: string, inheritModels?: boolean) => {
+    createTierMutation.mutate({ name, inheritModels });
   };
 
   const updateTierMutation = useMutation({
