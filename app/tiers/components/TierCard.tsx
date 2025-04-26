@@ -10,10 +10,11 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTiers } from '@/hooks/useTiers';
+import { useTierSummary } from '@/hooks/useTierSummary';
 import { ProcessedTier } from '@/lib/tier.types';
 import NumberFlow from '@number-flow/react';
 import { ChartNoAxesCombinedIcon, CogIcon, PencilLineIcon, TrashIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ModelSelectionSheet } from './model-selection-sheet';
 import { TabImage } from './tab-image';
 import { TabText } from './tab-text';
@@ -45,6 +46,7 @@ export function TierCard({ tier }: TierCardProps) {
 
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const { deleteTier, updateTier, isLoading, isFetching } = useTiers();
+  const { summary, saveSummary, isLoading: isSummaryLoading } = useTierSummary(tier.id);
   const {
     inputTokens,
     outputTokens,
@@ -86,6 +88,23 @@ export function TierCard({ tier }: TierCardProps) {
     getMostExpensiveModel: getVideoMostExpensiveModel,
   } = useVideoModelCalculator(tier);
 
+  // Load saved summary data when component mounts
+  useEffect(() => {
+    if (summary) {
+      setInputTokens(summary.input_tokens);
+      setOutputTokens(summary.output_tokens);
+      setImageCount(summary.image_count);
+      setVideoSeconds(summary.video_seconds);
+      setTextMarginPercentage(summary.text_margin_percentage);
+      setImageMarginPercentage(summary.image_margin_percentage);
+      setVideoMarginPercentage(summary.video_margin_percentage);
+      setTextUseExpensiveModel(summary.text_use_expensive_model);
+      setImageUseExpensiveModel(summary.image_use_expensive_model);
+      setVideoUseExpensiveModel(summary.video_use_expensive_model);
+      setOperationalOverheadPercentage(summary.operational_overhead_percentage);
+    }
+  }, [summary]);
+
   return (
     <Card className=' border-none shadow-none overflow-hidden bg-gradient-to-b from-primary-foreground to-background'>
       <CardHeader className='p-6'>
@@ -104,8 +123,28 @@ export function TierCard({ tier }: TierCardProps) {
               size="sm"
               variant="outline"
               onClick={() => {
-                setSummaryVisible(prev => !prev);
+                const newSummaryVisible = !isSummaryVisible;
+                setSummaryVisible(newSummaryVisible);
                 setIsTabsVisible(false);
+
+                // Save summary data when showing the summary
+                if (newSummaryVisible) {
+                  saveSummary({
+                    tier_id: tier.id,
+                    input_tokens: inputTokens,
+                    output_tokens: outputTokens,
+                    image_count: imageCount,
+                    video_seconds: videoSeconds,
+                    text_margin_percentage: textMarginPercentage,
+                    image_margin_percentage: imageMarginPercentage,
+                    video_margin_percentage: videoMarginPercentage,
+                    text_use_expensive_model: textUseExpensiveModel,
+                    image_use_expensive_model: imageUseExpensiveModel,
+                    video_use_expensive_model: videoUseExpensiveModel,
+                    operational_overhead_percentage: operationalOverheadPercentage,
+
+                  });
+                }
               }}
               className='hover:bg-primary/10 hover:text-primary transition-colors'
             >
