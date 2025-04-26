@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTiers } from '@/hooks/useTiers';
 import { ProcessedTier } from '@/lib/tier.types';
@@ -40,6 +41,7 @@ export function TierCard({ tier }: TierCardProps) {
   const [modelType, setModelType] = useState<'text' | 'image' | 'video' | undefined>();
   const [isTabsVisible, setIsTabsVisible] = useState(false);
   const [isSummaryVisible, setSummaryVisible] = useState(false);
+  const [operationalOverheadPercentage, setOperationalOverheadPercentage] = useState<number>(20);
 
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const { deleteTier, updateTier, isLoading, isFetching } = useTiers();
@@ -247,10 +249,11 @@ export function TierCard({ tier }: TierCardProps) {
                   <span className="text-4xl font-bold text-primary">
                     <NumberFlow
                       format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                      value={(textTotalCost + imageTotalCost + videoTotalCost) * 1.2} />
+                      value={(textTotalCost + imageTotalCost + videoTotalCost) * (1 + operationalOverheadPercentage / 100)} />
                   </span>
+
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">Includes 20% buffer for operational overhead</p>
+                <p className="text-xs text-muted-foreground mt-2">Includes {operationalOverheadPercentage}% buffer for operational overhead</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
@@ -267,7 +270,8 @@ export function TierCard({ tier }: TierCardProps) {
                   <p className="text-xl font-bold text-green-500">
                     <NumberFlow
                       format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                      value={textTotalProfitValue + imageTotalProfitValue + videoTotalProfitValue} />
+                      value={(textTotalProfitValue + imageTotalProfitValue + videoTotalProfitValue) + (textTotalCost + imageTotalCost + videoTotalCost) * (operationalOverheadPercentage / 100)} />
+
                   </p>
                 </div>
                 <div className="flex flex-col items-center p-4 bg-background/80 rounded-lg">
@@ -425,11 +429,22 @@ export function TierCard({ tier }: TierCardProps) {
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">Operational Buffer (20%):</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">Operational Buffer:</span>
+                      <div className="w-16">
+                        <Input
+                          type="number"
+                          value={operationalOverheadPercentage}
+                          onChange={(e) => setOperationalOverheadPercentage(Number(e.target.value))}
+                          className="h-6 text-xs px-2 py-1 bg-background focus:ring-1 focus:ring-primary/20"
+                        />
+                      </div>
+                      <span className="text-sm">%</span>
+                    </div>
                     <span className="font-medium">
                       <NumberFlow
                         format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                        value={(textTotalCost + imageTotalCost + videoTotalCost) * 0.2} />
+                        value={(textTotalCost + imageTotalCost + videoTotalCost) * (operationalOverheadPercentage / 100)} />
                     </span>
                   </div>
                   <div className="h-px bg-border my-2"></div>
@@ -438,7 +453,7 @@ export function TierCard({ tier }: TierCardProps) {
                     <span className="text-primary">
                       <NumberFlow
                         format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                        value={(textTotalCost + imageTotalCost + videoTotalCost) * 1.2} />
+                        value={(textTotalCost + imageTotalCost + videoTotalCost) * (1 + operationalOverheadPercentage / 100)} />
                     </span>
                   </div>
                 </div>
