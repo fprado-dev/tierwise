@@ -40,26 +40,49 @@ export function TierCard({ tier }: TierCardProps) {
 
 
   return (
-    <Card className='shadow-none border-none p-0 rounded-none '>
-      <CardHeader className='bg-primary-foreground'>
+    <Card className=' border-none shadow-none overflow-hidden bg-gradient-to-b from-primary-foreground to-background'>
+      <CardHeader className='p-6'>
         <div className="flex items-center justify-between">
-          <div className='flex gap-2 items-center'>
-
-            <h3 className="text-lg font-semibold">{tier.name}</h3>
-            <Badge className='text-xs'>{tier.models.length} Models</Badge>
+          <div className='flex flex-col gap-2'>
+            <div className='flex items-center gap-3'>
+              <h3 className="text-xl font-bold tracking-tight">{tier.name}</h3>
+              <Badge variant="secondary" className='px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors'>
+                {tier.models.length} Models
+              </Badge>
+            </div>
+            <p className='text-sm text-muted-foreground'>Manage your AI models and pricing configuration</p>
           </div>
-          <div className='flex gap-2'>
-            <Button size="icon" variant="secondary" >
-              <SaveAllIcon />
+          <div className='flex items-center gap-2'>
+            <Button
+              size="icon"
+              variant="ghost"
+              className='hover:bg-primary/10 hover:text-primary transition-colors'
+            >
+              <SaveAllIcon className='h-4 w-4' />
             </Button>
-            <Button size="icon" variant="secondary" onClick={() => setIsTabsVisible(prev => !prev)}>
-              <CogIcon />
+            <Button
+              size="icon"
+              variant="ghost"
+              className='hover:bg-primary/10 hover:text-primary transition-colors'
+              onClick={() => setIsTabsVisible(prev => !prev)}
+            >
+              <CogIcon className='h-4 w-4' />
             </Button>
-            <Button size="icon" variant="secondary" onClick={() => setEditSheetopen(prev => !prev)}>
-              <PencilLineIcon />
+            <Button
+              size="icon"
+              variant="ghost"
+              className='hover:bg-primary/10 hover:text-primary transition-colors'
+              onClick={() => setEditSheetopen(prev => !prev)}
+            >
+              <PencilLineIcon className='h-4 w-4' />
             </Button>
-            <Button size="icon" variant="destructive" onClick={() => setIsDeleteConfirmOpen(true)}>
-              <TrashIcon />
+            <Button
+              size="icon"
+              variant="ghost"
+              className='hover:bg-destructive/10 hover:text-destructive transition-colors'
+              onClick={() => setIsDeleteConfirmOpen(true)}
+            >
+              <TrashIcon className='h-4 w-4' />
             </Button>
           </div>
         </div>
@@ -80,13 +103,15 @@ export function TierCard({ tier }: TierCardProps) {
         onOpenChange={setEditSheetopen}
         onUpdateTier={updateTier}
       />
-      <CardContent className='flex flex-col gap-2 px-0'>
+      <CardContent className='flex flex-col gap-2 px-0 bg-vard'>
         {isTabsVisible && (
-          <Tabs defaultValue="text" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 ">
+          <Tabs defaultValue="text" className="w-ful px-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger className='hover:bg-foreground/5' value="text">Text</TabsTrigger>
               <TabsTrigger className='hover:bg-foreground/5' value="image">Image</TabsTrigger>
               <TabsTrigger className='hover:bg-foreground/5' value="video">Video</TabsTrigger>
+              <TabsTrigger className='hover:bg-foreground/5' value="audio" disabled>Audio <Badge className={`ml-2 ${getTypeColor("audio")}`}>Soon</Badge></TabsTrigger>
+              <TabsTrigger className='hover:bg-foreground/5' value="harware" disabled>Hardware <Badge className={`ml-2 ${getTypeColor("hardware")}`}>Soon</Badge></TabsTrigger>
             </TabsList>
             <TabText tier={tier} getTypeColor={getTypeColor} setModelType={(modelType) => setModelType(modelType)} />
             <TabImage tier={tier} getTypeColor={getTypeColor} setModelType={(modelType) => setModelType(modelType)} />

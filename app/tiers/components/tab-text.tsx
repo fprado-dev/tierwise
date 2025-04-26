@@ -81,154 +81,159 @@ export function TabText({ getTypeColor, setModelType, tier }: TabTextProps) {
   const totalProfitValue = calculateProfitValue(totalBaseCost);
   const totalCost = calculateTotalCost(totalBaseCost, totalProfitValue);
   return (
-    <TabsContent value="text">
-      <div className='py-4'>
-        <h3 className='text-lg font-semibold mb-4'>Cost Breakdown</h3>
-        <div className='space-y-4'>
-          <div className='grid grid-cols-4 gap-6'>
-            <div className='p-4 bg-muted rounded-lg'>
-              <p className='text-sm text-muted-foreground mb-1'>Total Estimated Cost</p>
-              <p className='text-2xl font-bold'>
-                <NumberFlow
-                  format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                  value={totalCost} />
-              </p>
-            </div>
-            <div className='p-4 bg-muted rounded-lg'>
-              <p className='text-sm text-muted-foreground mb-1'>Base Cost</p>
-              <p className='text-2xl font-bold'>
-                <NumberFlow
-                  format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                  value={totalBaseCost} />
-              </p>
-            </div>
-            <div className='p-4 bg-muted rounded-lg'>
-              <p className='text-sm text-muted-foreground mb-1'>Profit Value</p>
-              <p className='text-2xl font-bold text-green-400'>
-                <NumberFlow
-                  format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                  value={totalProfitValue} />
-              </p>
-            </div>
-            <div className='p-4 bg-muted rounded-lg'>
-              <p className='text-sm text-muted-foreground mb-1'>Margin Profit</p>
-              <p className='text-lg font-semibold'>
-                <NumberFlow
-                  format={{ style: 'percent', minimumFractionDigits: 0, maximumFractionDigits: 0 }}
-                  value={marginPercentage / 100} />
-              </p>
-            </div>
-
+    <TabsContent value="text" className="space-y-8">
+      <div className='bg-card rounded-xl p-6 shadow-sm border'>
+        <h3 className='text-xl font-semibold mb-6'>Cost Breakdown</h3>
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
+          <div className='p-6 bg-primary/5 rounded-xl transition-all hover:bg-primary/10'>
+            <p className='text-sm font-medium text-muted-foreground mb-2'>Total Estimated Cost</p>
+            <p className='text-3xl font-bold text-primary'>
+              <NumberFlow
+                format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
+                value={totalCost} />
+            </p>
           </div>
-
-
+          <div className='p-6 bg-primary/5 rounded-xl transition-all hover:bg-primary/10'>
+            <p className='text-sm font-medium text-muted-foreground mb-2'>Base Cost</p>
+            <p className='text-3xl font-bold text-primary'>
+              <NumberFlow
+                format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
+                value={totalBaseCost} />
+            </p>
+          </div>
+          <div className='p-6 bg-primary/5 rounded-xl transition-all hover:bg-primary/10'>
+            <p className='text-sm font-medium text-muted-foreground mb-2'>Profit Value</p>
+            <p className='text-3xl font-bold text-green-500'>
+              <NumberFlow
+                format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
+                value={totalProfitValue} />
+            </p>
+          </div>
+          <div className='p-6 bg-primary/5 rounded-xl transition-all hover:bg-primary/10'>
+            <p className='text-sm font-medium text-muted-foreground mb-2'>Margin Profit</p>
+            <p className='text-3xl font-bold text-primary'>
+              <NumberFlow
+                format={{ style: 'percent', minimumFractionDigits: 0, maximumFractionDigits: 0 }}
+                value={marginPercentage / 100} />
+            </p>
+          </div>
         </div>
       </div>
-      <div className='grid grid-cols-6 gap-6'>
-        <div
-          className='col-span-3 space-y-4 border rounded-lg bg-card p-6' >
-          <div className='flex flex-col  items-center justify-start'>
-            <div className="flex w-full items-center justify-between">
-              <h3 className='text-lg font-semibold'>Text Models</h3>
-              <Button size="sm" variant="outline" onClick={() => setModelType("text")} className={`flex items-center gap-2 ${getTypeColor('text')}`}>
-                <Video className="h-4 w-4" />
-                Manage Models
-              </Button>
+
+      <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+        <div className='bg-card rounded-xl p-6 shadow-sm border space-y-6'>
+          <div className='flex items-center justify-between'>
+            <h3 className='text-xl font-semibold'>Text Models</h3>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setModelType("text")}
+              className={`flex items-center gap-2 transition-colors ${getTypeColor('text')}`}
+            >
+              <Video className="h-4 w-4" />
+              Manage Models
+            </Button>
+          </div>
+
+          {tier.models.filter(model => model.model_type === 'text').length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground bg-muted/50 rounded-lg">
+              No text models added to this tier yet
             </div>
-            <div>
-              {tier.models.filter(model => model.model_type === 'text').length === 0 && (
-                <div className="col-span-3 text-center py-8 text-muted-foreground">
-                  No text models added to this tier yet
-                </div>)
+          ) : (
+            <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4'>
+              {tier.models
+                .filter(model => model.model_type === 'text')
+                .map(model => {
+                  const isExpensiveModel = useExpensiveModel && model.id === getMostExpensiveModel()?.id;
+                  return (
+                    <SelectableModelCard
+                      key={model.id}
+                      model={model}
+                      isSelected={isExpensiveModel}
+                      onSelect={() => { }}
+                      isDefault
+                    />
+                  );
+                })
               }
             </div>
-          </div>
-          <div className='grid grid-cols-3 md:grid-cols-2 gap-4'>
-            {tier.models
-              .filter(model => model.model_type === 'text')
-              .map(model => {
-                const isExpensiveModel = useExpensiveModel && model.id === getMostExpensiveModel()?.id;
-                return (
-                  <SelectableModelCard
-                    key={model.id}
-                    model={model}
-                    isSelected={isExpensiveModel}
-                    onSelect={() => { }}
-                    isDefault
-                  />
-                );
-              })
-            }
-          </div>
+          )}
         </div>
 
-        <div className='col-span-3 border rounded-lg bg-card'>
-          <div className='p-6'>
-            <div className="flex items-center gap-2 mb-4">
-              <h3 className='text-lg font-semibold'>Cost Calculator</h3>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <Info className="h-4 w-4 text-muted-foreground" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Costs are calculated based on your model selection preference:</p>
-                    <ul className="mt-2 text-sm">
-                      <li>• Most expensive model: Uses the highest cost model for calculation</li>
-                      <li>• Average model cost: Calculates using the average cost across all models</li>
-                    </ul>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+        <div className='bg-card rounded-xl p-6 shadow-sm border'>
+          <div className="flex items-center gap-2 mb-6">
+            <h3 className='text-xl font-semibold'>Cost Calculator</h3>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Info className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors" />
+                </TooltipTrigger>
+                <TooltipContent className="max-w-sm">
+                  <p className="font-medium">Costs are calculated based on your model selection preference:</p>
+                  <ul className="mt-2 space-y-1 text-sm">
+                    <li className="flex items-center gap-2">
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary"></span>
+                      Most expensive model: Uses the highest cost model for calculation
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary"></span>
+                      Average model cost: Calculates using the average cost across all models
+                    </li>
+                  </ul>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+
+          <div className='space-y-6'>
+            <div className='flex items-center gap-3 p-4 bg-primary/5 rounded-xl transition-all hover:bg-primary/10'>
+              <Checkbox
+                id="use-expensive"
+                checked={useExpensiveModel}
+                onCheckedChange={(checked) => setUseExpensiveModel(checked as boolean)}
+                className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+              />
+              <label htmlFor="use-expensive" className='font-medium'>
+                Calculate based on most expensive model
+              </label>
             </div>
-            <div className='space-y-4'>
-              <div className='flex items-center gap-2 p-3 bg-muted rounded-lg'>
-                <Checkbox
-                  id="use-expensive"
-                  checked={useExpensiveModel}
-                  onCheckedChange={(checked) => setUseExpensiveModel(checked as boolean)}
-                />
-                <label htmlFor="use-expensive" className='text-xs font-medium'>Calculate based on most expensive model</label>
-              </div>
 
-              <div className='grid grid-cols-2 gap-4'>
-                <div className='space-y-2'>
-                  <label className='text-sm font-medium'>Input Tokens</label>
-                  <Input
-                    type="number"
-                    value={inputTokens}
-                    onChange={(e) => setInputTokens(Number(e.target.value))}
-                    placeholder="Enter input tokens"
-                    className="bg-background"
-                  />
-                </div>
-                <div className='space-y-2'>
-                  <label className='text-sm font-medium'>Output Tokens</label>
-                  <Input
-                    type="number"
-                    value={outputTokens}
-                    onChange={(e) => setOutputTokens(Number(e.target.value))}
-                    placeholder="Enter output tokens"
-                    className="bg-background"
-                  />
-                </div>
-              </div>
-
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
               <div className='space-y-2'>
-                <label className='text-sm font-medium'>Margin Percentage</label>
+                <label className='font-medium'>Input Tokens</label>
                 <Input
                   type="number"
-                  value={marginPercentage}
-                  onChange={(e) => setMarginPercentage(Number(e.target.value))}
-                  placeholder="Enter margin percentage"
-                  className="bg-background"
+                  value={inputTokens}
+                  onChange={(e) => setInputTokens(Number(e.target.value))}
+                  placeholder="Enter input tokens"
+                  className="bg-background focus:ring-2 focus:ring-primary/20"
                 />
               </div>
+              <div className='space-y-2'>
+                <label className='font-medium'>Output Tokens</label>
+                <Input
+                  type="number"
+                  value={outputTokens}
+                  onChange={(e) => setOutputTokens(Number(e.target.value))}
+                  placeholder="Enter output tokens"
+                  className="bg-background focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+            </div>
+
+            <div className='space-y-2'>
+              <label className='font-medium'>Margin Percentage</label>
+              <Input
+                type="number"
+                value={marginPercentage}
+                onChange={(e) => setMarginPercentage(Number(e.target.value))}
+                placeholder="Enter margin percentage"
+                className="bg-background focus:ring-2 focus:ring-primary/20"
+              />
             </div>
           </div>
         </div>
       </div>
-
     </TabsContent>
   );
 }
