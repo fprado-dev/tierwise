@@ -81,3 +81,21 @@ export async function getTierSummary(tierId: string) {
 
   return data as TierSummary | null;
 }
+
+
+export async function updateSummary(summary: Partial<TierSummary>) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const activeProject = await getActiveProject();
+  const { data, error } = await supabase
+    .from('tier_summaries')
+    .update(summary)
+    .eq('tier_id', summary.tier_id)
+    .eq('user_id', user?.id)
+    .eq('project_id', activeProject?.id)
+    .select('*')
+    .single();
+  if (error) throw error;
+  return data;
+
+}

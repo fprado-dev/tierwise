@@ -27,11 +27,27 @@ export function useTierSummary(tierId: string) {
     saveSummaryMutation.mutate(summaryData);
   };
 
+  const updateSummaryMutation = useMutation({
+    mutationKey: ['updateTierSummary', tierId],
+    mutationFn: (summaryData: Partial<Omit<TierSummary, 'id' | 'created_at' | "project_id" | "user_id">>) =>
+      TierSummaryServices.updateSummary(summaryData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: summaryQueryKey });
+    },
+  });
+
+  const updateSummary = (summaryData: Partial<Omit<TierSummary, 'id' | 'created_at' | "project_id" | "user_id">>) => {
+    updateSummaryMutation.mutate(summaryData);
+  };
+
+
   return {
     summary,
     isLoading,
     isFetching,
     saveSummary,
+    updateSummary,
+    isUpdating: updateSummaryMutation.isPending,
     isSaving: saveSummaryMutation.isPending,
   };
 }

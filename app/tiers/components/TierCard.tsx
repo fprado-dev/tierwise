@@ -46,7 +46,7 @@ export function TierCard({ tier }: TierCardProps) {
 
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const { deleteTier, updateTier, isLoading, isFetching } = useTiers();
-  const { summary, saveSummary, isLoading: isSummaryLoading } = useTierSummary(tier.id);
+  const { summary, saveSummary, updateSummary, isLoading: isSummaryLoading, isUpdating } = useTierSummary(tier.id);
   const {
     inputTokens,
     outputTokens,
@@ -479,6 +479,20 @@ export function TierCard({ tier }: TierCardProps) {
                         />
                       </div>
                       <span className="text-sm">%</span>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-6 px-2 py-1 text-xs bg-primary/10 hover:bg-primary/20 text-primary"
+                        onClick={() => {
+                          updateSummary({
+                            tier_id: tier.id,
+                            operational_overhead_percentage: operationalOverheadPercentage,
+                          });
+                        }}
+                        disabled={isSummaryLoading}
+                      >
+                        {isSummaryLoading || isUpdating ? 'Saving...' : 'Save'}
+                      </Button>
                     </div>
                     <span className="font-medium">
                       <NumberFlow
