@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -13,6 +13,7 @@ import { useModels } from "@/hooks/use-models";
 import { useTiers } from "@/hooks/useTiers";
 import { Model } from "@/lib/supabase/model.service";
 import { ProcessedTier } from "@/lib/tier.types";
+import { SearchX } from "lucide-react";
 import { useState } from "react";
 import { SelectableModelCard } from "./selectable-model-card";
 
@@ -25,7 +26,7 @@ type ModelSelectionSheetProps = {
 };
 
 export function ModelSelectionSheet({ tier, modelType, isOpen, onOpenChange }: ModelSelectionSheetProps) {
-  const { models: allModels, defaultModels } = useModels();
+  const { defaultModels } = useModels();
   const { addModelToTier, removeModelFromTier, isLoading } = useTiers();
 
   const [selectedModels, setSelectedModels] = useState<string[]>(() => {
@@ -34,7 +35,7 @@ export function ModelSelectionSheet({ tier, modelType, isOpen, onOpenChange }: M
   });
 
   const getModelOptions = () => {
-    const availableModels = [...allModels, ...defaultModels];
+    const availableModels = [...defaultModels];
     return availableModels.filter(m => m.model_type === modelType);
   };
 
@@ -83,38 +84,78 @@ export function ModelSelectionSheet({ tier, modelType, isOpen, onOpenChange }: M
 
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full h-full max-w-full sm:max-w-full">
-        <SheetHeader className="flex flex-row mt-4 px-4 justify-between items-center">
-          <div className="flex flex-col">
-            <SheetTitle>{getTitle()}</SheetTitle>
-            <SheetDescription>
-              Select the models you want to include in this tier.
-            </SheetDescription>
-          </div>
-          <Button onClick={handleUpdateModels} disabled={isLoading}>
-            {isLoading ? 'Updating...' : 'Update Models'}
-          </Button>
-        </SheetHeader>
+      <SheetContent side="right" className="w-full h-full max-w-full sm:max-w-full p-0 overflow-hidden flex flex-col">
 
-
-        <Alert className="mx-4 mt-4 bg-sidebar">
-          <AlertDescription>
-            {`You can only select up to ${selectedModels.length}/6 models per category.`}
-          </AlertDescription>
-        </Alert>
-        <div className="grid gap-4 px-4 pt-8 pb-12 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 overflow-y-auto h-[calc(100vh-50px)]">
-          {getModelOptions().map((model) => (
-            <SelectableModelCard
-              key={model.id}
-              model={model}
-              isSelected={selectedModels.includes(model.id)}
-              onSelect={handleModelSelect}
-              isLoading={isLoading}
-            />
-          ))}
+        {/* Header Section */}
+        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b">
+          <SheetHeader className="flex flex-row justify-between items-center p-4 gap-4">
+            <div className="flex flex-col">
+              <SheetTitle className="text-xl font-semibold">{getTitle()}</SheetTitle>
+              <SheetDescription className="text-sm text-muted-foreground">
+                Select the models you want to include in this tier.
+              </SheetDescription>
+              <div className="flex items-center gap-1 mt-2">
+                <Badge variant={selectedModels.length >= 6 ? "destructive" : "secondary"} className="text-xs">
+                  {selectedModels.length}/6
+                </Badge>
+                <span className="text-sm text-muted-foreground">Models per category</span>
+              </div>
+            </div>
+          </SheetHeader>
         </div>
 
+        {/* Model Cards Grid - Scrollable Content */}
+        <div className="flex-1 overflow-y-auto p-4">
+          {getModelOptions().length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-center p-8">
+              <div className="rounded-full bg-muted p-3 mb-4">
+                <SearchX className="h-6 w-6 text-muted-foreground" />
+              </div>
+              <h3 className="font-semibold text-lg mb-1">No models found</h3>
+              <p className="text-muted-foreground max-w-md">
+                Try adjusting your search or filters to find what you're looking for.
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 auto-rows-fr">
+              {getModelOptions().map((model) => (
+                <SelectableModelCard
+                  key={model.id}
+                  model={model}
+                  isSelected={selectedModels.includes(model.id)}
+                  onSelect={handleModelSelect}
+                  isLoading={isLoading}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Optional: Footer with Actions */}
+        <div className="border-t p-4 bg-background/95 backdrop-blur-sm">
+          <div className="flex justify-between items-center">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="secondary"
+                onClick={() => setSelectedModels([])}
+                disabled={selectedModels.length === 0 || isLoading}
+              >
+                Clear Selection
+              </Button>
+              <Button
+                onClick={handleUpdateModels}
+                disabled={isLoading}
+              >
+                {isLoading ? 'Updating...' : 'Update Models'}
+              </Button>
+            </div>
+          </div>
+        </div>
       </SheetContent>
     </Sheet>
+
   );
 }

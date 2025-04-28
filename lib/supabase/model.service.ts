@@ -25,26 +25,18 @@ export interface Model {
   cpu_multiplier?: string;
   gpu_ram?: string;
   ram?: string;
+  is_custom?: boolean;
 }
 
-export async function getModels() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
 
-  const { data: models, error } = await supabase.from('models')
-    .select('*')
-    .eq('owner_id', user?.id)
-    .order('created_at', { ascending: false });
-
-  if (error) throw error;
-  return models;
-}
 
 export async function getDefaultModels() {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
   const { data: models, error } = await supabase.from('models_default')
     .select('*')
+    .or(`is_custom.eq.false,and(is_custom.eq.true,owner_id.eq.${user?.id})`)
     .order('created_at', { ascending: false });
 
   if (error) throw error;
@@ -67,6 +59,7 @@ export interface CreateModelParams {
   cpu_multiplier?: string;
   gpu_ram?: string;
   ram?: string;
+  is_custom?: boolean;
 }
 
 export async function createModel(params: CreateModelParams) {
@@ -76,9 +69,10 @@ export async function createModel(params: CreateModelParams) {
   const newModel: CreateModelParams & { owner_id: string; } = {
     ...params,
     owner_id: user?.id!,
+    is_custom: true,
   };
   const { data, error } = await supabase
-    .from('models')
+    .from('models_default')
     .insert([newModel])
     .select()
     .single();
@@ -89,10 +83,14 @@ export async function createModel(params: CreateModelParams) {
 
 export async function updateModel(id: string, params: Partial<Omit<CreateModelParams, "owner_id">>) {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   const { data, error } = await supabase
-    .from('models')
+    .from('models_default')
     .update(params)
     .eq('id', id)
+    .eq('is_custom', true)
+    .eq('owner_id', user?.id)
     .select()
     .single();
 
@@ -102,10 +100,15 @@ export async function updateModel(id: string, params: Partial<Omit<CreateModelPa
 
 export async function deleteModel(id: string) {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   const { error } = await supabase
-    .from('models')
+    .from('models_default')
+
     .delete()
-    .eq('id', id);
+    .eq('id', id)
+    .eq('is_custom', true)
+    .eq('owner_id', user?.id);
 
   if (error) throw error;
 }

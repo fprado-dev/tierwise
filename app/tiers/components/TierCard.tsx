@@ -5,7 +5,7 @@ import { useTextModelCalculator } from '@/app/hooks/useTextModelCalculator';
 import { useVideoModelCalculator } from '@/app/hooks/useVideoModelCalculator';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -105,8 +105,33 @@ export function TierCard({ tier }: TierCardProps) {
     }
   }, [summary]);
 
+
+  const handleSummary = () => {
+    const newSummaryVisible = !isSummaryVisible;
+    setSummaryVisible(newSummaryVisible);
+    setIsTabsVisible(false);
+
+    // Save summary data when showing the summary
+    if (newSummaryVisible) {
+      saveSummary({
+        tier_id: tier.id,
+        input_tokens: inputTokens,
+        output_tokens: outputTokens,
+        image_count: imageCount,
+        video_seconds: videoSeconds,
+        text_margin_percentage: textMarginPercentage,
+        image_margin_percentage: imageMarginPercentage,
+        video_margin_percentage: videoMarginPercentage,
+        text_use_expensive_model: textUseExpensiveModel,
+        image_use_expensive_model: imageUseExpensiveModel,
+        video_use_expensive_model: videoUseExpensiveModel,
+        operational_overhead_percentage: operationalOverheadPercentage,
+
+      });
+    }
+  };
   return (
-    <Card className=' border-none shadow-none overflow-hidden bg-gradient-to-b from-primary-foreground to-background'>
+    <div className='bg-transparent border-none mt-4'>
       <CardHeader className='p-6'>
         <div className="flex items-center justify-between">
           <div className='flex flex-col gap-2'>
@@ -122,30 +147,7 @@ export function TierCard({ tier }: TierCardProps) {
             <Button
               size="sm"
               variant="outline"
-              onClick={() => {
-                const newSummaryVisible = !isSummaryVisible;
-                setSummaryVisible(newSummaryVisible);
-                setIsTabsVisible(false);
-
-                // Save summary data when showing the summary
-                if (newSummaryVisible) {
-                  saveSummary({
-                    tier_id: tier.id,
-                    input_tokens: inputTokens,
-                    output_tokens: outputTokens,
-                    image_count: imageCount,
-                    video_seconds: videoSeconds,
-                    text_margin_percentage: textMarginPercentage,
-                    image_margin_percentage: imageMarginPercentage,
-                    video_margin_percentage: videoMarginPercentage,
-                    text_use_expensive_model: textUseExpensiveModel,
-                    image_use_expensive_model: imageUseExpensiveModel,
-                    video_use_expensive_model: videoUseExpensiveModel,
-                    operational_overhead_percentage: operationalOverheadPercentage,
-
-                  });
-                }
-              }}
+              onClick={handleSummary}
               className='hover:bg-primary/10 hover:text-primary transition-colors'
             >
               Summary
@@ -201,16 +203,14 @@ export function TierCard({ tier }: TierCardProps) {
         onOpenChange={setEditSheetopen}
         onUpdateTier={updateTier}
       />
-      <CardContent className='flex flex-col gap-4 px-0 bg-vard'>
+      <CardContent className='flex flex-col gap-4 px-0'>
 
         {isTabsVisible && (
           <Tabs defaultValue="text" className="w-ful px-4">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-3 border">
               <TabsTrigger className='hover:bg-foreground/5' value="text">Text</TabsTrigger>
               <TabsTrigger className='hover:bg-foreground/5' value="image">Image</TabsTrigger>
               <TabsTrigger className='hover:bg-foreground/5' value="video">Video</TabsTrigger>
-              <TabsTrigger className='hover:bg-foreground/5' value="audio" disabled>Audio <Badge className={`ml-2 ${getTypeColor("audio")}`}>Soon</Badge></TabsTrigger>
-              <TabsTrigger className='hover:bg-foreground/5' value="harware" disabled>Hardware <Badge className={`ml-2 ${getTypeColor("hardware")}`}>Soon</Badge></TabsTrigger>
             </TabsList>
             <TabText tier={tier}
               getTypeColor={getTypeColor}
@@ -523,6 +523,6 @@ export function TierCard({ tier }: TierCardProps) {
         description="Are you sure you want to delete this tier? This action cannot be undone."
         confirmText="Delete"
       />
-    </Card>
+    </div>
   );
 }

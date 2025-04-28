@@ -13,7 +13,7 @@ import { ModelForm } from './components/model-form';
 import { ModelSkeleton } from './components/model-skeleton';
 
 export default function ModelsPage() {
-  const { models, defaultModels, loading, createModel, updateModel, deleteModel } = useModels();
+  const { defaultModels, loading, createModel, updateModel, deleteModel } = useModels();
   const { isPending: isCreating } = useModels().createModelMutation;
   const { isPending: isUpdating } = useModels().updateModelMutation;
   const { isPending: isDeleting } = useModels().deleteModelMutation;
@@ -25,11 +25,6 @@ export default function ModelsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
 
-  const filteredModels = models.filter(model => {
-    const matchesSearch = model.model_name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = selectedTypes.length === 0 || selectedTypes.includes(model.model_type);
-    return matchesSearch && matchesType;
-  });
 
   const filteredDefaultModels = defaultModels.filter(model => {
     const matchesSearch = model.model_name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -100,13 +95,13 @@ export default function ModelsPage() {
           <div className="space-y-8">
             <div>
               <h2 className="text-xl font-semibold mb-4">Custom Models</h2>
-              {filteredModels.length === 0 ? (
+              {filteredDefaultModels.filter(model => model.is_custom).length === 0 ? (
                 <div className="flex items-center justify-center min-h-60 py-8 bg-sidebar rounded-lg">
                   <p className="text-muted-foreground">No custom models available</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {filteredModels.map((model) => (
+                  {filteredDefaultModels.filter(model => model.is_custom).map((model) => (
                     <ModelCard
                       key={model.id}
                       model={model}
@@ -125,7 +120,7 @@ export default function ModelsPage() {
             <div>
               <h2 className="text-xl font-semibold mb-4">Our Models</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {filteredDefaultModels.map((model) => (
+                {filteredDefaultModels.filter(model => !model.is_custom).map((model) => (
                   <ModelCard
                     key={model.id}
                     isDefault
