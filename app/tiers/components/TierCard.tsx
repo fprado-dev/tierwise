@@ -6,19 +6,19 @@ import { useVideoModelCalculator } from '@/app/hooks/useVideoModelCalculator';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Separator } from '@/components/ui/separator';
 import { useTiers } from '@/hooks/useTiers';
 import { useTierSummary } from '@/hooks/useTierSummary';
 import { ProcessedTier } from '@/lib/tier.types';
 import NumberFlow from '@number-flow/react';
 import { ChartNoAxesCombinedIcon, CogIcon, PencilLineIcon, TrashIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { FlippableCard } from './FlippableCard';
 import { ModelSelectionSheet } from './model-selection-sheet';
-import { TabImage } from './tab-image';
-import { TabText } from './tab-text';
-import { TabVideo } from './tab-videos';
+import { SelectableModelCard } from './selectable-model-card';
 import { TierEditSheet } from './tier-edit-sheet';
 
 interface TierCardProps {
@@ -26,7 +26,7 @@ interface TierCardProps {
 }
 
 
-const getTypeColor = (type: string) => {
+export const getTypeColor = (type: string) => {
   switch (type) {
     case 'text': return 'bg-blue-100 text-blue-800';
     case 'image': return 'bg-green-100 text-green-800';
@@ -40,6 +40,10 @@ const getTypeColor = (type: string) => {
 export function TierCard({ tier }: TierCardProps) {
   const [isEditing, setEditSheetopen] = useState(false);
   const [modelType, setModelType] = useState<'text' | 'image' | 'video' | undefined>();
+  const [isVideoFlipped, setIsVideoFlipped] = useState(false);
+  const [isTextFlipped, setIsTextFlipped] = useState(false);
+  const [isImageFlipped, setIsImageFlipped] = useState(false);
+
   const [isTabsVisible, setIsTabsVisible] = useState(false);
   const [isSummaryVisible, setSummaryVisible] = useState(false);
   const [operationalOverheadPercentage, setOperationalOverheadPercentage] = useState<number>(20);
@@ -203,65 +207,506 @@ export function TierCard({ tier }: TierCardProps) {
         onOpenChange={setEditSheetopen}
         onUpdateTier={updateTier}
       />
-      <CardContent className='flex flex-col gap-4 px-0'>
+      <CardContent className='flex flex-col gap-4 px-4'>
 
         {isTabsVisible && (
-          <Tabs defaultValue="text" className="w-ful px-4">
-            <TabsList className="grid w-full grid-cols-3 border">
-              <TabsTrigger className='hover:bg-foreground/5' value="text">Text</TabsTrigger>
-              <TabsTrigger className='hover:bg-foreground/5' value="image">Image</TabsTrigger>
-              <TabsTrigger className='hover:bg-foreground/5' value="video">Video</TabsTrigger>
-            </TabsList>
-            <TabText tier={tier}
-              getTypeColor={getTypeColor}
-              setModelType={(modelType) => setModelType(modelType)}
-              inputTokens={inputTokens}
-              outputTokens={outputTokens}
-              marginPercentage={textMarginPercentage}
-              useExpensiveModel={textUseExpensiveModel}
-              setInputTokens={setInputTokens}
-              setOutputTokens={setOutputTokens}
-              setMarginPercentage={setTextMarginPercentage}
-              setUseExpensiveModel={setTextUseExpensiveModel}
-              totalBaseCost={textTotalBaseCost}
-              totalProfitValue={textTotalProfitValue}
-              totalCost={textTotalCost}
-              getMostExpensiveModel={getTextMostExpensiveModel}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Text Model Card */}
+            <FlippableCard
+              isFlipped={isTextFlipped}
+              setFlipped={() => setIsTextFlipped(prev => !prev)}
+              cardColor="bg-blue-50/50 dark:bg-blue-950/20 border-blue-100 dark:border-blue-900/30"
+              frontContent={
+                <div className="h-full flex flex-col">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-medium text-blue-700 dark:text-blue-400">Text Processing</h3>
+                      <Badge className={getTypeColor('text')}>Text</Badge>
+                    </div>
+                    <div className='flex gap-2'>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(e) => { e.stopPropagation(); setIsTextFlipped(true); }}
+                        className={`flex items-center gap-2 transition-colors ${getTypeColor('text')}`}
+                      >
+                        Calculator
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(e) => { e.stopPropagation(); setModelType("text"); }}
+                        className={`flex items-center gap-2 transition-colors ${getTypeColor('text')}`}
+                      >
+                        Manage Models
+                      </Button>
+                    </div>
+                  </div>
 
+                  {tier.models.filter(model => model.model_type === 'text').length === 0 ? (
+                    <div className="text-center py-4 text-muted-foreground bg-muted/50 rounded-lg">
+                      No text models added
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-4">
+                      {tier.models
+                        .filter(model => model.model_type === 'text')
+                        .map(model => (
+                          <SelectableModelCard key={model.id} isSelected={false} model={model} onSelect={() => { }} />
+                        ))
+                      }
+                    </div>
+                  )}
+                </div>
+              }
+              backContent={
+                <div className="h-full flex flex-col">
+                  <div className="space-y-4 flex-1">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-medium text-blue-700 dark:text-blue-400">Cost Breakdown</h3>
+                        <Badge className={getTypeColor('text')}>Text</Badge>
+                      </div>
+                      <div className='flex gap-2'>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={(e) => { e.stopPropagation(); setIsTextFlipped(false); }}
+                          className={`flex items-center gap-2 transition-colors ${getTypeColor('text')}`}
+                        >
+                          See Models
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="p-4 bg-primary/5 rounded-lg">
+                        <p className="text-sm font-medium text-muted-foreground mb-1">Base Cost</p>
+                        <p className="text-xl font-bold text-primary">
+                          <NumberFlow
+                            format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
+                            value={textTotalBaseCost} />
+                        </p>
+                      </div>
+                      <div className="p-4 bg-primary/5 rounded-lg">
+                        <p className="text-sm font-medium text-muted-foreground mb-1">Total Cost</p>
+                        <p className="text-xl font-bold text-primary">
+                          <NumberFlow
+                            format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
+                            value={textTotalCost} />
+                        </p>
+                      </div>
+                      <div className="p-4 bg-primary/5 rounded-lg">
+                        <p className="text-sm font-medium text-muted-foreground mb-1">Total Profit</p>
+                        <p className="text-xl font-bold text-green-500">
+                          <NumberFlow
+                            format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
+                            value={textTotalProfitValue} />
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Input Tokens:</span>
+                        <span className="font-medium">{inputTokens.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Output Tokens:</span>
+                        <span className="font-medium">{outputTokens.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Cost per Million Tokens:</span>
+                        <span className="font-medium">
+                          <NumberFlow
+                            format={{ style: 'currency', currency: 'USD', minimumFractionDigits: 4 }}
+                            value={(inputTokens + outputTokens) > 0 ? textTotalBaseCost / ((inputTokens + outputTokens) / 1000000) : 0} />
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Margin:</span>
+                        <span className="font-medium">{textMarginPercentage}%</span>
+                      </div>
+                    </div>
+                  </div>
+                  <Separator className='my-4' />
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-medium text-blue-700 dark:text-blue-400">Text Calculator</h3>
+                    <Badge className={getTypeColor('text')}>Text</Badge>
+                  </div>
+
+                  <div className="space-y-6 flex-1">
+                    <div className="flex items-center gap-2 rounded-xl transition-all">
+                      <Checkbox
+                        id="text-use-expensive"
+                        checked={textUseExpensiveModel}
+                        onCheckedChange={(checked) => setTextUseExpensiveModel(checked as boolean)}
+                        className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                      />
+                      <label htmlFor="text-use-expensive" className="font-medium text-xs">
+                        Use most expensive model
+                      </label>
+                    </div>
+
+                    <div className='flex items-center gap-4'>
+                      <div className="space-y-2 text-xs flex flex-col w-full">
+                        <label className="font-medium">Input Tokens</label>
+                        <Input
+                          type="number"
+                          value={inputTokens}
+                          onChange={(e) => setInputTokens(Number(e.target.value))}
+                          className="bg-background focus:ring-2 focus:ring-primary/20 w-full"
+                        />
+                      </div>
+
+                      <div className="space-y-2 text-xs flex flex-col w-full">
+                        <label className="font-medium">Output Tokens</label>
+                        <Input
+                          type="number"
+                          value={outputTokens}
+                          onChange={(e) => setOutputTokens(Number(e.target.value))}
+                          className="bg-background focus:ring-2 focus:ring-primary/20"
+                        />
+                      </div>
+
+                    </div>
+                    <div className="space-y-2">
+                      <label className="font-medium">Margin Percentage</label>
+                      <Input
+                        type="number"
+                        value={textMarginPercentage}
+                        onChange={(e) => setTextMarginPercentage(Number(e.target.value))}
+                        className="bg-background focus:ring-2 focus:ring-primary/20"
+                      />
+                    </div>
+                  </div>
+                </div>
+              }
             />
-            <TabImage
-              tier={tier}
-              getTypeColor={getTypeColor}
-              setModelType={(modelType) => setModelType(modelType)}
-              imageCount={imageCount}
-              marginPercentage={imageMarginPercentage}
-              useExpensiveModel={imageUseExpensiveModel}
-              setImageCount={setImageCount}
-              setMarginPercentage={setImageMarginPercentage}
-              setUseExpensiveModel={setImageUseExpensiveModel}
-              totalBaseCost={imageTotalBaseCost}
-              totalProfitValue={imageTotalProfitValue}
-              totalCost={imageTotalCost}
-              getMostExpensiveModel={getImageMostExpensiveModel}
+
+            {/* Image Model Card */}
+            <FlippableCard
+              isFlipped={isImageFlipped}
+              setFlipped={() => setIsImageFlipped(prev => !prev)}
+              cardColor="bg-green-50/50 dark:bg-green-950/20 border-green-100 dark:border-green-900/30"
+              frontContent={
+                <div className="h-full flex flex-col">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-medium text-green-700 dark:text-green-400">Image Processing</h3>
+                      <Badge className={getTypeColor('image')}>Image</Badge>
+                    </div>
+                    <div className='flex gap-2'>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(e) => { e.stopPropagation(); setIsImageFlipped(true); }}
+                        className={`flex items-center gap-2 transition-colors ${getTypeColor('image')}`}
+                      >
+                        Calculator
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(e) => { e.stopPropagation(); setModelType("image"); }}
+                        className={`flex items-center gap-2 transition-colors ${getTypeColor('image')}`}
+                      >
+                        Manage Models
+                      </Button>
+                    </div>
+                  </div>
+
+                  {tier.models.filter(model => model.model_type === 'image').length === 0 ? (
+                    <div className="text-center py-4 text-muted-foreground bg-muted/50 rounded-lg">
+                      No image models added
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-4">
+                      {tier.models
+                        .filter(model => model.model_type === 'image')
+                        .map(model => (
+                          <SelectableModelCard key={model.id} isSelected={false} model={model} onSelect={() => { }} />
+                        ))
+                      }
+                    </div>
+                  )}
+                </div>
+              }
+              backContent={
+                <div className="h-full flex flex-col">
+                  <div className="space-y-4 flex-1">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-medium text-green-700 dark:text-green-400">Cost Breakdown</h3>
+                        <Badge className={getTypeColor('image')}>Image</Badge>
+                      </div>
+                      <div className='flex gap-2'>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={(e) => { e.stopPropagation(); setIsImageFlipped(false); }}
+                          className={`flex items-center gap-2 transition-colors ${getTypeColor('image')}`}
+                        >
+                          See Models
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="p-4 bg-primary/5 rounded-lg">
+                        <p className="text-sm font-medium text-muted-foreground mb-1">Base Cost</p>
+                        <p className="text-xl font-bold text-primary">
+                          <NumberFlow
+                            format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
+                            value={imageTotalBaseCost} />
+                        </p>
+                      </div>
+                      <div className="p-4 bg-primary/5 rounded-lg">
+                        <p className="text-sm font-medium text-muted-foreground mb-1">Total Cost</p>
+                        <p className="text-xl font-bold text-primary">
+                          <NumberFlow
+                            format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
+                            value={imageTotalCost} />
+                        </p>
+                      </div>
+                      <div className="p-4 bg-primary/5 rounded-lg">
+                        <p className="text-sm font-medium text-muted-foreground mb-1">Total Profit</p>
+                        <p className="text-xl font-bold text-green-500">
+                          <NumberFlow
+                            format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
+                            value={imageTotalProfitValue} />
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Image Count:</span>
+                        <span className="font-medium">{imageCount.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Cost per Image:</span>
+                        <span className="font-medium">
+                          <NumberFlow
+                            format={{ style: 'currency', currency: 'USD', minimumFractionDigits: 4 }}
+                            value={imageCount > 0 ? imageTotalBaseCost / imageCount : 0} />
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Margin:</span>
+                        <span className="font-medium">{imageMarginPercentage}%</span>
+                      </div>
+                    </div>
+                  </div>
+                  <Separator className='my-4' />
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-medium text-green-700 dark:text-green-400">Image Calculator</h3>
+                    <Badge className={getTypeColor('image')}>Image</Badge>
+                  </div>
+
+                  <div className="space-y-6 flex-1">
+                    <div className="flex items-center gap-2 rounded-xl transition-all">
+                      <Checkbox
+                        id="image-use-expensive"
+                        checked={imageUseExpensiveModel}
+                        onCheckedChange={(checked) => setImageUseExpensiveModel(checked as boolean)}
+                        className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                      />
+                      <label htmlFor="image-use-expensive" className="font-medium text-xs">
+                        Use most expensive model
+                      </label>
+                    </div>
+
+                    <div className="space-y-2 text-xs">
+                      <label className="font-medium">Image Count</label>
+                      <Input
+                        type="number"
+                        value={imageCount}
+                        onChange={(e) => setImageCount(Number(e.target.value))}
+                        className="bg-background focus:ring-2 focus:ring-primary/20"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="font-medium">Margin Percentage</label>
+                      <Input
+                        type="number"
+                        value={imageMarginPercentage}
+                        onChange={(e) => setImageMarginPercentage(Number(e.target.value))}
+                        className="bg-background focus:ring-2 focus:ring-primary/20"
+                      />
+                    </div>
+                  </div>
+                </div>
+              }
             />
-            <TabVideo
-              tier={tier}
-              getTypeColor={getTypeColor}
-              setModelType={(modelType) => setModelType(modelType)}
-              videoSeconds={videoSeconds}
-              marginPercentage={videoMarginPercentage}
-              useExpensiveModel={videoUseExpensiveModel}
-              setVideoSeconds={setVideoSeconds}
-              setMarginPercentage={setVideoMarginPercentage}
-              setUseExpensiveModel={setVideoUseExpensiveModel}
-              totalBaseCost={videoTotalBaseCost}
-              totalProfitValue={videoTotalProfitValue}
-              totalCost={videoTotalCost}
-              getMostExpensiveModel={getVideoMostExpensiveModel}
+
+            {/* Video Model Card */}
+            <FlippableCard
+              isFlipped={isVideoFlipped}
+              setFlipped={() => setIsVideoFlipped(prev => !prev)}
+              cardColor="bg-purple-50/50 dark:bg-purple-950/20 border-purple-100 dark:border-purple-900/30"
+              frontContent={
+                <div className="h-full flex flex-col">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-medium text-purple-700 dark:text-purple-400">Video Processing</h3>
+                      <Badge className={getTypeColor('video')}>Video</Badge>
+                    </div>
+                    <div className='flex gap-2'>
+
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(e) => { e.stopPropagation(); setIsVideoFlipped(true); }}
+                        className={`flex items-center gap-2 transition-colors ${getTypeColor('video')}`}
+                      >
+                        Calculator
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(e) => { e.stopPropagation(); setModelType("video"); }}
+                        className={`flex items-center gap-2 transition-colors ${getTypeColor('video')}`}
+                      >
+                        Manage Models
+                      </Button>
+                    </div>
+                  </div>
+
+
+                  {tier.models.filter(model => model.model_type === 'video').length === 0 ? (
+                    <div className="text-center py-4 text-muted-foreground bg-muted/50 rounded-lg">
+                      No video models added
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-4">
+                      {tier.models
+                        .filter(model => model.model_type === 'video')
+                        .map(model => (
+                          <SelectableModelCard key={model.id} isSelected={false} model={model} onSelect={() => { }} />
+                        ))
+                      }
+                    </div>
+                  )}
+                </div>
+              }
+              backContent={
+                <div className="h-full flex flex-col">
+                  <div className="space-y-4 flex-1">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-medium text-purple-700 dark:text-purple-400">Cost Breakdown</h3>
+                        <Badge className={getTypeColor('video')}>Video</Badge>
+                      </div>
+                      <div className='flex gap-2'>
+
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={(e) => { e.stopPropagation(); setIsVideoFlipped(false); }}
+                          className={`flex items-center gap-2 transition-colors ${getTypeColor('video')}`}
+                        >
+                          See Models
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+
+                      <div className="p-4 bg-primary/5 rounded-lg">
+                        <p className="text-sm font-medium text-muted-foreground mb-1">Base Cost</p>
+                        <p className="text-xl font-bold text-primary">
+                          <NumberFlow
+                            format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
+                            value={videoTotalBaseCost} />
+                        </p>
+                      </div>
+                      <div className="p-4 bg-primary/5 rounded-lg">
+                        <p className="text-sm font-medium text-muted-foreground mb-1">Total Cost</p>
+                        <p className="text-xl font-bold text-primary">
+                          <NumberFlow
+                            format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
+                            value={videoTotalCost} />
+                        </p>
+                      </div>
+                      <div className="p-4 bg-primary/5 rounded-lg">
+                        <p className="text-sm font-medium text-muted-foreground mb-1">Total Profit</p>
+                        <p className="text-xl font-bold text-green-500">
+                          <NumberFlow
+                            format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
+                            value={videoTotalProfitValue} />
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Duration:</span>
+                        <span className="font-medium">{videoSeconds.toLocaleString()}s</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Cost per Second:</span>
+                        <span className="font-medium">
+                          <NumberFlow
+                            format={{ style: 'currency', currency: 'USD', minimumFractionDigits: 4 }}
+                            value={videoSeconds > 0 ? videoTotalBaseCost / videoSeconds : 0} />
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Margin:</span>
+                        <span className="font-medium">{videoMarginPercentage}%</span>
+                      </div>
+                    </div>
+
+
+
+                  </div>
+                  <Separator className='my-4' />
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-medium text-purple-700 dark:text-purple-400">Video Calculator</h3>
+                    <Badge className={getTypeColor('video')}>Video</Badge>
+                  </div>
+
+                  <div className="space-y-6 flex-1">
+                    <div className="flex items-center gap-2 rounded-xl transition-all">
+                      <Checkbox
+                        id="video-use-expensive"
+                        checked={videoUseExpensiveModel}
+                        onCheckedChange={(checked) => setVideoUseExpensiveModel(checked as boolean)}
+                        className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                      />
+                      <label htmlFor="video-use-expensive" className="font-medium text-xs">
+                        Use most expensive model
+                      </label>
+                    </div>
+
+                    <div className="space-y-2 text-xs">
+                      <label className="font-medium ">Video Seconds</label>
+                      <Input
+                        type="number"
+                        value={videoSeconds}
+                        onChange={(e) => setVideoSeconds(Number(e.target.value))}
+                        className="bg-background focus:ring-2 focus:ring-primary/20 "
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="font-medium">Margin Percentage</label>
+                      <Input
+                        type="number"
+                        value={videoMarginPercentage}
+                        onChange={(e) => setVideoMarginPercentage(Number(e.target.value))}
+                        className="bg-background focus:ring-2 focus:ring-primary/20 "
+                      />
+                    </div>
+                  </div>
+
+
+                </div>
+              }
             />
-          </Tabs>
-        )}
-      </CardContent>
+          </div>
+        )
+        }
+      </CardContent >
       {isSummaryVisible && <CardFooter className="px-0">
         <div className='w-full bg-card rounded-xl p-8 shadow-md border border-primary/10 overflow-hidden relative'>
           {/* Decorative background element */}
@@ -523,6 +968,6 @@ export function TierCard({ tier }: TierCardProps) {
         description="Are you sure you want to delete this tier? This action cannot be undone."
         confirmText="Delete"
       />
-    </div>
+    </div >
   );
 }
