@@ -15,7 +15,7 @@ interface FlippableCardProps {
 export function FlippableCard({ frontContent, backContent, className = '', cardColor = '', setFlipped, isFlipped }: FlippableCardProps) {
 
   return (
-    <div className={`relative w-full min-h-[600px] ${className}`}>
+    <div className={`relative w-full h-[600px] ${className}`}>
       <div
         className={`w-full h-full transition-all duration-500 preserve-3d ${isFlipped ? 'rotate-y-180' : ''}`}
         style={{ transformStyle: 'preserve-3d' }}
