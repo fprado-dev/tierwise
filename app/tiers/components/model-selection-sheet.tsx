@@ -84,7 +84,7 @@ export function ModelSelectionSheet({ tier, modelType, isOpen, onOpenChange }: M
 
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full h-full max-w-full sm:max-w-full p-0 overflow-hidden flex flex-col">
+      <SheetContent side="right" className="w-[800px] sm:max-w-full p-0 overflow-hidden flex flex-col">
 
         {/* Header Section */}
         <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b">
@@ -117,7 +117,7 @@ export function ModelSelectionSheet({ tier, modelType, isOpen, onOpenChange }: M
               </p>
             </div>
           ) : (
-            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 auto-rows-fr">
+            <div className="grid gap-4 grid-cols-2  auto-rows-fr">
               {getModelOptions().map((model) => (
                 <SelectableModelCard
                   key={model.id}
