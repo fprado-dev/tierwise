@@ -44,9 +44,9 @@ export default async function RootLayout({
         >
           <Providers>
             <SidebarProvider>
-              {user && <AppSidebar />}
+              {user && <AppSidebar user={user} />}
               <SidebarInset>
-                {user && <Header show />}
+                {user && <Header />}
                 <div className="flex flex-1 flex-col gap-4">
                   {children}
                 </div>
