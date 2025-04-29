@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 
 import { AppSidebar } from "@/components/app-sidebar";
+import OnboardingModal from "@/components/onboarding-modal";
 import {
   SidebarInset,
   SidebarProvider
@@ -44,10 +45,16 @@ export default async function RootLayout({
         >
           <Providers>
             <SidebarProvider>
-              {user && <AppSidebar user={user} />}
+              {user && (
+                <>
+                  <AppSidebar user={user} />
+                </>
+              )}
               <SidebarInset>
                 {user && <Header />}
                 <div className="flex flex-1 flex-col gap-4">
+                  <OnboardingModal />
+
                   {children}
                 </div>
               </SidebarInset>

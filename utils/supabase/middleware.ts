@@ -47,10 +47,10 @@ export const updateSession = async (request: NextRequest) => {
 
     const publicRoutes = ["/sign-in", "/sign-up", "/forgot-password"];
     if (publicRoutes.some(route => request.nextUrl.pathname.startsWith(route)) && !user.error) {
-      return NextResponse.redirect(new URL("/tiers", request.url));
+      return NextResponse.redirect(new URL("/projects", request.url));
     }
     if (request.nextUrl.pathname === "/" && !user.error) {
-      return NextResponse.redirect(new URL("/tiers", request.url));
+      return NextResponse.redirect(new URL("/projects", request.url));
     }
 
     return response;
