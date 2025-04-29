@@ -1,10 +1,10 @@
 "use client";
 
 import {
+  Badge,
   BotIcon,
   FolderIcon,
-  Layers2Icon,
-  SettingsIcon
+  Layers2Icon
 } from "lucide-react";
 import * as React from "react";
 
@@ -45,9 +45,9 @@ const data = {
   ],
   navSecondary: [
     {
-      title: "Settings",
-      url: "#",
-      icon: SettingsIcon,
+      title: "Upgrade",
+      url: "/upgrade",
+      icon: Badge,
     },
   ],
 };
