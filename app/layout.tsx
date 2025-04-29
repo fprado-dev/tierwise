@@ -9,7 +9,6 @@ import {
   SidebarProvider
 } from "@/components/ui/sidebar";
 import { createClient } from "@/utils/supabase/server";
-import { headers } from "next/headers";
 import { Header } from "./Header";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -32,9 +31,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const headersList = await headers();
-  const fullUrl = headersList.get('referer') || "";
-  console.log();
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   return (
@@ -50,7 +46,7 @@ export default async function RootLayout({
             <SidebarProvider>
               {user && <AppSidebar />}
               <SidebarInset>
-                <Header show={!true} />
+                {user && <Header show />}
                 <div className="flex flex-1 flex-col gap-4">
                   {children}
                 </div>

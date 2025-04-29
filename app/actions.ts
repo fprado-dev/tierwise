@@ -2,139 +2,46 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { encodedRedirect } from "@/utils/utils";
-import { QueryClient } from "@tanstack/react-query";
+import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 
-export const signUpAction = async (formData: FormData) => {
-  const email = formData.get("email")?.toString();
-  const password = formData.get("password")?.toString();
+export const signInAction = async (formData: FormData) => {
+  const email = formData.get("email") as string;
   const supabase = await createClient();
   const origin = (await headers()).get("origin");
 
-  if (!email || !password) {
-    return encodedRedirect(
-      "error",
-      "/sign-up",
-      "Email and password are required",
-    );
+  if (!email) {
+    return encodedRedirect("error", "/sign-in", "Email is required");
   }
 
-  const { error } = await supabase.auth.signUp({
+  const { error } = await supabase.auth.signInWithOtp({
     email,
-    password,
     options: {
       emailRedirectTo: `${origin}/auth/callback`,
     },
   });
 
   if (error) {
-    console.error(error.code + " " + error.message);
-    return encodedRedirect("error", "/sign-up", error.message);
-  } else {
-    return encodedRedirect(
-      "success",
-      "/sign-up",
-      "Thanks for signing up! Please check your email for a verification link.",
-    );
-  }
-};
-
-export const signInAction = async (formData: FormData) => {
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const supabase = await createClient();
-
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
-
-  if (error) {
     return encodedRedirect("error", "/sign-in", error.message);
-  }
-
-  return redirect("/tiers");
-};
-
-export const forgotPasswordAction = async (formData: FormData) => {
-  const email = formData.get("email")?.toString();
-  const supabase = await createClient();
-  const origin = (await headers()).get("origin");
-  const callbackUrl = formData.get("callbackUrl")?.toString();
-
-  if (!email) {
-    return encodedRedirect("error", "/forgot-password", "Email is required");
-  }
-
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${origin}/auth/callback?redirect_to=/tiers/reset-password`,
-  });
-
-  if (error) {
-    console.error(error.message);
-    return encodedRedirect(
-      "error",
-      "/forgot-password",
-      "Could not reset password",
-    );
-  }
-
-  if (callbackUrl) {
-    return redirect(callbackUrl);
   }
 
   return encodedRedirect(
     "success",
-    "/forgot-password",
-    "Check your email for a link to reset your password.",
+    "/sign-in",
+    "Check your email for the magic link to sign in."
   );
 };
 
-export const resetPasswordAction = async (formData: FormData) => {
+export async function signOutAction() {
   const supabase = await createClient();
-
-  const password = formData.get("password") as string;
-  const confirmPassword = formData.get("confirmPassword") as string;
-
-  if (!password || !confirmPassword) {
-    encodedRedirect(
-      "error",
-      "/tiers/reset-password",
-      "Password and confirm password are required",
-    );
-  }
-
-  if (password !== confirmPassword) {
-    encodedRedirect(
-      "error",
-      "/tiers/reset-password",
-      "Passwords do not match",
-    );
-  }
-
-  const { error } = await supabase.auth.updateUser({
-    password: password,
-  });
+  const { error } = await supabase.auth.signOut();
 
   if (error) {
-    encodedRedirect(
-      "error",
-      "/tiers/reset-password",
-      "Password update failed",
-    );
+    return encodedRedirect("error", "/", error.message);
   }
 
-  encodedRedirect("success", "/tiers/reset-password", "Password updated");
-};
+  revalidatePath("/", "layout");
+  return encodedRedirect("success", "/", "Successfully signed out");
+}
 
-export const signOutAction = async () => {
-  const supabase = await createClient();
-  await supabase.auth.signOut();
 
-  // Clear React Query cache on sign out
-  const queryClient = new QueryClient();
-  await queryClient.clear();
-
-  return redirect("/sign-in");
-};
