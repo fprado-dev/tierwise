@@ -43,7 +43,7 @@ const PricingTier = ({ title, price, features, priceId, onSubscribe, isCurrentPl
     </ul>
     <button
       onClick={() => onSubscribe?.(priceId)}
-      className={`w-full ${isCurrentPlan ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'} text-white py-2 px-4 rounded-md transition-colors`}
+      className={`w-full ${isCurrentPlan ? 'bg-green-600 hover:bg-green-700' : 'bg-primary hover:bg-primary/30'} text-white py-2 px-4 rounded-md transition-colors`}
     >
       {isCurrentPlan ? 'Manage Subscription' : 'Subscribe Now'}
     </button>

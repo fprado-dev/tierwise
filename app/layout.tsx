@@ -10,7 +10,6 @@ import {
   SidebarProvider
 } from "@/components/ui/sidebar";
 import { createClient } from "@/utils/supabase/server";
-import { Header } from "./Header";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -45,13 +44,12 @@ export default async function RootLayout({
         >
           <Providers>
             <SidebarProvider>
-              {user && (
+              {user?.id && (
                 <>
                   <AppSidebar user={user} />
                 </>
               )}
               <SidebarInset>
-                {user && <Header />}
                 <div className="flex flex-1 flex-col gap-4">
                   <OnboardingModal />
 

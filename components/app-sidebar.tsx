@@ -1,9 +1,10 @@
 "use client";
 
 import {
-  Badge,
   BotIcon,
+  CrownIcon,
   FolderIcon,
+  GalleryVerticalEndIcon,
   Layers2Icon
 } from "lucide-react";
 import * as React from "react";
@@ -41,13 +42,18 @@ const data = {
       url: "/models",
       icon: BotIcon,
     },
+    {
+      title: "Summary",
+      url: "/summary",
+      icon: GalleryVerticalEndIcon,
+    },
 
   ],
   navSecondary: [
     {
       title: "Upgrade",
       url: "/upgrade",
-      icon: Badge,
+      icon: CrownIcon,
     },
   ],
 };
@@ -60,8 +66,10 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
     avatar: user?.user_metadata?.avatar_url || '',
   };
 
+
+
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
+    <Sidebar variant="floating" collapsible="icon"  {...props}>
       <SidebarHeader>
         <ProjectSwitcher />
       </SidebarHeader>

@@ -1,5 +1,6 @@
 'use client';
 
+import { Separator } from '@/components/ui/separator';
 import { useState } from 'react';
 import { ProjectCreateSheet } from './components/project-create-sheet';
 import { ProjectEditSheet } from './components/project-edit-sheet';
@@ -67,12 +68,12 @@ export default function ProjectsPage() {
     <div className="w-full px-4 py-4">
       <div className="rounded-lg">
         <div className="flex justify-between items-center mb-4">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-bold tracking-tight">Projects</h1>
-            <p className="text-sm text-muted-foreground">
-              Manage your AI cost tracking projects
-            </p>
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold">Projects</h1>
+            <p className="text-muted-foreground">Manage your AI cost tracking projects.</p>
+
           </div>
+
 
           <ProjectCreateSheet
             isOpen={isCreateSheetOpen}
@@ -81,6 +82,7 @@ export default function ProjectsPage() {
             isCreating={isCreating}
           />
         </div>
+        <Separator className='my-5 max-w-20' />
 
         <ProjectList
           onEdit={handleEditStart}

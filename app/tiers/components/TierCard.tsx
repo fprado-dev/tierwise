@@ -14,7 +14,7 @@ import { useTiers } from '@/hooks/useTiers';
 import { useTierSummary } from '@/hooks/useTierSummary';
 import { ProcessedTier } from '@/lib/tier.types';
 import NumberFlow from '@number-flow/react';
-import { ChartNoAxesCombinedIcon, CogIcon, PencilLineIcon, TrashIcon } from 'lucide-react';
+import { CogIcon, PencilLineIcon, SaveIcon, TrashIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { FlippableCard } from './FlippableCard';
 import { ModelSelectionSheet } from './model-selection-sheet';
@@ -47,7 +47,7 @@ export function TierCard({ tier }: TierCardProps) {
 
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const { deleteTier, updateTier } = useTiers();
-  const { summary, saveSummary, updateSummary, isLoading: isSummaryLoading, isUpdating } = useTierSummary(tier.id);
+  const { summary, saveSummary, updateSummary, isLoading: isSummaryLoading, isUpdating, isSaving } = useTierSummary(tier.id);
   const {
     inputTokens,
     outputTokens,
@@ -108,29 +108,24 @@ export function TierCard({ tier }: TierCardProps) {
 
 
   const handleSummary = () => {
-    const newSummaryVisible = !isSummaryVisible;
-    setSummaryVisible(newSummaryVisible);
-    setIsTabsVisible(false);
-
     // Save summary data when showing the summary
-    if (newSummaryVisible) {
-      saveSummary({
-        tier_id: tier.id,
-        input_tokens: inputTokens,
-        output_tokens: outputTokens,
-        image_count: imageCount,
-        video_seconds: videoSeconds,
-        text_margin_percentage: textMarginPercentage,
-        image_margin_percentage: imageMarginPercentage,
-        video_margin_percentage: videoMarginPercentage,
-        text_use_expensive_model: textUseExpensiveModel,
-        image_use_expensive_model: imageUseExpensiveModel,
-        video_use_expensive_model: videoUseExpensiveModel,
-        operational_overhead_percentage: operationalOverheadPercentage,
+    saveSummary({
+      tier_id: tier.id,
+      input_tokens: inputTokens,
+      output_tokens: outputTokens,
+      image_count: imageCount,
+      video_seconds: videoSeconds,
+      text_margin_percentage: textMarginPercentage,
+      image_margin_percentage: imageMarginPercentage,
+      video_margin_percentage: videoMarginPercentage,
+      text_use_expensive_model: textUseExpensiveModel,
+      image_use_expensive_model: imageUseExpensiveModel,
+      video_use_expensive_model: videoUseExpensiveModel,
+      operational_overhead_percentage: operationalOverheadPercentage,
 
-      });
-    }
+    });
   };
+
   return (
     <div className='bg-transparent border-none mt-4'>
       <CardHeader className='p-6'>
@@ -149,10 +144,11 @@ export function TierCard({ tier }: TierCardProps) {
               size="sm"
               variant="outline"
               onClick={handleSummary}
-              className='hover:bg-primary/10 hover:text-primary transition-colors'
+              className='hover:bg-sidebar-foreground/90 min-w-32 bg-sidebar hover:text-white text-primary transition-colors'
             >
-              Summary
-              <ChartNoAxesCombinedIcon className='h-4 w-4' />
+              {isSaving ? "Saving..." : "Save Summary"}
+              <SaveIcon className='h-4 w-4' />
+
             </Button>
             <Button
               size="sm"
@@ -178,7 +174,7 @@ export function TierCard({ tier }: TierCardProps) {
             </Button>
             <Button
               size="sm"
-              variant="outline"
+              variant="destructive"
               className='hover:bg-destructive/10 hover:text-destructive transition-colors'
               onClick={() => setIsDeleteConfirmOpen(true)}
             >
@@ -188,7 +184,14 @@ export function TierCard({ tier }: TierCardProps) {
           </div>
         </div>
       </CardHeader>
-
+      <ConfirmDialog
+        isOpen={isDeleteConfirmOpen}
+        onOpenChange={setIsDeleteConfirmOpen}
+        onConfirm={() => deleteTier(tier.id)}
+        title="Delete Tier"
+        description="Are you sure you want to delete this tier? This action cannot be undone."
+        confirmText="Delete"
+      />
       {modelType && (
         <ModelSelectionSheet
           tier={tier}
@@ -205,14 +208,9 @@ export function TierCard({ tier }: TierCardProps) {
         onUpdateTier={updateTier}
       />
       <CardContent className='flex flex-col gap-4 px-4'>
-
         {isTabsVisible && (
-
           <div className="flex flex-col gap-4">
-
             <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-6">
-
-
 
               <FlippableCard
                 cardColor="bg-blue-50/50 dark:bg-blue-950/20 border-blue-100 dark:border-blue-900/30"
@@ -571,7 +569,6 @@ export function TierCard({ tier }: TierCardProps) {
             </div>
           </div>
         )}
-
       </CardContent >
       {isSummaryVisible && <CardFooter className="px-0">
         <div className='w-full bg-card rounded-xl p-8 shadow-md border border-primary/10 overflow-hidden relative'>
@@ -762,14 +759,7 @@ export function TierCard({ tier }: TierCardProps) {
           </div>
         </div>
       </CardFooter>}
-      <ConfirmDialog
-        isOpen={isDeleteConfirmOpen}
-        onOpenChange={setIsDeleteConfirmOpen}
-        onConfirm={() => deleteTier(tier.id)}
-        title="Delete Tier"
-        description="Are you sure you want to delete this tier? This action cannot be undone."
-        confirmText="Delete"
-      />
+
     </div >
   );
 };;;
