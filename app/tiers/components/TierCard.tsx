@@ -5,11 +5,12 @@ import { useTextModelCalculator } from '@/app/hooks/useTextModelCalculator';
 import { useVideoModelCalculator } from '@/app/hooks/useVideoModelCalculator';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { CardContent, CardHeader } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTiers } from '@/hooks/useTiers';
 import { useTierSummary } from '@/hooks/useTierSummary';
 import { ProcessedTier } from '@/lib/tier.types';
@@ -39,15 +40,12 @@ export const getTypeColor = (type: string) => {
 export function TierCard({ tier }: TierCardProps) {
   const [isEditing, setEditSheetopen] = useState(false);
   const [modelType, setModelType] = useState<'text' | 'image' | 'video' | undefined>();
-
-  const [isTabsVisible, setIsTabsVisible] = useState(true);
-  const [isSummaryVisible, setSummaryVisible] = useState(false);
-  const [operationalOverheadPercentage, setOperationalOverheadPercentage] = useState<number>(20);
-
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const { deleteTier, updateTier } = useTiers();
-  const { summary, saveSummary, updateSummary, isLoading: isSummaryLoading, isUpdating, isSaving } = useTierSummary(tier.id);
+  const { summary, isLoading, saveSummary } = useTierSummary(tier.id);
+
   const {
     inputTokens,
     outputTokens,
@@ -89,23 +87,34 @@ export function TierCard({ tier }: TierCardProps) {
     getMostExpensiveModel: getVideoMostExpensiveModel,
   } = useVideoModelCalculator(tier);
 
-  // Load saved summary data when component mounts
+
+
+
+  // Load summary data when component mounts
   useEffect(() => {
     if (summary) {
+      // Populate text model calculator fields
       setInputTokens(summary.input_tokens);
       setOutputTokens(summary.output_tokens);
-      setImageCount(summary.image_count);
-      setVideoSeconds(summary.video_seconds);
       setTextMarginPercentage(summary.text_margin_percentage);
-      setImageMarginPercentage(summary.image_margin_percentage);
-      setVideoMarginPercentage(summary.video_margin_percentage);
       setTextUseExpensiveModel(summary.text_use_expensive_model);
-      setImageUseExpensiveModel(summary.image_use_expensive_model);
-      setVideoUseExpensiveModel(summary.video_use_expensive_model);
-      setOperationalOverheadPercentage(summary.operational_overhead_percentage);
-    }
-  }, [summary]);
 
+      // Populate image model calculator fields
+      setImageCount(summary.image_count);
+      setImageMarginPercentage(summary.image_margin_percentage);
+      setImageUseExpensiveModel(summary.image_use_expensive_model);
+
+      // Populate video model calculator fields
+      setVideoSeconds(summary.video_seconds);
+      setVideoMarginPercentage(summary.video_margin_percentage);
+      setVideoUseExpensiveModel(summary.video_use_expensive_model);
+
+      // Reset unsaved changes flag when loading from summary
+      setHasUnsavedChanges(false);
+    }
+  }, [summary, setInputTokens, setOutputTokens, setTextMarginPercentage, setTextUseExpensiveModel,
+    setImageCount, setImageMarginPercentage, setImageUseExpensiveModel,
+    setVideoSeconds, setVideoMarginPercentage, setVideoUseExpensiveModel]);
 
   const handleSummary = () => {
     // Save summary data when showing the summary
@@ -121,11 +130,40 @@ export function TierCard({ tier }: TierCardProps) {
       text_use_expensive_model: textUseExpensiveModel,
       image_use_expensive_model: imageUseExpensiveModel,
       video_use_expensive_model: videoUseExpensiveModel,
-      operational_overhead_percentage: operationalOverheadPercentage,
-
+      operational_overhead_percentage: 0,
     });
+    setHasUnsavedChanges(false);
   };
 
+  // Track changes in calculator values
+  useEffect(() => {
+    if (summary) {
+      const hasTextChanges =
+        inputTokens !== summary.input_tokens ||
+        outputTokens !== summary.output_tokens ||
+        textMarginPercentage !== summary.text_margin_percentage ||
+        textUseExpensiveModel !== summary.text_use_expensive_model;
+
+      const hasImageChanges =
+        imageCount !== summary.image_count ||
+        imageMarginPercentage !== summary.image_margin_percentage ||
+        imageUseExpensiveModel !== summary.image_use_expensive_model;
+
+      const hasVideoChanges =
+        videoSeconds !== summary.video_seconds ||
+        videoMarginPercentage !== summary.video_margin_percentage ||
+        videoUseExpensiveModel !== summary.video_use_expensive_model;
+
+      setHasUnsavedChanges(hasTextChanges || hasImageChanges || hasVideoChanges);
+    }
+  }, [summary, inputTokens, outputTokens, textMarginPercentage, textUseExpensiveModel,
+    imageCount, imageMarginPercentage, imageUseExpensiveModel,
+    videoSeconds, videoMarginPercentage, videoUseExpensiveModel]);
+
+
+  const hasTextModel = tier.models.some(model => model.model_type === 'text');
+  const hasImageModel = tier.models.some(model => model.model_type === 'image');
+  const hasVideoModel = tier.models.some(model => model.model_type === 'video');
   return (
     <div className='bg-transparent border-none mt-4'>
       <CardHeader className='p-6'>
@@ -141,44 +179,44 @@ export function TierCard({ tier }: TierCardProps) {
           </div>
           <div className='flex items-center gap-2'>
             <Button
-              size="sm"
-              variant="outline"
+              size="icon"
+              variant={hasUnsavedChanges ? "default" : "outline"}
               onClick={handleSummary}
-              className='hover:bg-sidebar-foreground/90 min-w-32 bg-sidebar hover:text-white text-primary transition-colors'
+              className={`${hasUnsavedChanges
+                ? 'bg-primary hover:bg-primary/90 text-primary-foreground animate-pulse'
+                : 'hover:bg-sidebar-foreground/90 bg-sidebar hover:text-white text-primary'} transition-colors relative`}
+              title={hasUnsavedChanges ? "You have unsaved changes" : "Save changes"}
             >
-              {isSaving ? "Saving..." : "Save Summary"}
               <SaveIcon className='h-4 w-4' />
-
+              {hasUnsavedChanges && (
+                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                </span>
+              )}
             </Button>
             <Button
-              size="sm"
+              size="icon"
               variant="outline"
+              onClick={() => setModelType('text')}
               className='hover:bg-primary/10 hover:text-primary transition-colors'
-              onClick={() => {
-                setSummaryVisible(false);
-                setIsTabsVisible(prev => !prev);
-              }
-              }
             >
-              Models Config
               <CogIcon className='h-4 w-4' />
             </Button>
             <Button
-              size="sm"
+              size="icon"
               variant="outline"
               className='hover:bg-primary/10 hover:text-primary transition-colors'
               onClick={() => setEditSheetopen(prev => !prev)}
             >
-              Update
               <PencilLineIcon className='h-4 w-4' />
             </Button>
             <Button
-              size="sm"
+              size="icon"
               variant="destructive"
               className='hover:bg-destructive/10 hover:text-destructive transition-colors'
               onClick={() => setIsDeleteConfirmOpen(true)}
             >
-              Delete
               <TrashIcon className='h-4 w-4' />
             </Button>
           </div>
@@ -208,558 +246,396 @@ export function TierCard({ tier }: TierCardProps) {
         onUpdateTier={updateTier}
       />
       <CardContent className='flex flex-col gap-4 px-4'>
-        {isTabsVisible && (
-          <div className="flex flex-col gap-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-6">
+        {(!hasTextModel && !hasImageModel && !hasVideoModel) ? (
 
-              <FlippableCard
-                cardColor="bg-blue-50/50 dark:bg-blue-950/20 border-blue-100 dark:border-blue-900/30"
-                frontContent={
-                  <div className="h-full flex flex-col">
-                    <div className="space-y-4 flex-1">
+          <div className="flex flex-col items-center justify-center h-full text-center p-8">
+            <div className="rounded-full bg-muted p-3 mb-4">
+              <CogIcon className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <h3 className="font-semibold text-lg mb-1">No models found</h3>
+            <p className="text-muted-foreground max-w-md">
+              Add models to your tier to get started.
+            </p>
+          </div>
+        ) : (
+
+
+          <Tabs defaultValue="text" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              {hasTextModel && <TabsTrigger value="text" >Text</TabsTrigger>}
+              {hasImageModel && <TabsTrigger value="image">Image</TabsTrigger>}
+              {hasVideoModel && <TabsTrigger value="video" >Video</TabsTrigger>}
+            </TabsList>
+            <TabsContent value="text">
+              {hasTextModel && (
+                <FlippableCard
+                  cardColor="bg-blue-50/50 dark:bg-blue-950/20 border-blue-100 dark:border-blue-900/30"
+                  frontContent={
+                    <div className="h-full flex flex-col">
+                      <div className="space-y-4 flex-1">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-medium text-blue-700 dark:text-blue-400">Cost Breakdown</h3>
+                            <Badge className={getTypeColor('text')}>Text</Badge>
+                          </div>
+                          <div className='flex gap-2'>
+                            <Button
+                              size="icon"
+                              variant="outline"
+                              onClick={(e) => { e.stopPropagation(); setModelType("text"); }}
+                              className={`flex items-center gap-2 transition-colors`}
+                            >
+                              <CogIcon className='w-4 h-4' />
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-4">
+
+                          <div className="p-4 flex flex-col justify-center items-center bg-primary/5 rounded-lg">
+                            <p className="text-sm font-medium text-muted-foreground mb-1">Base Cost</p>
+                            <p className="font-bold text-primary">
+                              <NumberFlow
+                                format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
+                                value={textTotalBaseCost} />
+                            </p>
+                          </div>
+                          <div className="p-4 flex flex-col justify-center items-center bg-primary/5 rounded-lg">
+                            <p className="text-sm font-medium text-muted-foreground mb-1">Total Cost</p>
+                            <p className="font-bold text-primary">
+                              <NumberFlow
+                                format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
+                                value={textTotalCost} />
+                            </p>
+                          </div>
+                          <div className="p-4 flex flex-col justify-center items-center bg-primary/5 rounded-lg">
+                            <p className="text-sm font-medium text-green-700 mb-1">Total Profit</p>
+                            <p className="font-bold text-primary">
+                              <NumberFlow
+                                format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
+                                value={textTotalProfitValue} />
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-3 min-h-32">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">Input Tokens:</span>
+                            <span className="font-medium">{inputTokens.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">Output Tokens:</span>
+                            <span className="font-medium">{outputTokens.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">Cost per Million Tokens:</span>
+                            <span className="font-medium">
+                              <NumberFlow
+                                format={{ style: 'currency', currency: 'USD', minimumFractionDigits: 4 }}
+                                value={(inputTokens + outputTokens) > 0 ? textTotalBaseCost / ((inputTokens + outputTokens) / 1000000) : 0} />
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">Margin:</span>
+                            <span className="font-medium">{textMarginPercentage}%</span>
+                          </div>
+                        </div>
+                      </div>
+                      <Separator className='my-4' />
                       <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-medium text-blue-700 dark:text-blue-400">Cost Breakdown</h3>
-                          <Badge className={getTypeColor('text')}>Text</Badge>
-                        </div>
-                        <div className='flex gap-2'>
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            onClick={(e) => { e.stopPropagation(); setModelType("text"); }}
-                            className={`flex items-center gap-2 transition-colors`}
-                          >
-                            <CogIcon className='w-4 h-4' />
-                          </Button>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-3 gap-4">
-
-                        <div className="p-4 flex flex-col justify-center items-center bg-primary/5 rounded-lg">
-                          <p className="text-sm font-medium text-muted-foreground mb-1">Base Cost</p>
-                          <p className="font-bold text-primary">
-                            <NumberFlow
-                              format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                              value={textTotalBaseCost} />
-                          </p>
-                        </div>
-                        <div className="p-4 flex flex-col justify-center items-center bg-primary/5 rounded-lg">
-                          <p className="text-sm font-medium text-muted-foreground mb-1">Total Cost</p>
-                          <p className="font-bold text-primary">
-                            <NumberFlow
-                              format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                              value={textTotalCost} />
-                          </p>
-                        </div>
-                        <div className="p-4 flex flex-col justify-center items-center bg-primary/5 rounded-lg">
-                          <p className="text-sm font-medium text-green-700 mb-1">Total Profit</p>
-                          <p className="font-bold text-primary">
-                            <NumberFlow
-                              format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                              value={textTotalProfitValue} />
-                          </p>
-                        </div>
+                        <h3 className="font-medium text-blue-700 dark:text-blue-400">Text Calculator</h3>
                       </div>
 
-                      <div className="space-y-3 min-h-32">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Input Tokens:</span>
-                          <span className="font-medium">{inputTokens.toLocaleString()}</span>
+                      <div className="space-y-6 flex-1">
+                        <div className="flex items-center gap-2 rounded-xl transition-all">
+                          <Checkbox
+                            id="text-use-expensive"
+                            checked={textUseExpensiveModel}
+                            onCheckedChange={(checked) => setTextUseExpensiveModel(checked as boolean)}
+                            className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                          />
+                          <label htmlFor="text-use-expensive" className="font-medium text-xs">
+                            Use most expensive model
+                          </label>
                         </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Output Tokens:</span>
-                          <span className="font-medium">{outputTokens.toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Cost per Million Tokens:</span>
-                          <span className="font-medium">
-                            <NumberFlow
-                              format={{ style: 'currency', currency: 'USD', minimumFractionDigits: 4 }}
-                              value={(inputTokens + outputTokens) > 0 ? textTotalBaseCost / ((inputTokens + outputTokens) / 1000000) : 0} />
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Margin:</span>
-                          <span className="font-medium">{textMarginPercentage}%</span>
-                        </div>
-                      </div>
-                    </div>
-                    <Separator className='my-4' />
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-medium text-blue-700 dark:text-blue-400">Text Calculator</h3>
-                    </div>
 
-                    <div className="space-y-6 flex-1">
-                      <div className="flex items-center gap-2 rounded-xl transition-all">
-                        <Checkbox
-                          id="text-use-expensive"
-                          checked={textUseExpensiveModel}
-                          onCheckedChange={(checked) => setTextUseExpensiveModel(checked as boolean)}
-                          className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                        />
-                        <label htmlFor="text-use-expensive" className="font-medium text-xs">
-                          Use most expensive model
-                        </label>
-                      </div>
+                        <div className='flex items-center gap-4'>
+                          <div className="space-y-2 text-xs flex flex-col w-full">
+                            <label className="font-medium">Input Tokens</label>
+                            <Input
+                              type="number"
+                              value={inputTokens}
+                              onChange={(e) => setInputTokens(Number(e.target.value))}
+                              className="bg-background focus:ring-2 focus:ring-primary/20 w-full"
+                            />
+                          </div>
 
-                      <div className='flex items-center gap-4'>
-                        <div className="space-y-2 text-xs flex flex-col w-full">
-                          <label className="font-medium">Input Tokens</label>
+                          <div className="space-y-2 text-xs flex flex-col w-full">
+                            <label className="font-medium">Output Tokens</label>
+                            <Input
+                              type="number"
+                              value={outputTokens}
+                              onChange={(e) => setOutputTokens(Number(e.target.value))}
+                              className="bg-background focus:ring-2 focus:ring-primary/20"
+                            />
+                          </div>
+
+                        </div>
+                        <div className="space-y-2">
+                          <label className="font-medium">Margin Percentage</label>
                           <Input
                             type="number"
-                            value={inputTokens}
-                            onChange={(e) => setInputTokens(Number(e.target.value))}
-                            className="bg-background focus:ring-2 focus:ring-primary/20 w-full"
+                            value={textMarginPercentage}
+                            onChange={(e) => setTextMarginPercentage(Number(e.target.value))}
+                            className="bg-background focus:ring-2 focus:ring-primary/20"
                           />
                         </div>
+                      </div>
+                    </div>
+                  }
+                />
 
-                        <div className="space-y-2 text-xs flex flex-col w-full">
-                          <label className="font-medium">Output Tokens</label>
+
+              )}
+            </TabsContent>
+            <TabsContent value="image">
+              {hasImageModel && (
+                <FlippableCard
+                  cardColor="bg-green-50/50 dark:bg-green-950/20 border-green-100 dark:border-green-900/30"
+                  frontContent={
+                    <div className="h-full flex flex-col">
+                      <div className="space-y-4 flex-1">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-medium text-green-700 dark:text-green-400">Cost Breakdown</h3>
+                            <Badge className={getTypeColor('image')}>Image</Badge>
+                          </div>
+                          <div className='flex gap-2'>
+                            <Button
+                              size="icon"
+                              variant="outline"
+                              onClick={(e) => { e.stopPropagation(); setModelType("image"); }}
+                              className={`flex items-center gap-2 transition-colors`}
+                            >
+                              <CogIcon className='w-4 h-4' />
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-4">
+
+                          <div className="p-4 flex flex-col justify-center items-center bg-primary/5 rounded-lg">
+                            <p className="text-sm font-medium text-muted-foreground mb-1">Base Cost</p>
+                            <p className="font-bold text-primary">
+                              <NumberFlow
+                                format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
+                                value={imageTotalBaseCost} />
+                            </p>
+                          </div>
+                          <div className="p-4 flex flex-col justify-center items-center bg-primary/5 rounded-lg">
+                            <p className="text-sm font-medium text-muted-foreground mb-1">Total Cost</p>
+                            <p className="font-bold text-primary">
+                              <NumberFlow
+                                format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
+                                value={imageTotalCost} />
+                            </p>
+                          </div>
+                          <div className="p-4 flex flex-col justify-center items-center bg-primary/5 rounded-lg">
+                            <p className="text-sm font-medium text-green-700 mb-1">Total Profit</p>
+                            <p className="font-bold text-primary">
+                              <NumberFlow
+                                format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
+                                value={imageTotalProfitValue} />
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-3 min-h-32">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">Image Count:</span>
+                            <span className="font-medium">{imageCount.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">Cost per Image:</span>
+                            <span className="font-medium">
+                              <NumberFlow
+                                format={{ style: 'currency', currency: 'USD', minimumFractionDigits: 4 }}
+                                value={imageCount > 0 ? imageTotalBaseCost / imageCount : 0} />
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">Margin:</span>
+                            <span className="font-medium">{imageMarginPercentage}%</span>
+                          </div>
+                        </div>
+                      </div>
+                      <Separator className='my-4' />
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="font-medium text-green-700 dark:text-green-400">Image Calculator</h3>
+                      </div>
+
+                      <div className="space-y-6 flex-1">
+                        <div className="flex items-center gap-2 rounded-xl transition-all">
+                          <Checkbox
+                            id="image-use-expensive"
+                            checked={imageUseExpensiveModel}
+                            onCheckedChange={(checked) => setImageUseExpensiveModel(checked as boolean)}
+                            className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                          />
+                          <label htmlFor="image-use-expensive" className="font-medium text-xs">
+                            Use most expensive model
+                          </label>
+                        </div>
+
+                        <div className="space-y-2 text-xs">
+                          <label className="font-medium">Image Count</label>
                           <Input
                             type="number"
-                            value={outputTokens}
-                            onChange={(e) => setOutputTokens(Number(e.target.value))}
+                            value={imageCount}
+                            onChange={(e) => setImageCount(Number(e.target.value))}
                             className="bg-background focus:ring-2 focus:ring-primary/20"
                           />
                         </div>
 
-                      </div>
-                      <div className="space-y-2">
-                        <label className="font-medium">Margin Percentage</label>
-                        <Input
-                          type="number"
-                          value={textMarginPercentage}
-                          onChange={(e) => setTextMarginPercentage(Number(e.target.value))}
-                          className="bg-background focus:ring-2 focus:ring-primary/20"
-                        />
+                        <div className="space-y-2">
+                          <label className="font-medium">Margin Percentage</label>
+                          <Input
+                            type="number"
+                            value={imageMarginPercentage}
+                            onChange={(e) => setImageMarginPercentage(Number(e.target.value))}
+                            className="bg-background focus:ring-2 focus:ring-primary/20"
+                          />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                }
-              />
+                  }
+                />
 
 
-              <FlippableCard
-                cardColor="bg-green-50/50 dark:bg-green-950/20 border-green-100 dark:border-green-900/30"
-                frontContent={
-                  <div className="h-full flex flex-col">
-                    <div className="space-y-4 flex-1">
+
+              )}
+            </TabsContent>
+            <TabsContent value="video">
+              {hasVideoModel && (
+                <FlippableCard
+                  cardColor="bg-purple-50/50 dark:bg-purple-950/20 border-purple-100 dark:border-purple-900/30"
+                  frontContent={
+                    <div className="h-full flex flex-col">
+                      <div className="space-y-4 flex-1">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-medium text-purple-700 dark:text-purple-400">Cost Breakdown</h3>
+                            <Badge className={getTypeColor('video')}>Video</Badge>
+                          </div>
+                          <div className='flex gap-2'>
+                            <Button
+                              size="icon"
+                              variant="outline"
+                              onClick={(e) => { e.stopPropagation(); setModelType("video"); }}
+                              className={`flex items-center gap-2 transition-colors`}
+                            >
+                              <CogIcon className='w-4 h-4' />
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-4">
+
+                          <div className="p-4 flex flex-col justify-center items-center bg-primary/5 rounded-lg">
+                            <p className="text-sm font-medium text-muted-foreground mb-1">Base Cost</p>
+                            <p className="font-bold text-primary">
+                              <NumberFlow
+                                format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
+                                value={videoTotalBaseCost} />
+                            </p>
+                          </div>
+                          <div className="p-4 flex flex-col justify-center items-center bg-primary/5 rounded-lg">
+                            <p className="text-sm font-medium text-muted-foreground mb-1">Total Cost</p>
+                            <p className="font-bold text-primary">
+                              <NumberFlow
+                                format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
+                                value={videoTotalCost} />
+                            </p>
+                          </div>
+                          <div className="p-4 flex flex-col justify-center items-center bg-primary/5 rounded-lg">
+                            <p className="text-sm font-medium text-green-700 mb-1">Total Profit</p>
+                            <p className="font-bold text-primary">
+                              <NumberFlow
+                                format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
+                                value={videoTotalProfitValue} />
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-3 min-h-32">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">Duration:</span>
+                            <span className="font-medium">{videoSeconds.toLocaleString()}s</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">Cost per Second:</span>
+                            <span className="font-medium">
+                              <NumberFlow
+                                format={{ style: 'currency', currency: 'USD', minimumFractionDigits: 4 }}
+                                value={videoSeconds > 0 ? videoTotalBaseCost / videoSeconds : 0} />
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">Margin:</span>
+                            <span className="font-medium">{videoMarginPercentage}%</span>
+                          </div>
+                        </div>
+
+
+
+                      </div>
+                      <Separator className='my-4' />
                       <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-medium text-green-700 dark:text-green-400">Cost Breakdown</h3>
-                          <Badge className={getTypeColor('image')}>Image</Badge>
-                        </div>
-                        <div className='flex gap-2'>
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            onClick={(e) => { e.stopPropagation(); setModelType("image"); }}
-                            className={`flex items-center gap-2 transition-colors`}
-                          >
-                            <CogIcon className='w-4 h-4' />
-                          </Button>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-3 gap-4">
-
-                        <div className="p-4 flex flex-col justify-center items-center bg-primary/5 rounded-lg">
-                          <p className="text-sm font-medium text-muted-foreground mb-1">Base Cost</p>
-                          <p className="font-bold text-primary">
-                            <NumberFlow
-                              format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                              value={imageTotalBaseCost} />
-                          </p>
-                        </div>
-                        <div className="p-4 flex flex-col justify-center items-center bg-primary/5 rounded-lg">
-                          <p className="text-sm font-medium text-muted-foreground mb-1">Total Cost</p>
-                          <p className="font-bold text-primary">
-                            <NumberFlow
-                              format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                              value={imageTotalCost} />
-                          </p>
-                        </div>
-                        <div className="p-4 flex flex-col justify-center items-center bg-primary/5 rounded-lg">
-                          <p className="text-sm font-medium text-green-700 mb-1">Total Profit</p>
-                          <p className="font-bold text-primary">
-                            <NumberFlow
-                              format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                              value={imageTotalProfitValue} />
-                          </p>
-                        </div>
+                        <h3 className="font-medium text-purple-700 dark:text-purple-400">Video Calculator</h3>
                       </div>
 
-                      <div className="space-y-3 min-h-32">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Image Count:</span>
-                          <span className="font-medium">{imageCount.toLocaleString()}</span>
+                      <div className="space-y-6 flex-1">
+                        <div className="flex items-center gap-2 rounded-xl transition-all">
+                          <Checkbox
+                            id="video-use-expensive"
+                            checked={videoUseExpensiveModel}
+                            onCheckedChange={(checked) => setVideoUseExpensiveModel(checked as boolean)}
+                            className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                          />
+                          <label htmlFor="video-use-expensive" className="font-medium text-xs">
+                            Use most expensive model
+                          </label>
                         </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Cost per Image:</span>
-                          <span className="font-medium">
-                            <NumberFlow
-                              format={{ style: 'currency', currency: 'USD', minimumFractionDigits: 4 }}
-                              value={imageCount > 0 ? imageTotalBaseCost / imageCount : 0} />
-                          </span>
+
+                        <div className="space-y-2 text-xs">
+                          <label className="font-medium ">Video Seconds</label>
+                          <Input
+                            type="number"
+                            value={videoSeconds}
+                            onChange={(e) => setVideoSeconds(Number(e.target.value))}
+                            className="bg-background focus:ring-2 focus:ring-primary/20 "
+                          />
                         </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Margin:</span>
-                          <span className="font-medium">{imageMarginPercentage}%</span>
+
+                        <div className="space-y-2">
+                          <label className="font-medium">Margin Percentage</label>
+                          <Input
+                            type="number"
+                            value={videoMarginPercentage}
+                            onChange={(e) => setVideoMarginPercentage(Number(e.target.value))}
+                            className="bg-background focus:ring-2 focus:ring-primary/20 "
+                          />
                         </div>
                       </div>
-                    </div>
-                    <Separator className='my-4' />
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-medium text-green-700 dark:text-green-400">Image Calculator</h3>
-                    </div>
-
-                    <div className="space-y-6 flex-1">
-                      <div className="flex items-center gap-2 rounded-xl transition-all">
-                        <Checkbox
-                          id="image-use-expensive"
-                          checked={imageUseExpensiveModel}
-                          onCheckedChange={(checked) => setImageUseExpensiveModel(checked as boolean)}
-                          className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                        />
-                        <label htmlFor="image-use-expensive" className="font-medium text-xs">
-                          Use most expensive model
-                        </label>
-                      </div>
-
-                      <div className="space-y-2 text-xs">
-                        <label className="font-medium">Image Count</label>
-                        <Input
-                          type="number"
-                          value={imageCount}
-                          onChange={(e) => setImageCount(Number(e.target.value))}
-                          className="bg-background focus:ring-2 focus:ring-primary/20"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="font-medium">Margin Percentage</label>
-                        <Input
-                          type="number"
-                          value={imageMarginPercentage}
-                          onChange={(e) => setImageMarginPercentage(Number(e.target.value))}
-                          className="bg-background focus:ring-2 focus:ring-primary/20"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                }
-              />
-
-
-
-              <FlippableCard
-                cardColor="bg-purple-50/50 dark:bg-purple-950/20 border-purple-100 dark:border-purple-900/30"
-                frontContent={
-                  <div className="h-full flex flex-col">
-                    <div className="space-y-4 flex-1">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-medium text-purple-700 dark:text-purple-400">Cost Breakdown</h3>
-                          <Badge className={getTypeColor('video')}>Video</Badge>
-                        </div>
-                        <div className='flex gap-2'>
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            onClick={(e) => { e.stopPropagation(); setModelType("video"); }}
-                            className={`flex items-center gap-2 transition-colors`}
-                          >
-                            <CogIcon className='w-4 h-4' />
-                          </Button>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-3 gap-4">
-
-                        <div className="p-4 flex flex-col justify-center items-center bg-primary/5 rounded-lg">
-                          <p className="text-sm font-medium text-muted-foreground mb-1">Base Cost</p>
-                          <p className="font-bold text-primary">
-                            <NumberFlow
-                              format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                              value={videoTotalBaseCost} />
-                          </p>
-                        </div>
-                        <div className="p-4 flex flex-col justify-center items-center bg-primary/5 rounded-lg">
-                          <p className="text-sm font-medium text-muted-foreground mb-1">Total Cost</p>
-                          <p className="font-bold text-primary">
-                            <NumberFlow
-                              format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                              value={videoTotalCost} />
-                          </p>
-                        </div>
-                        <div className="p-4 flex flex-col justify-center items-center bg-primary/5 rounded-lg">
-                          <p className="text-sm font-medium text-green-700 mb-1">Total Profit</p>
-                          <p className="font-bold text-primary">
-                            <NumberFlow
-                              format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                              value={videoTotalProfitValue} />
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="space-y-3 min-h-32">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Duration:</span>
-                          <span className="font-medium">{videoSeconds.toLocaleString()}s</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Cost per Second:</span>
-                          <span className="font-medium">
-                            <NumberFlow
-                              format={{ style: 'currency', currency: 'USD', minimumFractionDigits: 4 }}
-                              value={videoSeconds > 0 ? videoTotalBaseCost / videoSeconds : 0} />
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Margin:</span>
-                          <span className="font-medium">{videoMarginPercentage}%</span>
-                        </div>
-                      </div>
-
 
 
                     </div>
-                    <Separator className='my-4' />
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-medium text-purple-700 dark:text-purple-400">Video Calculator</h3>
-                    </div>
+                  }
+                />
 
-                    <div className="space-y-6 flex-1">
-                      <div className="flex items-center gap-2 rounded-xl transition-all">
-                        <Checkbox
-                          id="video-use-expensive"
-                          checked={videoUseExpensiveModel}
-                          onCheckedChange={(checked) => setVideoUseExpensiveModel(checked as boolean)}
-                          className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                        />
-                        <label htmlFor="video-use-expensive" className="font-medium text-xs">
-                          Use most expensive model
-                        </label>
-                      </div>
+              )}
+            </TabsContent>
+          </Tabs>)}
+      </CardContent>
 
-                      <div className="space-y-2 text-xs">
-                        <label className="font-medium ">Video Seconds</label>
-                        <Input
-                          type="number"
-                          value={videoSeconds}
-                          onChange={(e) => setVideoSeconds(Number(e.target.value))}
-                          className="bg-background focus:ring-2 focus:ring-primary/20 "
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="font-medium">Margin Percentage</label>
-                        <Input
-                          type="number"
-                          value={videoMarginPercentage}
-                          onChange={(e) => setVideoMarginPercentage(Number(e.target.value))}
-                          className="bg-background focus:ring-2 focus:ring-primary/20 "
-                        />
-                      </div>
-                    </div>
-
-
-                  </div>
-                }
-              />
-
-            </div>
-          </div>
-        )}
-      </CardContent >
-      {isSummaryVisible && <CardFooter className="px-0">
-        <div className='w-full bg-card rounded-xl p-8 shadow-md border border-primary/10 overflow-hidden relative'>
-          {/* Decorative background element */}
-          <div className="absolute -right-20 -top-20 w-64 h-64 bg-primary/5 rounded-full blur-3xl opacity-50 z-0"></div>
-          <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-primary/5 rounded-full blur-3xl opacity-50 z-0"></div>
-
-          <div className="relative z-10">
-            {/* Header section with tier name and badge */}
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h2 className='text-2xl font-bold tracking-tight mb-2'>{tier.name} Pricing</h2>
-                <p className='text-sm text-muted-foreground'>Complete cost breakdown based on your configuration</p>
-              </div>
-              <Badge variant="outline" className='px-3 py-1.5 text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors'>
-                {tier.models.length} AI Models Included
-              </Badge>
-            </div>
-
-            {/* Main pricing card */}
-            <div className="grid grid-cols-1 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl border border-primary/20 shadow-sm my-4">
-              <div className='grid grid-cols-1 gap-4 p-8'>
-                <div className="col-span-2 flex flex-col items-center text-center mb-4">
-                  <Badge variant="outline" className="text-sm font-normal border-green-500 bg-green-300 px-8 border  mb-1">Recommended Price</Badge>
-                  <div className="flex items-baseline">
-                    <span className="text-4xl font-bold text-primary">
-                      <NumberFlow
-                        format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                        value={(textTotalCost + imageTotalCost + videoTotalCost) * (1 + operationalOverheadPercentage / 100)} />
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 border p-2 rounded-md">
-                    <span className="text-sm">Operational Buffer:</span>
-                    <div className="w-16">
-                      <Input
-                        type="number"
-                        value={operationalOverheadPercentage}
-                        onChange={(e) => setOperationalOverheadPercentage(Number(e.target.value))}
-                        className="text-sm px-2 py-1 bg-background focus:ring-1 focus:ring-primary/20"
-                      />
-                    </div>
-                    <span className="text-sm">%</span>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="h-6 px-2 py-1 text-xs text-primary"
-                      onClick={() => {
-                        updateSummary({
-                          tier_id: tier.id,
-                          operational_overhead_percentage: operationalOverheadPercentage,
-                        });
-                      }}
-                      disabled={isSummaryLoading}
-                    >
-                      {isSummaryLoading || isUpdating ? 'Saving...' : 'Save'}
-                    </Button>
-                  </div>
-
-                </div>
-                <div className='grid col-span-2 grid-cols-3 gap-4 '>
-                  <div className="flex flex-col items-center justify-center p-4 bg-background/80 rounded-lg">
-                    <p className="text-xs font-medium text-muted-foreground mb-1">BASE COST</p>
-                    <p className="text-xl font-bold text-primary">
-                      <NumberFlow
-                        format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                        value={textTotalBaseCost + imageTotalBaseCost + videoTotalBaseCost} />
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-2">Raw price of each model</p>
-                  </div>
-
-                  <div className="flex flex-col items-center justify-center p-4 bg-background/80 rounded-lg">
-                    <p className="text-xs font-medium text-muted-foreground mb-1">TOTAL COST</p>
-                    <p className="text-xl font-bold text-primary">
-                      <NumberFlow
-                        format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                        value={textTotalCost + imageTotalCost + videoTotalCost} />
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-2">Includes % margin for each model</p>
-                  </div>
-                  <div className="flex flex-col items-center p-4 bg-background/80 rounded-lg">
-                    <p className="text-xs font-medium text-muted-foreground mb-1">PROFIT MARGIN</p>
-                    <p className="text-xl font-bold text-green-500">
-                      <NumberFlow
-                        format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                        value={(textTotalProfitValue + imageTotalProfitValue + videoTotalProfitValue) + (textTotalCost + imageTotalCost + videoTotalCost) * (operationalOverheadPercentage / 100)} />
-
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-2">Includes {operationalOverheadPercentage}% buffer for operational overhead</p>
-                  </div>
-                </div>
-              </div>
-
-
-            </div>
-
-            {/* Model breakdown section */}
-            <h3 className='text-lg font-semibold mb-4'>Model Usage Breakdown</h3>
-            <div className='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8'>
-              {/* Text models */}
-              <div className='p-5 bg-blue-50/50 dark:bg-blue-950/20 rounded-xl border border-blue-100 dark:border-blue-900/30'>
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className='font-medium text-blue-700 dark:text-blue-400'>Text Processing</h4>
-                  <Badge className={getTypeColor('text')}>Text</Badge>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Input Tokens:</span>
-                    <span className="font-medium">{inputTokens.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Output Tokens:</span>
-                    <span className="font-medium">{outputTokens.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Cost:</span>
-                    <span className="font-medium text-primary">
-                      <NumberFlow
-                        format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                        value={textTotalCost} />
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Image models */}
-              <div className='p-5 bg-green-50/50 dark:bg-green-950/20 rounded-xl border border-green-100 dark:border-green-900/30'>
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className='font-medium text-green-700 dark:text-green-400'>Image Generation</h4>
-                  <Badge className={getTypeColor('image')}>Image</Badge>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Image Count:</span>
-                    <span className="font-medium">{imageCount.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Cost per Image:</span>
-                    <span className="font-medium">
-                      <NumberFlow
-                        format={{ style: 'currency', currency: 'USD', minimumFractionDigits: 4 }}
-                        value={imageCount > 0 ? imageTotalBaseCost / imageCount : 0} />
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Cost:</span>
-                    <span className="font-medium text-primary">
-                      <NumberFlow
-                        format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                        value={imageTotalCost} />
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Video models */}
-              <div className='p-5 bg-purple-50/50 dark:bg-purple-950/20 rounded-xl border border-purple-100 dark:border-purple-900/30'>
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className='font-medium text-purple-700 dark:text-purple-400'>Video Processing</h4>
-                  <Badge className={getTypeColor('video')}>Video</Badge>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Duration:</span>
-                    <span className="font-medium">{videoSeconds.toLocaleString()}s</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Cost per Second:</span>
-                    <span className="font-medium">
-                      <NumberFlow
-                        format={{ style: 'currency', currency: 'USD', minimumFractionDigits: 4 }}
-                        value={videoSeconds > 0 ? videoTotalBaseCost / videoSeconds : 0} />
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Cost:</span>
-                    <span className="font-medium text-primary">
-                      <NumberFlow
-                        format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                        value={videoTotalCost} />
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-
-            </div>
-
-          </div>
-        </div>
-      </CardFooter>}
 
     </div >
   );
-};;;
+};

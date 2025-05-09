@@ -82,7 +82,7 @@ export default function AICostCalculator() {
 
   if (tiers.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-12">
+      <div className="flex h-screen flex-col items-center justify-center gap-4 py-12">
         <div className="text-center space-y-2">
           <h3 className="text-lg font-semibold">No Tiers Created Yet</h3>
           <p className="text-muted-foreground">Create your first tier to start calculating AI costs.</p>
@@ -93,7 +93,13 @@ export default function AICostCalculator() {
   }
 
   return (
-    <div className="flex flex-col gap-6 px-4 bg-primary-foreground">
+    <div className="flex flex-col gap-6 px-4  mt-2">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Tier Builder</h1>
+          <p className="text-muted-foreground">Create and manage your AI service tiers and pricing</p>
+        </div>
+      </div>
       <div className="w-full min-h-screen">
         <div className="border-b border-gray-200">
           <DndContext

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from 'react';
 
 
@@ -42,8 +43,10 @@ export default function Home() {
             <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#778da9] to-[#e0e1dd]">TierWise</span>
           </div>
           <div className="flex items-center space-x-6">
-            <Button variant="outline" className="hidden md:block border-[#415a77] text-[#778da9] hover:bg-[#1b263b]">
-              Partner Program
+            <Button variant="outline" className="hidden md:block border-[#415a77] text-[#778da9] ">
+              <Link href="/sign-in">
+                Login
+              </Link>
             </Button>
           </div>
         </div>
