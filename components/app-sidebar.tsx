@@ -38,6 +38,11 @@ const data = {
       url: "/summary",
       icon: GalleryVerticalEndIcon,
     },
+    {
+      title: "Revenue Simulator",
+      url: "/revenue-simulator",
+      icon: GalleryVerticalEndIcon,
+    },
   ],
   navSecondary: [
     {

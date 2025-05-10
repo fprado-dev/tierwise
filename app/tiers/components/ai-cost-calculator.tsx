@@ -3,7 +3,7 @@
 import { ProcessedTier } from '@/lib/tier.types';
 import { closestCenter, DndContext, DragEndEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable } from '@dnd-kit/sortable';
-import { GripIcon } from 'lucide-react';
+import { GripIcon } from 'lucide-react'; // Modified: Removed BarChartIcon, LightbulbIcon
 import { useEffect, useState } from 'react';
 import { useTiers } from "../../../hooks/useTiers";
 import { TierCreationSheet } from "./tier-creation-sheet";
@@ -44,11 +44,49 @@ export default function AICostCalculator() {
   const [tiers, setTiers] = useState(initialTiers);
   const [activeTab, setActiveTab] = useState(initialTiers[0]?.id);
 
+  // New state and logic for Revenue Simulator
+  const [projectedUsers, setProjectedUsers] = useState<{ [tierId: string]: string; }>({});
+  const [revenueDetails, setRevenueDetails] = useState<{ [tierId: string]: { name: string, projectedRevenue: number; }; }>({});
+  const [totalProjectedRevenue, setTotalProjectedRevenue] = useState<number>(0);
+
+  const handleProjectedUsersChange = (tierId: string, value: string) => {
+    setProjectedUsers(prev => ({ ...prev, [tierId]: value }));
+  };
+
   useEffect(() => {
-    if (tiers.length !== initialTiers.length) {
+    let calculatedTotalRevenue = 0;
+    const calculatedNewRevenueDetails: { [tierId: string]: { name: string, projectedRevenue: number; }; } = {};
+
+    initialTiers.forEach(tier => {
+      const users = parseInt(projectedUsers[tier.id] || '0', 10);
+      // IMPORTANT: Assuming tier.price exists and is a number representing monthly price.
+      // This might need adjustment based on the actual structure of ProcessedTier (e.g., tier.calculatedPricing.monthly).
+      // Using (tier as any).price for flexibility if 'price' is not strictly on ProcessedTier type.
+      const price = (tier as any).price && typeof (tier as any).price === 'number' ? (tier as any).price : 0;
+      const tierRevenue = users * price;
+      calculatedNewRevenueDetails[tier.id] = { name: tier.name, projectedRevenue: tierRevenue };
+      calculatedTotalRevenue += tierRevenue;
+    });
+
+    // Only update state if the calculated values have actually changed
+    if (JSON.stringify(calculatedNewRevenueDetails) !== JSON.stringify(revenueDetails)) {
+      setRevenueDetails(calculatedNewRevenueDetails);
+    }
+    if (calculatedTotalRevenue !== totalProjectedRevenue) {
+      setTotalProjectedRevenue(calculatedTotalRevenue);
+    }
+  }, [projectedUsers, initialTiers]);
+
+  useEffect(() => {
+    // if (tiers.length !== initialTiers.length) {
+    //   setTiers(initialTiers);
+    // }
+    // Ensure local `tiers` state (for DND) is correctly based on `initialTiers` (from hook)
+    // Only update if `initialTiers` has meaningfully changed compared to current `tiers`
+    if (JSON.stringify(tiers) !== JSON.stringify(initialTiers)) {
       setTiers(initialTiers);
     }
-  }, [initialTiers]);
+  }, [initialTiers]); // REMOVED tiers from dependency array
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -69,10 +107,19 @@ export default function AICostCalculator() {
   };
 
   useEffect(() => {
-    if (tiers.length > 0 && (!activeTab || !tiers.find(t => t.id === activeTab))) {
-      setActiveTab(tiers[0].id);
+    if (tiers.length > 0) {
+      const currentTabIsValid = tiers.some(t => t.id === activeTab);
+      // If there's no activeTab, or the current activeTab is no longer valid
+      if (!activeTab || !currentTabIsValid) {
+        setActiveTab(tiers[0].id); // Set to the first available tier
+      }
+    } else {
+      // If there are no tiers, ensure activeTab is cleared
+      if (activeTab !== undefined) { // Only set if it's not already undefined
+        setActiveTab("");
+      }
     }
-  }, [tiers]);
+  }, [tiers]); // Only depend on tiers
 
   if (isLoading) {
     return (
@@ -123,7 +170,7 @@ export default function AICostCalculator() {
           </DndContext>
         </div>
         <div>
-          {initialTiers.map((tier) => (
+          {tiers.map((tier) => ( // Changed from initialTiers to tiers
             <div
               key={tier.id}
               className={`${tier.id === activeTab ? 'block' : 'hidden'}`}
@@ -132,7 +179,8 @@ export default function AICostCalculator() {
             </div>
           ))}
         </div>
-      </div>
+      </div> {/* This closes w-full min-h-screen */}
+      {/* Revenue Simulator Section Removed */}
     </div>
   );
 }
