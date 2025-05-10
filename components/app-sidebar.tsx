@@ -3,6 +3,7 @@
 import {
   BotIcon,
   CrownIcon,
+  GalleryHorizontal,
   GalleryVerticalEndIcon,
   Layers2Icon
 } from "lucide-react";
@@ -41,7 +42,7 @@ const data = {
     {
       title: "Revenue Simulator",
       url: "/revenue-simulator",
-      icon: GalleryVerticalEndIcon,
+      icon: GalleryHorizontal,
     },
   ],
   navSecondary: [
