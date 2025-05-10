@@ -9,6 +9,7 @@ import { CardContent, CardHeader } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Input } from '@/components/ui/input';
+import { Label } from "@/components/ui/label"; // Added import for Label
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTiers } from '@/hooks/useTiers';
@@ -268,133 +269,151 @@ export function TierCard({ tier }: TierCardProps) {
             </TabsList>
             <TabsContent value="text">
               {hasTextModel && (
-                <FlippableCard
-                  cardColor="bg-blue-50/50 dark:bg-blue-950/20 border-blue-100 dark:border-blue-900/30"
-                  frontContent={
-                    <div className="h-full flex flex-col">
-                      <div className="space-y-4 flex-1">
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-medium text-blue-700 dark:text-blue-400">Cost Breakdown</h3>
-                            <Badge className={getTypeColor('text')}>Text</Badge>
-                          </div>
-                          <div className='flex gap-2'>
-                            <Button
-                              size="icon"
-                              variant="outline"
-                              onClick={(e) => { e.stopPropagation(); setModelType("text"); }}
-                              className={`flex items-center gap-2 transition-colors`}
-                            >
-                              <CogIcon className='w-4 h-4' />
-                            </Button>
-                          </div>
-                        </div>
+                <div className="h-full flex flex-col p-1">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold text-lg text-stone-700 dark:text-stone-400">Text Model Configuration</h3>
+                      <Badge className={getTypeColor('text')}>Text</Badge>
+                    </div>
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      onClick={(e) => { e.stopPropagation(); setModelType("text"); }}
+                      className={`flex items-center gap-2 transition-colors hover:bg-stone-100 dark:hover:bg-stone-900/50`}
+                      title="Configure Text Models"
+                    >
+                      <CogIcon className='w-4 h-4 text-stone-600 dark:text-stone-400' />
+                    </Button>
+                  </div>
+
+                  {/* Main Content Grid - Three Columns */}
+                  <div className="grid grid-cols-4 gap-4">
+                    {/* Column 1: Calculator & Metrics */}
+                    <div className="col-span-4 gap-4 flex flex-col  border-stone-100 dark:border-stone-900/30">
+                      <div className="p-4 rounded border border-stone-100 dark:border-stone-900/20">
+                        <h4 className="text-md font-semibold text-stone-600 dark:text-stone-300 mb-4">Cost & Profit Overview</h4>
                         <div className="grid grid-cols-3 gap-4">
-
-                          <div className="p-4 flex flex-col justify-center items-center bg-primary/5 rounded-lg">
-                            <p className="text-sm font-medium text-muted-foreground mb-1">Base Cost</p>
-                            <p className="font-bold text-primary">
-                              <NumberFlow
-                                format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                                value={textTotalBaseCost} />
-                            </p>
-                          </div>
-                          <div className="p-4 flex flex-col justify-center items-center bg-primary/5 rounded-lg">
-                            <p className="text-sm font-medium text-muted-foreground mb-1">Total Cost</p>
-                            <p className="font-bold text-primary">
-                              <NumberFlow
-                                format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                                value={textTotalCost} />
-                            </p>
-                          </div>
-                          <div className="p-4 flex flex-col justify-center items-center bg-primary/5 rounded-lg">
-                            <p className="text-sm font-medium text-green-700 mb-1">Total Profit</p>
-                            <p className="font-bold text-primary">
-                              <NumberFlow
-                                format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                                value={textTotalProfitValue} />
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="space-y-3 min-h-32">
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-muted-foreground">Input Tokens:</span>
-                            <span className="font-medium">{inputTokens.toLocaleString()}</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-muted-foreground">Output Tokens:</span>
-                            <span className="font-medium">{outputTokens.toLocaleString()}</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-muted-foreground">Cost per Million Tokens:</span>
-                            <span className="font-medium">
-                              <NumberFlow
-                                format={{ style: 'currency', currency: 'USD', minimumFractionDigits: 4 }}
-                                value={(inputTokens + outputTokens) > 0 ? textTotalBaseCost / ((inputTokens + outputTokens) / 1000000) : 0} />
-                            </span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-muted-foreground">Margin:</span>
-                            <span className="font-medium">{textMarginPercentage}%</span>
-                          </div>
+                          <CostDisplayItem
+                            label="Base Model Cost"
+                            value={textTotalBaseCost}
+                            description="Raw cost from model providers."
+                            iconColor="text-stone-500"
+                          />
+                          <CostDisplayItem
+                            label="Total Cost (incl. Margin)"
+                            value={textTotalCost}
+                            description={`Includes ${textMarginPercentage}% margin.`}
+                            iconColor="text-orange-500" // Keeping orange for emphasis on cost
+                          />
+                          <CostDisplayItem
+                            label="Projected Profit"
+                            value={textTotalProfitValue}
+                            description="Estimated profit from this model type."
+                            iconColor="text-green-500" // Keeping green for emphasis on profit
+                            isEmphasized
+                          />
                         </div>
                       </div>
-                      <Separator className='my-4' />
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-medium text-blue-700 dark:text-blue-400">Text Calculator</h3>
-                      </div>
 
-                      <div className="space-y-6 flex-1">
-                        <div className="flex items-center gap-2 rounded-xl transition-all">
-                          <Checkbox
-                            id="text-use-expensive"
-                            checked={textUseExpensiveModel}
-                            onCheckedChange={(checked) => setTextUseExpensiveModel(checked as boolean)}
-                            className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                          />
-                          <label htmlFor="text-use-expensive" className="font-medium text-xs">
-                            Use most expensive model
-                          </label>
-                        </div>
-
-                        <div className='flex items-center gap-4'>
-                          <div className="space-y-2 text-xs flex flex-col w-full">
-                            <label className="font-medium">Input Tokens</label>
-                            <Input
-                              type="number"
-                              value={inputTokens}
-                              onChange={(e) => setInputTokens(Number(e.target.value))}
-                              className="bg-background focus:ring-2 focus:ring-primary/20 w-full"
+                    </div>
+                    <div className="col-span-2 gap-4 flex flex-col  border-stone-100 dark:border-stone-900/30">
+                      {/* Interactive Calculator Section */}
+                      <div className="p-4 bg-white dark:bg-background/30 rounded-lg shadow-sm border border-stone-100 dark:border-stone-900/20 h-full">
+                        <h4 className="text-md font-semibold text-stone-600 dark:text-stone-300 mb-3">Interactive Calculator</h4>
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-3 p-3  rounded-md border border-stone-100 dark:border-stone-900/20">
+                            <Checkbox
+                              id="text-use-expensive"
+                              checked={textUseExpensiveModel}
+                              onCheckedChange={(checked) => setTextUseExpensiveModel(checked as boolean)}
+                              className="data-[state=checked]:bg-primary data-[state=checked]:border-primary transform scale-90"
                             />
+                            <Label htmlFor="text-use-expensive" className="text-sm font-medium text-stone-700 dark:text-stone-400 cursor-pointer">
+                              Prioritize Most Expensive Model
+                            </Label>
                           </div>
 
-                          <div className="space-y-2 text-xs flex flex-col w-full">
-                            <label className="font-medium">Output Tokens</label>
-                            <Input
-                              type="number"
-                              value={outputTokens}
-                              onChange={(e) => setOutputTokens(Number(e.target.value))}
-                              className="bg-background focus:ring-2 focus:ring-primary/20"
-                            />
+                          <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+                            <div className="space-y-1.5">
+                              <Label htmlFor="input-tokens" className="text-xs font-medium text-muted-foreground">Input Tokens</Label>
+                              <Input
+                                id="input-tokens"
+                                type="number"
+                                value={inputTokens}
+                                onChange={(e) => setInputTokens(Number(e.target.value))}
+                                className="bg-background focus:ring-1 focus:ring-primary/20 w-full text-sm p-2 rounded-md border-stone-200 dark:border-stone-800/50"
+                                placeholder="e.g., 100k"
+                              />
+                            </div>
+
+                            <div className="space-y-1.5">
+                              <Label htmlFor="output-tokens" className="text-xs font-medium text-muted-foreground">Output Tokens</Label>
+                              <Input
+                                id="output-tokens"
+                                type="number"
+                                value={outputTokens}
+                                onChange={(e) => setOutputTokens(Number(e.target.value))}
+                                className="bg-background focus:ring-1 focus:ring-primary/20 w-full text-sm p-2 rounded-md border-stone-200 dark:border-stone-800/50"
+                                placeholder="e.g., 50k"
+                              />
+                            </div>
                           </div>
 
-                        </div>
-                        <div className="space-y-2">
-                          <label className="font-medium">Margin Percentage</label>
-                          <Input
-                            type="number"
-                            value={textMarginPercentage}
-                            onChange={(e) => setTextMarginPercentage(Number(e.target.value))}
-                            className="bg-background focus:ring-2 focus:ring-primary/20"
-                          />
+                          <div className="space-y-1.5">
+                            <Label htmlFor="text-margin" className="text-xs font-medium text-muted-foreground">Margin (%)</Label>
+                            <Input
+                              id="text-margin"
+                              type="number"
+                              value={textMarginPercentage}
+                              onChange={(e) => setTextMarginPercentage(Number(e.target.value))}
+                              className="bg-background focus:ring-1 focus:ring-primary/20 w-full text-sm p-2 rounded-md border-stone-200 dark:border-stone-800/50"
+                              placeholder="e.g., 20"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
-                  }
-                />
+                    <div className="col-span-2 gap-4 flex flex-col  border-stone-100 dark:border-stone-900/30">
+                      {/* Key Metrics Section */}
+                      <div className="p-4 bg-white dark:bg-background/30 rounded-lg shadow-sm border border-stone-100 dark:border-stone-900/20 h-full">
+                        <h4 className="text-md font-semibold text-stone-600 dark:text-stone-300 mb-3">Key Metrics</h4>
+                        <div className="space-y-2.5 text-sm">
+                          <MetricItem label="Avg. Input Tokens" value={inputTokens.toLocaleString()} />
+                          <MetricItem label="Avg. Output Tokens" value={outputTokens.toLocaleString()} />
+                          <MetricItem label="Est. Cost per 1M Tokens">
+                            <NumberFlow
+                              format={{ style: 'currency', currency: 'USD', minimumFractionDigits: 2 }}
+                              value={(inputTokens + outputTokens) > 0 ? textTotalBaseCost / ((inputTokens + outputTokens) / 1000000) : 0} />
+                          </MetricItem>
+                          <MetricItem label="Applied Margin" value={`${textMarginPercentage}%`} />
+                          {getTextMostExpensiveModel() && (
+                            <MetricItem label="Expensive Model Used" value={getTextMostExpensiveModel()?.model_name || 'N/A'} />
+                          )}
+                        </div>
+                      </div>
 
+                    </div>
 
+                    <div className="col-span-4 flex flex-col gap-4">
+                      {/* Column 3: Included Text Models */}
+                      {tier.models.filter(m => m.model_type === 'text').length > 0 && (
+                        <div className="p-4 bg-white dark:bg-background/30 rounded-lg shadow-sm border border-stone-100 dark:border-stone-900/20">
+                          <h4 className="text-md font-semibold text-stone-600 dark:text-stone-300 mb-3">Included Text Models</h4>
+                          <div className="space-y-2">
+                            {tier.models.filter(m => m.model_type === 'text').map(model => (
+                              <div key={model.id} className="flex justify-between items-center p-2 bg-stone-50/50 dark:bg-stone-950/10 rounded-md text-xs">
+                                <span className="font-medium text-stone-700 dark:text-stone-300">{model.model_name}</span>
+                                <Badge variant="outline" className="border-stone-300 text-stone-600 dark:border-stone-700 dark:text-stone-400">
+                                  {model.provider || "Custom Provider"}
+                                </Badge>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
               )}
             </TabsContent>
             <TabsContent value="image">
@@ -639,3 +658,25 @@ export function TierCard({ tier }: TierCardProps) {
     </div >
   );
 };
+
+
+
+const MetricItem = ({ label, value, children }: { label: string, value?: string | number, children?: React.ReactNode; }) => (
+  <div className="flex justify-between items-center py-1.5 border-b border-blue-50 dark:border-blue-900/20 last:border-b-0">
+    <span className="text-xs text-muted-foreground whitespace-nowrap mr-2">{label}:</span>
+    {children ? <span className="font-medium text-xs text-right">{children}</span> : <span className="font-semibold text-xs text-primary text-right">{value}</span>}
+  </div>
+);
+
+const CostDisplayItem = ({ label, value, description, iconColor, isEmphasized }: { label: string, value: number, description: string, iconColor: string, isEmphasized?: boolean; }) => (
+  <div className={`p-3 rounded-md ${isEmphasized ? 'bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800/50' : 'bg-blue-50/50 dark:bg-blue-950/10 border-blue-100 dark:border-blue-900/20'} border`}>
+    <div className="flex items-center justify-between mb-1">
+      <h5 className={`text-sm font-medium ${isEmphasized ? 'text-green-700 dark:text-green-300' : 'text-blue-700 dark:text-blue-400'}`}>{label}</h5>
+      {/* Optional: Icon can be added here if needed */}
+    </div>
+    <p className={`text-2xl font-bold ${isEmphasized ? 'text-green-600 dark:text-green-400' : 'text-blue-600 dark:text-blue-400'}`}>
+      <NumberFlow format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger', minimumFractionDigits: 2 }} value={value} />
+    </p>
+    <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
+  </div>
+);

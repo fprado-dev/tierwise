@@ -12,7 +12,7 @@ interface FlippableCardProps {
 export function FlippableCard({ frontContent, className = '', cardColor = '' }: FlippableCardProps) {
 
   return (
-    <div className={`relative w-full h-[600px] ${className}`}>
+    <div className={`relative w-full h-fit ${className}`}>
       <div
         className={`w-full h-full transition-all duration-500 preserve-3d `}
         style={{ transformStyle: 'preserve-3d' }}
