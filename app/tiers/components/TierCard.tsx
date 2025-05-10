@@ -10,7 +10,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from "@/components/ui/label"; // Added import for Label
-import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTiers } from '@/hooks/useTiers';
 import { useTierSummary } from '@/hooks/useTierSummary';
@@ -18,7 +17,6 @@ import { ProcessedTier } from '@/lib/tier.types';
 import NumberFlow from '@number-flow/react';
 import { CogIcon, PencilLineIcon, SaveIcon, TrashIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { FlippableCard } from './FlippableCard';
 import { ModelSelectionSheet } from './model-selection-sheet';
 import { TierEditSheet } from './tier-edit-sheet';
 
@@ -300,7 +298,7 @@ export function TierCard({ tier }: TierCardProps) {
                             iconColor="text-stone-500"
                           />
                           <CostDisplayItem
-                            label="Total Cost (incl. Margin)"
+                            label="Total Cost"
                             value={textTotalCost}
                             description={`Includes ${textMarginPercentage}% margin.`}
                             iconColor="text-orange-500" // Keeping orange for emphasis on cost
@@ -418,237 +416,270 @@ export function TierCard({ tier }: TierCardProps) {
             </TabsContent>
             <TabsContent value="image">
               {hasImageModel && (
-                <FlippableCard
-                  cardColor="bg-green-50/50 dark:bg-green-950/20 border-green-100 dark:border-green-900/30"
-                  frontContent={
-                    <div className="h-full flex flex-col">
-                      <div className="space-y-4 flex-1">
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-medium text-green-700 dark:text-green-400">Cost Breakdown</h3>
-                            <Badge className={getTypeColor('image')}>Image</Badge>
-                          </div>
-                          <div className='flex gap-2'>
-                            <Button
-                              size="icon"
-                              variant="outline"
-                              onClick={(e) => { e.stopPropagation(); setModelType("image"); }}
-                              className={`flex items-center gap-2 transition-colors`}
-                            >
-                              <CogIcon className='w-4 h-4' />
-                            </Button>
-                          </div>
-                        </div>
+                <div className="h-full flex flex-col p-1">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold text-lg text-stone-700 dark:text-stone-400">Image Model Configuration</h3>
+                      <Badge className={getTypeColor('image')}>Image</Badge>
+                    </div>
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      onClick={(e) => { e.stopPropagation(); setModelType("image"); }}
+                      className={`flex items-center gap-2 transition-colors hover:bg-stone-100 dark:hover:bg-stone-900/50`}
+                      title="Configure Image Models"
+                    >
+                      <CogIcon className='w-4 h-4 text-stone-600 dark:text-stone-400' />
+                    </Button>
+                  </div>
+
+                  {/* Main Content Grid - Three Columns */}
+                  <div className="grid grid-cols-4 gap-4">
+                    {/* Column 1: Calculator & Metrics */}
+                    <div className="col-span-4 gap-4 flex flex-col border-stone-100 dark:border-stone-900/30">
+                      <div className="p-4 rounded border border-stone-100 dark:border-stone-900/20">
+                        <h4 className="text-md font-semibold text-stone-600 dark:text-stone-300 mb-4">Cost & Profit Overview</h4>
                         <div className="grid grid-cols-3 gap-4">
-
-                          <div className="p-4 flex flex-col justify-center items-center bg-primary/5 rounded-lg">
-                            <p className="text-sm font-medium text-muted-foreground mb-1">Base Cost</p>
-                            <p className="font-bold text-primary">
-                              <NumberFlow
-                                format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                                value={imageTotalBaseCost} />
-                            </p>
-                          </div>
-                          <div className="p-4 flex flex-col justify-center items-center bg-primary/5 rounded-lg">
-                            <p className="text-sm font-medium text-muted-foreground mb-1">Total Cost</p>
-                            <p className="font-bold text-primary">
-                              <NumberFlow
-                                format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                                value={imageTotalCost} />
-                            </p>
-                          </div>
-                          <div className="p-4 flex flex-col justify-center items-center bg-primary/5 rounded-lg">
-                            <p className="text-sm font-medium text-green-700 mb-1">Total Profit</p>
-                            <p className="font-bold text-primary">
-                              <NumberFlow
-                                format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                                value={imageTotalProfitValue} />
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="space-y-3 min-h-32">
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-muted-foreground">Image Count:</span>
-                            <span className="font-medium">{imageCount.toLocaleString()}</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-muted-foreground">Cost per Image:</span>
-                            <span className="font-medium">
-                              <NumberFlow
-                                format={{ style: 'currency', currency: 'USD', minimumFractionDigits: 4 }}
-                                value={imageCount > 0 ? imageTotalBaseCost / imageCount : 0} />
-                            </span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-muted-foreground">Margin:</span>
-                            <span className="font-medium">{imageMarginPercentage}%</span>
-                          </div>
-                        </div>
-                      </div>
-                      <Separator className='my-4' />
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-medium text-green-700 dark:text-green-400">Image Calculator</h3>
-                      </div>
-
-                      <div className="space-y-6 flex-1">
-                        <div className="flex items-center gap-2 rounded-xl transition-all">
-                          <Checkbox
-                            id="image-use-expensive"
-                            checked={imageUseExpensiveModel}
-                            onCheckedChange={(checked) => setImageUseExpensiveModel(checked as boolean)}
-                            className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                          <CostDisplayItem
+                            label="Base Model Cost"
+                            value={imageTotalBaseCost}
+                            description="Raw cost from model providers."
+                            iconColor="text-stone-500"
                           />
-                          <label htmlFor="image-use-expensive" className="font-medium text-xs">
-                            Use most expensive model
-                          </label>
-                        </div>
-
-                        <div className="space-y-2 text-xs">
-                          <label className="font-medium">Image Count</label>
-                          <Input
-                            type="number"
-                            value={imageCount}
-                            onChange={(e) => setImageCount(Number(e.target.value))}
-                            className="bg-background focus:ring-2 focus:ring-primary/20"
+                          <CostDisplayItem
+                            label="Total Cost"
+                            value={imageTotalCost}
+                            description={`Includes ${imageMarginPercentage}% margin.`}
+                            iconColor="text-orange-500"
                           />
-                        </div>
-
-                        <div className="space-y-2">
-                          <label className="font-medium">Margin Percentage</label>
-                          <Input
-                            type="number"
-                            value={imageMarginPercentage}
-                            onChange={(e) => setImageMarginPercentage(Number(e.target.value))}
-                            className="bg-background focus:ring-2 focus:ring-primary/20"
+                          <CostDisplayItem
+                            label="Projected Profit"
+                            value={imageTotalProfitValue}
+                            description="Estimated profit from this model type."
+                            iconColor="text-green-500"
+                            isEmphasized
                           />
                         </div>
                       </div>
                     </div>
-                  }
-                />
 
+                    <div className="col-span-2 gap-4 flex flex-col border-stone-100 dark:border-stone-900/30">
+                      {/* Interactive Calculator Section */}
+                      <div className="p-4 bg-white dark:bg-background/30 rounded-lg shadow-sm border border-stone-100 dark:border-stone-900/20 h-full">
+                        <h4 className="text-md font-semibold text-stone-600 dark:text-stone-300 mb-3">Interactive Calculator</h4>
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-3 p-3 rounded-md border border-stone-100 dark:border-stone-900/20">
+                            <Checkbox
+                              id="image-use-expensive"
+                              checked={imageUseExpensiveModel}
+                              onCheckedChange={(checked) => setImageUseExpensiveModel(checked as boolean)}
+                              className="data-[state=checked]:bg-primary data-[state=checked]:border-primary transform scale-90"
+                            />
+                            <Label htmlFor="image-use-expensive" className="text-sm font-medium text-stone-700 dark:text-stone-400 cursor-pointer">
+                              Prioritize Most Expensive Model
+                            </Label>
+                          </div>
 
+                          <div className="space-y-1.5">
+                            <Label htmlFor="image-count" className="text-xs font-medium text-muted-foreground">Image Count</Label>
+                            <Input
+                              id="image-count"
+                              type="number"
+                              value={imageCount}
+                              onChange={(e) => setImageCount(Number(e.target.value))}
+                              className="bg-background focus:ring-1 focus:ring-primary/20 w-full text-sm p-2 rounded-md border-stone-200 dark:border-stone-800/50"
+                              placeholder="e.g., 1000"
+                            />
+                          </div>
 
+                          <div className="space-y-1.5">
+                            <Label htmlFor="image-margin" className="text-xs font-medium text-muted-foreground">Margin (%)</Label>
+                            <Input
+                              id="image-margin"
+                              type="number"
+                              value={imageMarginPercentage}
+                              onChange={(e) => setImageMarginPercentage(Number(e.target.value))}
+                              className="bg-background focus:ring-1 focus:ring-primary/20 w-full text-sm p-2 rounded-md border-stone-200 dark:border-stone-800/50"
+                              placeholder="e.g., 20"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="col-span-2 gap-4 flex flex-col border-stone-100 dark:border-stone-900/30">
+                      {/* Key Metrics Section */}
+                      <div className="p-4 bg-white dark:bg-background/30 rounded-lg shadow-sm border border-stone-100 dark:border-stone-900/20 h-full">
+                        <h4 className="text-md font-semibold text-stone-600 dark:text-stone-300 mb-3">Key Metrics</h4>
+                        <div className="space-y-2.5 text-sm">
+                          <MetricItem label="Avg. Image Count" value={imageCount.toLocaleString()} />
+                          <MetricItem label="Est. Cost per Image">
+                            <NumberFlow
+                              format={{ style: 'currency', currency: 'USD', minimumFractionDigits: 4 }}
+                              value={imageCount > 0 ? imageTotalBaseCost / imageCount : 0} />
+                          </MetricItem>
+                          <MetricItem label="Applied Margin" value={`${imageMarginPercentage}%`} />
+                          {getImageMostExpensiveModel() && (
+                            <MetricItem label="Expensive Model Used" value={getImageMostExpensiveModel()?.model_name || 'N/A'} />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="col-span-4 flex flex-col gap-4">
+                      {/* Included Image Models */}
+                      {tier.models.filter(m => m.model_type === 'image').length > 0 && (
+                        <div className="p-4 bg-white dark:bg-background/30 rounded-lg shadow-sm border border-stone-100 dark:border-stone-900/20">
+                          <h4 className="text-md font-semibold text-stone-600 dark:text-stone-300 mb-3">Included Image Models</h4>
+                          <div className="space-y-2">
+                            {tier.models.filter(m => m.model_type === 'image').map(model => (
+                              <div key={model.id} className="flex justify-between items-center p-2 bg-stone-50/50 dark:bg-stone-950/10 rounded-md text-xs">
+                                <span className="font-medium text-stone-700 dark:text-stone-300">{model.model_name}</span>
+                                <Badge variant="outline" className="border-stone-300 text-stone-600 dark:border-stone-700 dark:text-stone-400">
+                                  {model.provider || "Custom Provider"}
+                                </Badge>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
               )}
             </TabsContent>
             <TabsContent value="video">
               {hasVideoModel && (
-                <FlippableCard
-                  cardColor="bg-purple-50/50 dark:bg-purple-950/20 border-purple-100 dark:border-purple-900/30"
-                  frontContent={
-                    <div className="h-full flex flex-col">
-                      <div className="space-y-4 flex-1">
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-medium text-purple-700 dark:text-purple-400">Cost Breakdown</h3>
-                            <Badge className={getTypeColor('video')}>Video</Badge>
-                          </div>
-                          <div className='flex gap-2'>
-                            <Button
-                              size="icon"
-                              variant="outline"
-                              onClick={(e) => { e.stopPropagation(); setModelType("video"); }}
-                              className={`flex items-center gap-2 transition-colors`}
-                            >
-                              <CogIcon className='w-4 h-4' />
-                            </Button>
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-3 gap-4">
-
-                          <div className="p-4 flex flex-col justify-center items-center bg-primary/5 rounded-lg">
-                            <p className="text-sm font-medium text-muted-foreground mb-1">Base Cost</p>
-                            <p className="font-bold text-primary">
-                              <NumberFlow
-                                format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                                value={videoTotalBaseCost} />
-                            </p>
-                          </div>
-                          <div className="p-4 flex flex-col justify-center items-center bg-primary/5 rounded-lg">
-                            <p className="text-sm font-medium text-muted-foreground mb-1">Total Cost</p>
-                            <p className="font-bold text-primary">
-                              <NumberFlow
-                                format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                                value={videoTotalCost} />
-                            </p>
-                          </div>
-                          <div className="p-4 flex flex-col justify-center items-center bg-primary/5 rounded-lg">
-                            <p className="text-sm font-medium text-green-700 mb-1">Total Profit</p>
-                            <p className="font-bold text-primary">
-                              <NumberFlow
-                                format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                                value={videoTotalProfitValue} />
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="space-y-3 min-h-32">
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-muted-foreground">Duration:</span>
-                            <span className="font-medium">{videoSeconds.toLocaleString()}s</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-muted-foreground">Cost per Second:</span>
-                            <span className="font-medium">
-                              <NumberFlow
-                                format={{ style: 'currency', currency: 'USD', minimumFractionDigits: 4 }}
-                                value={videoSeconds > 0 ? videoTotalBaseCost / videoSeconds : 0} />
-                            </span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-muted-foreground">Margin:</span>
-                            <span className="font-medium">{videoMarginPercentage}%</span>
-                          </div>
-                        </div>
-
-
-
-                      </div>
-                      <Separator className='my-4' />
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-medium text-purple-700 dark:text-purple-400">Video Calculator</h3>
-                      </div>
-
-                      <div className="space-y-6 flex-1">
-                        <div className="flex items-center gap-2 rounded-xl transition-all">
-                          <Checkbox
-                            id="video-use-expensive"
-                            checked={videoUseExpensiveModel}
-                            onCheckedChange={(checked) => setVideoUseExpensiveModel(checked as boolean)}
-                            className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                          />
-                          <label htmlFor="video-use-expensive" className="font-medium text-xs">
-                            Use most expensive model
-                          </label>
-                        </div>
-
-                        <div className="space-y-2 text-xs">
-                          <label className="font-medium ">Video Seconds</label>
-                          <Input
-                            type="number"
-                            value={videoSeconds}
-                            onChange={(e) => setVideoSeconds(Number(e.target.value))}
-                            className="bg-background focus:ring-2 focus:ring-primary/20 "
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <label className="font-medium">Margin Percentage</label>
-                          <Input
-                            type="number"
-                            value={videoMarginPercentage}
-                            onChange={(e) => setVideoMarginPercentage(Number(e.target.value))}
-                            className="bg-background focus:ring-2 focus:ring-primary/20 "
-                          />
-                        </div>
-                      </div>
-
-
+                <div className="h-full flex flex-col p-1">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold text-lg text-stone-700 dark:text-stone-400">Video Model Configuration</h3>
+                      <Badge className={getTypeColor('video')}>Video</Badge>
                     </div>
-                  }
-                />
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      onClick={(e) => { e.stopPropagation(); setModelType("video"); }}
+                      className={`flex items-center gap-2 transition-colors hover:bg-stone-100 dark:hover:bg-stone-900/50`}
+                      title="Configure Video Models"
+                    >
+                      <CogIcon className='w-4 h-4 text-stone-600 dark:text-stone-400' />
+                    </Button>
+                  </div>
 
+                  {/* Main Content Grid - Three Columns */}
+                  <div className="grid grid-cols-4 gap-4">
+                    {/* Column 1: Calculator & Metrics */}
+                    <div className="col-span-4 gap-4 flex flex-col border-stone-100 dark:border-stone-900/30">
+                      <div className="p-4 rounded border border-stone-100 dark:border-stone-900/20">
+                        <h4 className="text-md font-semibold text-stone-600 dark:text-stone-300 mb-4">Cost & Profit Overview</h4>
+                        <div className="grid grid-cols-3 gap-4">
+                          <CostDisplayItem
+                            label="Base Model Cost"
+                            value={videoTotalBaseCost}
+                            description="Raw cost from model providers."
+                            iconColor="text-stone-500"
+                          />
+                          <CostDisplayItem
+                            label="Total Cost"
+                            value={videoTotalCost}
+                            description={`Includes ${videoMarginPercentage}% margin.`}
+                            iconColor="text-orange-500"
+                          />
+                          <CostDisplayItem
+                            label="Projected Profit"
+                            value={videoTotalProfitValue}
+                            description="Estimated profit from this model type."
+                            iconColor="text-green-500"
+                            isEmphasized
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="col-span-2 gap-4 flex flex-col border-stone-100 dark:border-stone-900/30">
+                      {/* Interactive Calculator Section */}
+                      <div className="p-4 bg-white dark:bg-background/30 rounded-lg shadow-sm border border-stone-100 dark:border-stone-900/20 h-full">
+                        <h4 className="text-md font-semibold text-stone-600 dark:text-stone-300 mb-3">Interactive Calculator</h4>
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-3 p-3 rounded-md border border-stone-100 dark:border-stone-900/20">
+                            <Checkbox
+                              id="video-use-expensive"
+                              checked={videoUseExpensiveModel}
+                              onCheckedChange={(checked) => setVideoUseExpensiveModel(checked as boolean)}
+                              className="data-[state=checked]:bg-primary data-[state=checked]:border-primary transform scale-90"
+                            />
+                            <Label htmlFor="video-use-expensive" className="text-sm font-medium text-stone-700 dark:text-stone-400 cursor-pointer">
+                              Prioritize Most Expensive Model
+                            </Label>
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <Label htmlFor="video-seconds" className="text-xs font-medium text-muted-foreground">Video Seconds</Label>
+                            <Input
+                              id="video-seconds"
+                              type="number"
+                              value={videoSeconds}
+                              onChange={(e) => setVideoSeconds(Number(e.target.value))}
+                              className="bg-background focus:ring-1 focus:ring-primary/20 w-full text-sm p-2 rounded-md border-stone-200 dark:border-stone-800/50"
+                              placeholder="e.g., 60"
+                            />
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <Label htmlFor="video-margin" className="text-xs font-medium text-muted-foreground">Margin (%)</Label>
+                            <Input
+                              id="video-margin"
+                              type="number"
+                              value={videoMarginPercentage}
+                              onChange={(e) => setVideoMarginPercentage(Number(e.target.value))}
+                              className="bg-background focus:ring-1 focus:ring-primary/20 w-full text-sm p-2 rounded-md border-stone-200 dark:border-stone-800/50"
+                              placeholder="e.g., 20"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="col-span-2 gap-4 flex flex-col border-stone-100 dark:border-stone-900/30">
+                      {/* Key Metrics Section */}
+                      <div className="p-4 bg-white dark:bg-background/30 rounded-lg shadow-sm border border-stone-100 dark:border-stone-900/20 h-full">
+                        <h4 className="text-md font-semibold text-stone-600 dark:text-stone-300 mb-3">Key Metrics</h4>
+                        <div className="space-y-2.5 text-sm">
+                          <MetricItem label="Avg. Video Seconds" value={videoSeconds.toLocaleString()} />
+                          <MetricItem label="Est. Cost per Second">
+                            <NumberFlow
+                              format={{ style: 'currency', currency: 'USD', minimumFractionDigits: 4 }}
+                              value={videoSeconds > 0 ? videoTotalBaseCost / videoSeconds : 0} />
+                          </MetricItem>
+                          <MetricItem label="Applied Margin" value={`${videoMarginPercentage}%`} />
+                          {getVideoMostExpensiveModel() && (
+                            <MetricItem label="Expensive Model Used" value={getVideoMostExpensiveModel()?.model_name || 'N/A'} />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="col-span-4 flex flex-col gap-4">
+                      {/* Included Video Models */}
+                      {tier.models.filter(m => m.model_type === 'video').length > 0 && (
+                        <div className="p-4 bg-white dark:bg-background/30 rounded-lg shadow-sm border border-stone-100 dark:border-stone-900/20">
+                          <h4 className="text-md font-semibold text-stone-600 dark:text-stone-300 mb-3">Included Video Models</h4>
+                          <div className="space-y-2">
+                            {tier.models.filter(m => m.model_type === 'video').map(model => (
+                              <div key={model.id} className="flex justify-between items-center p-2 bg-stone-50/50 dark:bg-stone-950/10 rounded-md text-xs">
+                                <span className="font-medium text-stone-700 dark:text-stone-300">{model.model_name}</span>
+                                <Badge variant="outline" className="border-stone-300 text-stone-600 dark:border-stone-700 dark:text-stone-400">
+                                  {model.provider || "Custom Provider"}
+                                </Badge>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
               )}
             </TabsContent>
           </Tabs>)}
