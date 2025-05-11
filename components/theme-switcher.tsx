@@ -11,8 +11,11 @@ import {
 import { Laptop, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { useSidebar } from "./ui/sidebar";
 
 const ThemeSwitcher = () => {
+  const { isMobile } = useSidebar();
+
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
 
@@ -52,7 +55,9 @@ const ThemeSwitcher = () => {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-content" align="center">
+      <DropdownMenuContent className="w-content" side={isMobile ? "bottom" : "right"}
+        align="end"
+        sideOffset={4}>
         <DropdownMenuRadioGroup
           value={theme}
           onValueChange={(e) => setTheme(e)}

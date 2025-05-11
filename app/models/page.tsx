@@ -2,9 +2,11 @@
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetTrigger } from '@/components/ui/sheet';
 import { useModels } from '@/hooks/use-models';
+import { useToast } from '@/hooks/use-toast';
 import { CreateModelParams } from '@/lib/supabase/model.service';
 import { useState } from 'react';
 import { ModelCard } from './components/model-card';
@@ -14,6 +16,7 @@ import { ModelSkeleton } from './components/model-skeleton';
 
 export default function ModelsPage() {
   const { defaultModels, loading, createModel, updateModel, deleteModel } = useModels();
+  const { toast } = useToast();
   const { isPending: isCreating } = useModels().createModelMutation;
   const { isPending: isUpdating } = useModels().updateModelMutation;
   const { isPending: isDeleting } = useModels().deleteModelMutation;
@@ -24,7 +27,8 @@ export default function ModelsPage() {
   const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
-
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [modelToDelete, setModelToDelete] = useState<string | null>(null);
 
   const filteredDefaultModels = defaultModels.filter(model => {
     const matchesSearch = model.model_name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -57,6 +61,35 @@ export default function ModelsPage() {
     }
   };
 
+  const handleDeleteConfirm = async () => {
+    if (!modelToDelete) return;
+    try {
+      await deleteModel(modelToDelete);
+      setDeleteConfirmOpen(false);
+      setModelToDelete(null);
+    } catch (error) {
+      if ((error as { digest?: string; }).digest === "3936284582") {
+        toast({
+          variant: "destructive",
+          title: "Cannot Delete Model",
+          description: "This model is currently being used in a tier. Please remove it from all tiers first."
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "An error occurred while deleting the model."
+        });
+      }
+      setDeleteConfirmOpen(false);
+      setModelToDelete(null);
+    }
+  };
+
+  const handleDeleteModel = (id: string) => {
+    setModelToDelete(id);
+    setDeleteConfirmOpen(true);
+  };
   return (
     <div className="w-full">
       <div className="space-y-2 p-4 ">
@@ -114,7 +147,7 @@ export default function ModelsPage() {
                         setEditingModel(model);
                         setIsEditSheetOpen(true);
                       }}
-                      onDelete={deleteModel}
+                      onDelete={handleDeleteModel}
                       isDeleting={isDeleting}
                     />
                   ))}
@@ -150,6 +183,15 @@ export default function ModelsPage() {
           mode="edit"
         />
       </Sheet>
+
+      <ConfirmDialog
+        isOpen={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Model"
+        description="Are you sure you want to delete this model? This action cannot be undone."
+        confirmText="Delete"
+      />
     </div>
   );
 }

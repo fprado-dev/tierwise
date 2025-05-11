@@ -54,8 +54,6 @@ export function ModelForm({
               <SelectItem value="text">Text</SelectItem>
               <SelectItem value="image">Image</SelectItem>
               <SelectItem value="video">Video</SelectItem>
-              <SelectItem value="audio">Audio</SelectItem>
-              <SelectItem value="hardware">Hardware</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -77,6 +75,7 @@ export function ModelForm({
               <Input
                 type="number"
                 placeholder="Input cost"
+                step={0.001}
                 value={model.input_cost_per_million || ''}
                 onChange={(e) => onModelChange({ ...model, input_cost_per_million: parseFloat(e.target.value) })}
                 disabled={isLoading}
@@ -87,6 +86,7 @@ export function ModelForm({
               <Input
                 type="number"
                 placeholder="Output cost"
+                step={0.001}
                 value={model.output_cost_per_million || ''}
                 onChange={(e) => onModelChange({ ...model, output_cost_per_million: parseFloat(e.target.value) })}
                 disabled={isLoading}
@@ -100,6 +100,7 @@ export function ModelForm({
             <Input
               type="number"
               placeholder="Cost per image"
+              step={0.001}
               value={model.cost_per_image || ''}
               onChange={(e) => onModelChange({ ...model, cost_per_image: parseFloat(e.target.value) })}
               disabled={isLoading}
@@ -112,6 +113,7 @@ export function ModelForm({
             <Input
               type="number"
               placeholder="Cost per second"
+              step={0.001}
               value={model.cost_per_second || ''}
               onChange={(e) => onModelChange({ ...model, cost_per_second: parseFloat(e.target.value) })}
               disabled={isLoading}
@@ -125,6 +127,7 @@ export function ModelForm({
               <Input
                 type="number"
                 placeholder="Price per second"
+                step={0.001}
                 value={model.price_per_sec || ''}
                 onChange={(e) => onModelChange({ ...model, price_per_sec: parseFloat(e.target.value) })}
                 disabled={isLoading}
@@ -135,6 +138,7 @@ export function ModelForm({
               <Input
                 type="number"
                 placeholder="Price per hour"
+                step={0.001}
                 value={model.price_per_hour || ''}
                 onChange={(e) => onModelChange({ ...model, price_per_hour: parseFloat(e.target.value) })}
                 disabled={isLoading}
@@ -145,6 +149,7 @@ export function ModelForm({
               <Input
                 type="number"
                 placeholder="GPU count"
+                step={0.001}
                 value={model.gpu_count || ''}
                 onChange={(e) => onModelChange({ ...model, gpu_count: parseInt(e.target.value) })}
                 disabled={isLoading}
@@ -154,6 +159,7 @@ export function ModelForm({
               <label className="text-sm font-medium">CPU Multiplier</label>
               <Input
                 placeholder="CPU multiplier"
+                step={0.001}
                 value={model.cpu_multiplier || ''}
                 onChange={(e) => onModelChange({ ...model, cpu_multiplier: e.target.value })}
                 disabled={isLoading}
@@ -163,6 +169,7 @@ export function ModelForm({
               <label className="text-sm font-medium">GPU RAM</label>
               <Input
                 placeholder="GPU RAM"
+                step={0.001}
                 value={model.gpu_ram || ''}
                 onChange={(e) => onModelChange({ ...model, gpu_ram: e.target.value })}
                 disabled={isLoading}
@@ -172,6 +179,7 @@ export function ModelForm({
               <label className="text-sm font-medium">RAM</label>
               <Input
                 placeholder="RAM"
+                step={0.001}
                 value={model.ram || ''}
                 onChange={(e) => onModelChange({ ...model, ram: e.target.value })}
                 disabled={isLoading}

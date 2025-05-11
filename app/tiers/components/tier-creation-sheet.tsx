@@ -44,7 +44,8 @@ export function TierCreationSheet({ onAddTier, tiers }: TierCreationSheetProps) 
         <Button
           variant="outline"
           size="icon"
-          className="flex items-center gap-2 transition-all hover:scale-105"
+          className="bg-primary text-primary-foreground hover:bg-primary/90"
+
         >
           <Plus size={16} />
         </Button>

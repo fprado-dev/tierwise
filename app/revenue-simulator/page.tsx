@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ProcessedTier } from '@/lib/tier.types';
 import NumberFlow from '@number-flow/react';
-import { BarChartIcon, CpuIcon, DollarSignIcon, FileTextIcon, HardDriveIcon, ImageIcon, LightbulbIcon, MicIcon, StarIcon, TrendingUpIcon, UsersIcon, VideoIcon } from 'lucide-react'; // Added more icons
+import { BarChartIcon, CpuIcon, DollarSignIcon, FileTextIcon, GaugeIcon, HardDriveIcon, ImageIcon, LightbulbIcon, MicIcon, StarIcon, TrendingUpIcon, UsersIcon, VideoIcon } from 'lucide-react'; // Added more icons
 import { useCallback, useEffect, useState } from 'react';
 import { useTiers } from "../../hooks/useTiers";
 import { useTierSummary } from "../../hooks/useTierSummary";
@@ -72,16 +72,22 @@ export default function RevenueSimulatorPage() {
 
   if (!initialTiers || initialTiers.length === 0) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-6 p-6 text-center bg-background">
-        <UsersIcon className="w-20 h-20 text-destructive/70" />
-        <h2 className="text-2xl font-bold text-foreground">No Pricing Tiers Found</h2>
-        <p className="text-muted-foreground max-w-md">
-          The Revenue Simulator requires at least one pricing tier to function. Please navigate to the
-          pricing section and create your tiers.
-        </p>
-        <Button variant="outline" onClick={() => { /* Add navigation to tier creation page */ }}>
-          Create Pricing Tiers
-        </Button>
+      <div className="p-4 h-[calc(100vh-4rem)] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4 max-w-md text-center">
+          <div className="rounded-full bg-primary/10 p-6">
+            <GaugeIcon className="w-12 h-12 text-primary" />
+          </div>
+          <h2 className="text-2xl font-bold tracking-tight">No Tiers Created</h2>
+          <p className="text-muted-foreground">
+            Get started by creating your first tier. Add AI models and configure pricing to see your cost breakdown.
+          </p>
+          <Button
+            onClick={() => window.location.href = '/tiers'}
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            Create Your First Tier
+          </Button>
+        </div>
       </div>
     );
   }

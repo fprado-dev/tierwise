@@ -3,7 +3,7 @@
 import { ProcessedTier } from '@/lib/tier.types';
 import { closestCenter, DndContext, DragEndEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable } from '@dnd-kit/sortable';
-import { GripIcon } from 'lucide-react'; // Modified: Removed BarChartIcon, LightbulbIcon
+import { GripIcon, Layers3 } from 'lucide-react'; // Modified: Removed BarChartIcon, LightbulbIcon
 import { useEffect, useState } from 'react';
 import { useTiers } from "../../../hooks/useTiers";
 import { TierCreationSheet } from "./tier-creation-sheet";
@@ -21,16 +21,16 @@ function DraggableTierButton({ tier, isActive, onClick }: { tier: ProcessedTier,
       ref={setNodeRef}
       style={style}
       {...attributes}
-      className="flex items-center gap-2"
+      className="flex items-center group"
     >
-      <div className="cursor-move" {...listeners}>
-        <GripIcon className='w-3 h-3' />
+      <div className="cursor-move p-2 opacity-50 group-hover:opacity-100 transition-opacity" {...listeners}>
+        <GripIcon className='w-4 h-4 text-gray-400 group-hover:text-gray-600' />
       </div>
       <button
         onClick={onClick}
-        className={`whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium ${isActive
-          ? 'border-indigo-500 text-indigo-600'
-          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+        className={`whitespace-nowrap border-b-2 py-3 px-3 text-sm font-medium rounded-t-md transition-all duration-150 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 ${isActive
+          ? 'border-indigo-600 text-indigo-700 bg-indigo-50 shadow-sm'
+          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50'
           }`}
       >
         {tier.name}
@@ -49,9 +49,7 @@ export default function AICostCalculator() {
   const [revenueDetails, setRevenueDetails] = useState<{ [tierId: string]: { name: string, projectedRevenue: number; }; }>({});
   const [totalProjectedRevenue, setTotalProjectedRevenue] = useState<number>(0);
 
-  const handleProjectedUsersChange = (tierId: string, value: string) => {
-    setProjectedUsers(prev => ({ ...prev, [tierId]: value }));
-  };
+
 
   useEffect(() => {
     let calculatedTotalRevenue = 0;
@@ -78,11 +76,6 @@ export default function AICostCalculator() {
   }, [projectedUsers, initialTiers]);
 
   useEffect(() => {
-    // if (tiers.length !== initialTiers.length) {
-    //   setTiers(initialTiers);
-    // }
-    // Ensure local `tiers` state (for DND) is correctly based on `initialTiers` (from hook)
-    // Only update if `initialTiers` has meaningfully changed compared to current `tiers`
     if (JSON.stringify(tiers) !== JSON.stringify(initialTiers)) {
       setTiers(initialTiers);
     }
@@ -129,13 +122,19 @@ export default function AICostCalculator() {
 
   if (tiers.length === 0) {
     return (
-      <div className="flex h-screen flex-col items-center justify-center gap-4 py-12">
-        <div className="text-center space-y-2">
-          <h3 className="text-lg font-semibold">No Tiers Created Yet</h3>
-          <p className="text-muted-foreground">Create your first tier to start calculating AI costs.</p>
+      <div className="p-4 h-[calc(100vh-4rem)] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4 max-w-md text-center">
+          <div className="rounded-full bg-primary/10 p-6">
+            <Layers3 className="w-12 h-12 text-primary" />
+          </div>
+          <h2 className="text-2xl font-bold tracking-tight">No Tiers Created</h2>
+          <p className="text-muted-foreground">
+            Get started by creating your first tier. Add AI models and configure pricing to see your cost breakdown.
+          </p>
+          <TierCreationSheet onAddTier={addTier} tiers={tiers} />
         </div>
-        <TierCreationSheet onAddTier={addTier} tiers={tiers} />
       </div>
+
     );
   }
 
@@ -154,18 +153,22 @@ export default function AICostCalculator() {
             collisionDetection={closestCenter}
             onDragEnd={handleDragEnd}
           >
-            <nav className="-mb-px flex space-x-8 items-center" aria-label="Tiers">
+            <nav className="-mb-px flex space-x-2 items-center border-b border-gray-200 pb-px" aria-label="Tiers">
               <SortableContext items={tiers.map(t => t.id)}>
-                {tiers.map((tier) => (
-                  <DraggableTierButton
-                    key={tier.id}
-                    tier={tier}
-                    isActive={tier.id === activeTab}
-                    onClick={() => setActiveTab(tier.id)}
-                  />
-                ))}
+                <div className="flex flex-grow space-x-2 overflow-x-auto scrollbar-hide">
+                  {tiers.map((tier) => (
+                    <DraggableTierButton
+                      key={tier.id}
+                      tier={tier}
+                      isActive={tier.id === activeTab}
+                      onClick={() => setActiveTab(tier.id)}
+                    />
+                  ))}
+                </div>
               </SortableContext>
-              <TierCreationSheet onAddTier={addTier} tiers={tiers} />
+              <div className="ml-auto pl-4">
+                <TierCreationSheet onAddTier={addTier} tiers={tiers} />
+              </div>
             </nav>
           </DndContext>
         </div>
