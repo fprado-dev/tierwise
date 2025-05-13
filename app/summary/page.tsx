@@ -12,9 +12,10 @@ import { useTiers } from '@/hooks/useTiers';
 import { useTierSummary } from '@/hooks/useTierSummary';
 import { ProcessedTier } from '@/lib/tier.types';
 import NumberFlow from '@number-flow/react';
-import { InfoIcon, Layers2Icon } from 'lucide-react';
+import { ChevronsRightIcon, InfoIcon, Layers2Icon } from 'lucide-react'; // Added ChevronsRightIcon
 import { redirect } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { ModelBreakdownSheet } from './components/ModelBreakdownSheet'; // Added import for ModelBreakdownSheet
 
 const getTypeColor = (type: string) => {
   switch (type) {
@@ -28,6 +29,7 @@ const getTypeColor = (type: string) => {
 };
 
 function TierSummaryCard({ tier }: { tier: ProcessedTier; }) {
+  const [isBreakdownSheetOpen, setIsBreakdownSheetOpen] = useState(false); // Added state for sheet
   if (tier.models.length === 0) {
     toast({
       title: `No models found for the tier ${tier.name}`,
@@ -91,8 +93,25 @@ function TierSummaryCard({ tier }: { tier: ProcessedTier; }) {
   return (
     <div className='w-full bg-sidebar rounded-xl p-8 shadow-md border border-primary/10 overflow-hidden relative'>
       <div className="relative z-10">
-        <h2 className='text-xl font-bold tracking-tight mb-2'>{tier.name} Pricing</h2>
-        <p className='text-sm text-muted-foreground'>Complete cost breakdown based on your configuration</p>
+        <div className='flex justify-between w-full items-start '>
+          <div>
+
+            <h2 className='text-xl font-bold tracking-tight mb-2'>{tier.name} Pricing</h2>
+            <p className='text-sm text-muted-foreground'>Complete cost breakdown based on your configuration</p>
+          </div>
+
+          {/* Button to open ModelBreakdownSheet */}
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setIsBreakdownSheetOpen(true)}
+            className='hover:bg-sidebar-foreground/90 bg-sidebar hover:text-white text-primary'
+            title="View Model Breakdown"
+          >
+            <ChevronsRightIcon className="h-5 w-5" />
+          </Button>
+        </div>
+
         {/* Header section with tier name and badge */}
         <div className="flex items-start justify-between mt-6">
           <Badge variant="outline" className='text-xs px-4 py-2 rounded-md mb-4 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors'>
@@ -207,98 +226,22 @@ function TierSummaryCard({ tier }: { tier: ProcessedTier; }) {
           </div>
         </div>
 
-        {/* Model breakdown section */}
-        <h3 className='text-lg font-semibold mb-4'>Model Usage Breakdown</h3>
-        <div className='grid gap-2 grid-cols-1'>
-          {/* Check if tier has text models before rendering */}
-          {tier.models.some(model => model.model_type === 'text') && (
-            <div className='p-5 w-full bg-blue-50/50 dark:bg-blue-950/20 rounded-xl border border-blue-100 dark:border-blue-900/30'>
-              <div className="flex items-center justify-between mb-4">
-                <Badge className={getTypeColor('text')}>Text</Badge>
-              </div>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-muted-foreground">Input Tokens:</span>
-                  <span className="font-medium text-xs">{inputTokens.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-muted-foreground">Output Tokens:</span>
-                  <span className="font-medium text-xs">{outputTokens.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-muted-foreground">Cost:</span>
-                  <span className="font-medium text-primary text-xs">
-                    <NumberFlow
-                      format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                      value={textTotalCost} />
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Check if tier has image models before rendering */}
-          {tier.models.some(model => model.model_type === 'image') && (
-            <div className='p-5 w-full bg-green-50/50 dark:bg-green-950/20 rounded-xl border border-green-100 dark:border-green-900/30'>
-              <div className="flex items-center justify-between mb-4">
-                <Badge className={getTypeColor('image')}>Image</Badge>
-              </div>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-muted-foreground">Image Count:</span>
-                  <span className="font-medium text-xs">{imageCount.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-muted-foreground">Cost per Image:</span>
-                  <span className="font-medium text-xs">
-                    <NumberFlow
-                      format={{ style: 'currency', currency: 'USD', minimumFractionDigits: 4 }}
-                      value={imageCount > 0 ? imageTotalBaseCost / imageCount : 0} />
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-muted-foreground">Cost:</span>
-                  <span className="font-medium text-xs text-primary">
-                    <NumberFlow
-                      format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                      value={imageTotalCost} />
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Check if tier has video models before rendering */}
-          {tier.models.some(model => model.model_type === 'video') && (
-            <div className='p-5 w-full bg-purple-50/50 dark:bg-purple-950/20 rounded-xl border border-purple-100 dark:border-purple-900/30'>
-              <div className="flex items-center justify-between mb-4">
-                <Badge className={getTypeColor('video')}>Video</Badge>
-              </div>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-muted-foreground">Duration:</span>
-                  <span className="font-medium text-xs">{videoSeconds.toLocaleString()}s</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-muted-foreground">Cost per Second:</span>
-                  <span className="font-medium text-xs">
-                    <NumberFlow
-                      format={{ style: 'currency', currency: 'USD', minimumFractionDigits: 4 }}
-                      value={videoSeconds > 0 ? videoTotalBaseCost / videoSeconds : 0} />
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-muted-foreground">Cost:</span>
-                  <span className="font-medium text-xs text-primary">
-                    <NumberFlow
-                      format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                      value={videoTotalCost} />
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+        {/* ModelBreakdownSheet component */}
+        <ModelBreakdownSheet
+          isOpen={isBreakdownSheetOpen}
+          onOpenChange={setIsBreakdownSheetOpen}
+          tier={tier}
+          inputTokens={inputTokens}
+          outputTokens={outputTokens}
+          textTotalCost={textTotalCost}
+          imageCount={imageCount}
+          imageTotalBaseCost={imageTotalBaseCost}
+          imageTotalCost={imageTotalCost}
+          videoSeconds={videoSeconds}
+          videoTotalBaseCost={videoTotalBaseCost}
+          videoTotalCost={videoTotalCost}
+          getTypeColor={getTypeColor}
+        />
 
       </div>
     </div>
