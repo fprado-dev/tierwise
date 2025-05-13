@@ -85,7 +85,7 @@ export function RevenueForecastChart({ TotalProjectedRevenue, targetMMR, tierRev
 
 
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col w-full">
       <CardHeader className="items-center pb-0">
         <CardTitle>Revenue Distribution</CardTitle>
         <CardDescription>Projected revenue by tier</CardDescription>

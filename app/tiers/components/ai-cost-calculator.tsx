@@ -139,15 +139,15 @@ export default function AICostCalculator() {
   }
 
   return (
-    <div className="flex flex-col gap-6 px-4  mt-2">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-6  w-full">
+      <div className="flex p-4 items-center justify-between ">
         <div>
           <h1 className="text-3xl font-bold">Tier Builder</h1>
-          <p className="text-muted-foreground">Create and manage your AI service tiers and pricing</p>
+          <p className="text-muted-foreground text-xs sm:text-base">Create and manage your AI service tiers and pricing</p>
         </div>
       </div>
-      <div className="w-full min-h-screen">
-        <div className="border-b border-gray-200">
+      <div className="w-ful">
+        <div className="border-b border-gray-200 px-4">
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -172,7 +172,7 @@ export default function AICostCalculator() {
             </nav>
           </DndContext>
         </div>
-        <div>
+        <div className='my-4 p-4'>
           {tiers.map((tier) => (
             <div
               key={tier.id}

@@ -89,15 +89,16 @@ export default function RevenueSimulatorPage() {
   }
 
   return (
-    <div className="min-h-screen bg-muted/30 p-4 md:p-6 lg:p-8">
-      <header className="mb-6 md:mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">Revenue Simulator</h1>
-        <p className="text-lg text-muted-foreground mt-1">
-          Forecast potential income by projecting user numbers for your pricing tiers.
-        </p>
-      </header>
-      <div className="grid grid-cols-3 gap-4">
-        <Card className="lg:col-span-2 shadow-lg">
+    <div className="flex flex-col gap-6  w-full">
+      <div className="flex p-4 items-center justify-between ">
+        <div>
+          <h1 className="text-3xl font-bold">Revenue Simulator</h1>
+          <p className="text-muted-foreground text-xs sm:text-base">Forecast potential income by projecting user numbers for your pricing tiers.</p>
+        </div>
+      </div>
+
+      <div className="grid gap-4 mx-4">
+        <Card >
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-xl">
               <UsersIcon className="w-6 h-6 text-primary" />
@@ -107,12 +108,12 @@ export default function RevenueSimulatorPage() {
               Enter the anticipated number of subscribers for each tier to see individual and total revenue estimates.
             </CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <CardContent className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {initialTiers.map((tier) => (
               <div key={tier.id} className="flex flex-col h-full">
                 <TierProjectionInput
                   tier={tier}
-                  isRecommended={tier.id === recommendedTierId}
+                  isRecommended={false}
                   projectedUsers={projectedUsers[tier.id] || ''}
                   onProjectedUsersChange={handleProjectedUsersChange}
                   onSummaryLoad={handleSummaryLoad}
@@ -128,51 +129,47 @@ export default function RevenueSimulatorPage() {
 
           </CardFooter>
         </Card>
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-xl">
-              <DollarSignIcon className="w-6 h-6 text-green-500" />
-              Total Projected Revenue
-            </CardTitle>
-            <CardDescription>Overall estimated monthly revenue based on your projections.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="target-mrr" className="text-sm font-medium">
-                Target Monthly Revenue
-              </Label>
-              <Input
-                id="target-mrr"
-                type="number"
-                placeholder="e.g., 10000"
-                value={targetMRR}
-                onChange={(e) => setTargetMRR(Number(e.target.value))}
-                className="mt-1.5"
-                min="0"
-              />
-            </div>
-            <div className="pt-2 border-t">
-              <div className="flex flex-col justify-start items-center my-4">
-                <span className="text-sm text-muted-foreground">Projected Revenue:</span>
-                <p className="text-4xl font-bold tracking-tight text-green-600">
-                  <NumberFlow value={totalProjectedRevenue} format={{ style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 }} />
-                </p>
-              </div>
-              <div className="mt-4">
-                <div className="space-y-2">
-
-                  {Number(targetMRR) > 0 && (
-                    <RevenueForecastChart
-                      TotalProjectedRevenue={totalProjectedRevenue}
-                      targetMMR={Number(targetMRR)}
-                      tierRevenueDetails={revenueDetails}
-                    />
-                  )}
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-3 my-4">
+          <Card className="col-span-1 sm:col-span-2" >
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <DollarSignIcon className="w-6 h-6 text-green-500" />
+                Total Projected Revenue
+              </CardTitle>
+              <CardDescription>Overall estimated monthly revenue based on your projections.</CardDescription>
+            </CardHeader>
+            <CardContent className="w-full">
+              <div className="space-y-2">
+                <Label htmlFor="target-mrr" className="text-sm font-medium">
+                  Target Monthly Revenue
+                </Label>
+                <Input
+                  id="target-mrr"
+                  type="number"
+                  placeholder="e.g., 10000"
+                  value={targetMRR}
+                  onChange={(e) => setTargetMRR(Number(e.target.value))}
+                  className="w-full"
+                  min="0"
+                />
+                <div className="flex flex-col items-center justify-center p-6 bg-primary/5 rounded-lg">
+                  <span className="text-sm text-muted-foreground mb-2">Current Projected Revenue</span>
+                  <p className="text-2xl font-bold tracking-tight text-green-600">
+                    <NumberFlow value={totalProjectedRevenue} format={{ style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 }} />
+                  </p>
                 </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+
+            </CardContent>
+          </Card>
+          {Number(targetMRR) > 0 && (
+            <RevenueForecastChart
+              TotalProjectedRevenue={totalProjectedRevenue}
+              targetMMR={Number(targetMRR)}
+              tierRevenueDetails={revenueDetails}
+            />
+          )}
+        </div>
       </div>
 
     </div>

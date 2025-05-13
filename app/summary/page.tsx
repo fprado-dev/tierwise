@@ -250,7 +250,7 @@ function TierSummaryCard({ tier }: { tier: ProcessedTier; }) {
 
 export default function SummaryPage() {
   const { tiers } = useTiers();
-  console.log({ tiers });
+
   if (tiers.length <= 0) {
     return (
       <div className="p-4 h-[calc(100vh-4rem)] flex items-center justify-center">
@@ -274,20 +274,19 @@ export default function SummaryPage() {
   }
 
   return (
-    <div className="p-4">
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Tier Summaries</h1>
-            <p className="text-muted-foreground">Overview of all your tier configurations and costs</p>
-          </div>
+    <div className="flex flex-col gap-6  w-full">
+      <div className="flex p-4 items-center justify-between ">
+        <div>
+          <h1 className="text-3xl font-bold">Tier Summaries</h1>
+          <p className="text-muted-foreground text-xs sm:text-base">Overview of all your tier configurations and costs</p>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 2xl:grid-cols-3 gap-6">
-          {tiers.map((tier) => (
-            <TierSummaryCard key={tier.id} tier={tier} />
-          ))}
-        </div>
+
+      <div className="grid px-4 mb-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {tiers.map((tier) => (
+          <TierSummaryCard key={tier.id} tier={tier} />
+        ))}
       </div>
     </div>
   );

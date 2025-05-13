@@ -5,7 +5,7 @@ import { useTextModelCalculator } from '@/app/hooks/useTextModelCalculator';
 import { useVideoModelCalculator } from '@/app/hooks/useVideoModelCalculator';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Input } from '@/components/ui/input';
@@ -164,9 +164,9 @@ export function TierCard({ tier }: TierCardProps) {
   const hasImageModel = tier.models.some(model => model.model_type === 'image');
   const hasVideoModel = tier.models.some(model => model.model_type === 'video');
   return (
-    <div className='bg-transparent border-none mt-4'>
-      <CardHeader className='p-6'>
-        <div className="flex items-center justify-between">
+    <Card className='bg-transparent'>
+      <CardHeader className=''>
+        <div className="flex flex-col  items-start gap-4 sm:flex-row sm:items-center justify-between ">
           <div className='flex flex-col gap-2'>
             <div className='flex items-center gap-3'>
               <h3 className="text-xl font-bold tracking-tight">{tier.name}</h3>
@@ -270,7 +270,7 @@ export function TierCard({ tier }: TierCardProps) {
                 <div className="h-full flex flex-col p-1">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-lg text-stone-700 dark:text-stone-400">Text Model Configuration</h3>
+                      <h3 className="font-semibold text-sm sm:text-lg text-stone-700 dark:text-stone-400">Configuration</h3>
                       <Badge className={getTypeColor('text')}>Text</Badge>
                     </div>
                     <Button
@@ -286,11 +286,11 @@ export function TierCard({ tier }: TierCardProps) {
 
                   {/* Main Content Grid - Three Columns */}
                   <div className="grid grid-cols-4 gap-4">
-                    {/* Column 1: Calculator & Metrics */}
-                    <div className="col-span-4 gap-4 flex flex-col  border-stone-100 dark:border-stone-900/30">
-                      <div className="p-4 rounded border border-stone-100 dark:border-stone-900/20">
+                    {/* Cost & Profit Overview */}
+                    <div className="col-span-4 gap-4 border rounded-md">
+                      <div className="p-4  ">
                         <h4 className="text-md font-semibold text-stone-600 dark:text-stone-300 mb-4">Cost & Profit Overview</h4>
-                        <div className="grid grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                           <CostDisplayItem
                             label="Base Model Cost"
                             value={textTotalBaseCost}
@@ -314,9 +314,10 @@ export function TierCard({ tier }: TierCardProps) {
                       </div>
 
                     </div>
-                    <div className="col-span-2 gap-4 flex flex-col  border-stone-100 dark:border-stone-900/30">
-                      {/* Interactive Calculator Section */}
-                      <div className="p-4 bg-white dark:bg-background/30 rounded-lg shadow-sm border border-stone-100 dark:border-stone-900/20 h-full">
+
+                    {/* Interactive Calculator Section */}
+                    <div className="col-span-4 sm:col-span-2">
+                      <div className="p-4 h-full border rounded-md">
                         <h4 className="text-md font-semibold text-stone-600 dark:text-stone-300 mb-3">Interactive Calculator</h4>
                         <div className="space-y-4">
                           <div className="flex items-center gap-3 p-3  rounded-md border border-stone-100 dark:border-stone-900/20">
@@ -371,8 +372,9 @@ export function TierCard({ tier }: TierCardProps) {
                         </div>
                       </div>
                     </div>
-                    <div className="col-span-2 gap-4 flex flex-col  border-stone-100 dark:border-stone-900/30">
-                      {/* Key Metrics Section */}
+
+                    {/* Key Metrics Section */}
+                    <div className="col-span-4 sm:col-span-2 gap-4 border rounded-md">
                       <div className="p-4 bg-white dark:bg-background/30 rounded-lg shadow-sm border border-stone-100 dark:border-stone-900/20 h-full">
                         <h4 className="text-md font-semibold text-stone-600 dark:text-stone-300 mb-3">Key Metrics</h4>
                         <div className="space-y-2.5 text-sm">
@@ -392,7 +394,7 @@ export function TierCard({ tier }: TierCardProps) {
 
                     </div>
 
-                    <div className="col-span-4 flex flex-col gap-4">
+                    <div className="col-span-4 flex flex-col gap-4 rounded-md border">
                       {/* Column 3: Included Text Models */}
                       {tier.models.filter(m => m.model_type === 'text').length > 0 && (
                         <div className="p-4 bg-white dark:bg-background/30 rounded-lg shadow-sm border border-stone-100 dark:border-stone-900/20">
@@ -419,7 +421,7 @@ export function TierCard({ tier }: TierCardProps) {
                 <div className="h-full flex flex-col p-1">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-lg text-stone-700 dark:text-stone-400">Image Model Configuration</h3>
+                      <h3 className="font-semibold text-sm sm:text-lg text-stone-700 dark:text-stone-400">Configuration</h3>
                       <Badge className={getTypeColor('image')}>Image</Badge>
                     </div>
                     <Button
@@ -435,11 +437,11 @@ export function TierCard({ tier }: TierCardProps) {
 
                   {/* Main Content Grid - Three Columns */}
                   <div className="grid grid-cols-4 gap-4">
-                    {/* Column 1: Calculator & Metrics */}
-                    <div className="col-span-4 gap-4 flex flex-col border-stone-100 dark:border-stone-900/30">
-                      <div className="p-4 rounded border border-stone-100 dark:border-stone-900/20">
+                    {/* Cost & Profit Overview */}
+                    <div className="col-span-4 gap-4 border flex flex-col rounded-md">
+                      <div className="p-4 ">
                         <h4 className="text-md font-semibold text-stone-600 dark:text-stone-300 mb-4">Cost & Profit Overview</h4>
-                        <div className="grid grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                           <CostDisplayItem
                             label="Base Model Cost"
                             value={imageTotalBaseCost}
@@ -463,7 +465,7 @@ export function TierCard({ tier }: TierCardProps) {
                       </div>
                     </div>
 
-                    <div className="col-span-2 gap-4 flex flex-col border-stone-100 dark:border-stone-900/30">
+                    <div className="col-span-4 sm:col-span-2 gap-4 flex flex-col rounded-md border">
                       {/* Interactive Calculator Section */}
                       <div className="p-4 bg-white dark:bg-background/30 rounded-lg shadow-sm border border-stone-100 dark:border-stone-900/20 h-full">
                         <h4 className="text-md font-semibold text-stone-600 dark:text-stone-300 mb-3">Interactive Calculator</h4>
@@ -507,7 +509,7 @@ export function TierCard({ tier }: TierCardProps) {
                       </div>
                     </div>
 
-                    <div className="col-span-2 gap-4 flex flex-col border-stone-100 dark:border-stone-900/30">
+                    <div className="col-span-4 sm:col-span-2 gap-4 flex flex-col rounded-md border">
                       {/* Key Metrics Section */}
                       <div className="p-4 bg-white dark:bg-background/30 rounded-lg shadow-sm border border-stone-100 dark:border-stone-900/20 h-full">
                         <h4 className="text-md font-semibold text-stone-600 dark:text-stone-300 mb-3">Key Metrics</h4>
@@ -529,7 +531,7 @@ export function TierCard({ tier }: TierCardProps) {
                     <div className="col-span-4 flex flex-col gap-4">
                       {/* Included Image Models */}
                       {tier.models.filter(m => m.model_type === 'image').length > 0 && (
-                        <div className="p-4 bg-white dark:bg-background/30 rounded-lg shadow-sm border border-stone-100 dark:border-stone-900/20">
+                        <div className="p-4 border rounded-md">
                           <h4 className="text-md font-semibold text-stone-600 dark:text-stone-300 mb-3">Included Image Models</h4>
                           <div className="space-y-2">
                             {tier.models.filter(m => m.model_type === 'image').map(model => (
@@ -553,7 +555,7 @@ export function TierCard({ tier }: TierCardProps) {
                 <div className="h-full flex flex-col p-1">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-lg text-stone-700 dark:text-stone-400">Video Model Configuration</h3>
+                      <h3 className="font-semibold text-sm sm:text-lg text-stone-700 dark:text-stone-400">Configuration</h3>
                       <Badge className={getTypeColor('video')}>Video</Badge>
                     </div>
                     <Button
@@ -569,11 +571,11 @@ export function TierCard({ tier }: TierCardProps) {
 
                   {/* Main Content Grid - Three Columns */}
                   <div className="grid grid-cols-4 gap-4">
-                    {/* Column 1: Calculator & Metrics */}
-                    <div className="col-span-4 gap-4 flex flex-col border-stone-100 dark:border-stone-900/30">
+                    {/* Cost & Profit Overview */}
+                    <div className="col-span-4 gap-4 flex flex-col border rounded-md">
                       <div className="p-4 rounded border border-stone-100 dark:border-stone-900/20">
                         <h4 className="text-md font-semibold text-stone-600 dark:text-stone-300 mb-4">Cost & Profit Overview</h4>
-                        <div className="grid grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                           <CostDisplayItem
                             label="Base Model Cost"
                             value={videoTotalBaseCost}
@@ -597,7 +599,7 @@ export function TierCard({ tier }: TierCardProps) {
                       </div>
                     </div>
 
-                    <div className="col-span-2 gap-4 flex flex-col border-stone-100 dark:border-stone-900/30">
+                    <div className="col-span-4 sm:col-span-2 gap-4 flex flex-col border rounded-md">
                       {/* Interactive Calculator Section */}
                       <div className="p-4 bg-white dark:bg-background/30 rounded-lg shadow-sm border border-stone-100 dark:border-stone-900/20 h-full">
                         <h4 className="text-md font-semibold text-stone-600 dark:text-stone-300 mb-3">Interactive Calculator</h4>
@@ -641,9 +643,9 @@ export function TierCard({ tier }: TierCardProps) {
                       </div>
                     </div>
 
-                    <div className="col-span-2 gap-4 flex flex-col border-stone-100 dark:border-stone-900/30">
+                    <div className="col-span-4 sm:col-span-2 gap-4 flex flex-col border-stone-100 dark:border-stone-900/30">
                       {/* Key Metrics Section */}
-                      <div className="p-4 bg-white dark:bg-background/30 rounded-lg shadow-sm border border-stone-100 dark:border-stone-900/20 h-full">
+                      <div className="p-4 border rounded-md h-full">
                         <h4 className="text-md font-semibold text-stone-600 dark:text-stone-300 mb-3">Key Metrics</h4>
                         <div className="space-y-2.5 text-sm">
                           <MetricItem label="Avg. Video Seconds" value={videoSeconds.toLocaleString()} />
@@ -660,7 +662,7 @@ export function TierCard({ tier }: TierCardProps) {
                       </div>
                     </div>
 
-                    <div className="col-span-4 flex flex-col gap-4">
+                    <div className="col-span-4 flex flex-col gap-4 border rounded-md">
                       {/* Included Video Models */}
                       {tier.models.filter(m => m.model_type === 'video').length > 0 && (
                         <div className="p-4 bg-white dark:bg-background/30 rounded-lg shadow-sm border border-stone-100 dark:border-stone-900/20">
@@ -686,24 +688,23 @@ export function TierCard({ tier }: TierCardProps) {
       </CardContent>
 
 
-    </div >
+    </Card >
   );
 };
 
 
 
 const MetricItem = ({ label, value, children }: { label: string, value?: string | number, children?: React.ReactNode; }) => (
-  <div className="flex justify-between items-center py-1.5 border-b border-blue-50 dark:border-blue-900/20 last:border-b-0">
+  <div className="flex justify-between items-center py-1.5 border-b">
     <span className="text-xs text-muted-foreground whitespace-nowrap mr-2">{label}:</span>
     {children ? <span className="font-medium text-xs text-right">{children}</span> : <span className="font-semibold text-xs text-primary text-right">{value}</span>}
   </div>
 );
 
 const CostDisplayItem = ({ label, value, description, iconColor, isEmphasized }: { label: string, value: number, description: string, iconColor: string, isEmphasized?: boolean; }) => (
-  <div className={`p-3 rounded-md ${isEmphasized ? 'bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800/50' : 'bg-blue-50/50 dark:bg-blue-950/10 border-blue-100 dark:border-blue-900/20'} border`}>
+  <div className="p-3 rounded-md border">
     <div className="flex items-center justify-between mb-1">
       <h5 className={`text-sm font-medium ${isEmphasized ? 'text-green-700 dark:text-green-300' : 'text-blue-700 dark:text-blue-400'}`}>{label}</h5>
-      {/* Optional: Icon can be added here if needed */}
     </div>
     <p className={`text-2xl font-bold ${isEmphasized ? 'text-green-600 dark:text-green-400' : 'text-blue-600 dark:text-blue-400'}`}>
       <NumberFlow format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger', minimumFractionDigits: 2 }} value={value} />
