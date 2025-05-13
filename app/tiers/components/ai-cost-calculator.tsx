@@ -173,7 +173,7 @@ export default function AICostCalculator() {
           </DndContext>
         </div>
         <div>
-          {tiers.map((tier) => ( // Changed from initialTiers to tiers
+          {tiers.map((tier) => (
             <div
               key={tier.id}
               className={`${tier.id === activeTab ? 'block' : 'hidden'}`}
@@ -182,8 +182,7 @@ export default function AICostCalculator() {
             </div>
           ))}
         </div>
-      </div> {/* This closes w-full min-h-screen */}
-      {/* Revenue Simulator Section Removed */}
+      </div>
     </div>
   );
 }

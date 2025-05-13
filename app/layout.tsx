@@ -5,10 +5,11 @@ import { Providers } from "./providers";
 
 import { AppSidebar } from "@/components/app-sidebar";
 import OnboardingModal from "@/components/onboarding-modal";
-import { ProjectSwitcher } from "@/components/project-switcher";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 import {
   SidebarInset,
-  SidebarProvider
+  SidebarProvider,
+  SidebarTrigger
 } from "@/components/ui/sidebar";
 import { createClient } from "@/utils/supabase/server";
 
@@ -54,7 +55,8 @@ export default async function RootLayout({
                 <div className="relative flex flex-1 flex-col gap-4">
                   <OnboardingModal />
                   {user?.id && <div className="absolute right-4 top-4 flex gap-2 items-center">
-                    <ProjectSwitcher />
+                    <SidebarTrigger className="-ml-1" />
+                    <ThemeSwitcher />
                   </div>}
 
                   {children}

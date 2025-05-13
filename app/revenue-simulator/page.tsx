@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import NumberFlow from '@number-flow/react';
-import { DollarSignIcon, GaugeIcon, TrendingUpIcon, UsersIcon } from 'lucide-react';
+import { DollarSignIcon, PiggyBank, TrendingUpIcon, UsersIcon } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useTiers } from "../../hooks/useTiers";
 import { RevenueForecastChart } from "./ChartRevenue";
@@ -71,7 +71,7 @@ export default function RevenueSimulatorPage() {
       <div className="p-4 h-[calc(100vh-4rem)] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4 max-w-md text-center">
           <div className="rounded-full bg-primary/10 p-6">
-            <GaugeIcon className="w-12 h-12 text-primary" />
+            <PiggyBank className="w-12 h-12 text-primary" />
           </div>
           <h2 className="text-2xl font-bold tracking-tight">No Tiers Created</h2>
           <p className="text-muted-foreground">

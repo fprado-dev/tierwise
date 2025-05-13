@@ -65,7 +65,7 @@ export function ProjectSwitcher() {
   return (
     <div className="relative">
       <DropdownMenu>
-        <DropdownMenuTrigger className="min-w-56" asChild>
+        <DropdownMenuTrigger className="min-w-56 w-full" asChild>
           <Button
             variant="outline"
             size="sm"
@@ -82,7 +82,7 @@ export function ProjectSwitcher() {
         </DropdownMenuTrigger>
         <DropdownMenuContent
           className="w-[--radix-dropdown-menu-trigger-width] min-w-[280px] p-2"
-          align="end"
+          align="start"
           sideOffset={4}
         >
           <div className="flex items-center justify-between px-2 py-1.5">

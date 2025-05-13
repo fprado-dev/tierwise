@@ -12,7 +12,7 @@ import { useTiers } from '@/hooks/useTiers';
 import { useTierSummary } from '@/hooks/useTierSummary';
 import { ProcessedTier } from '@/lib/tier.types';
 import NumberFlow from '@number-flow/react';
-import { ChevronsRightIcon, InfoIcon, Layers2Icon } from 'lucide-react'; // Added ChevronsRightIcon
+import { ChevronsRightIcon, InfoIcon, SquareChartGanttIcon } from 'lucide-react'; // Added ChevronsRightIcon
 import { redirect } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { ModelBreakdownSheet } from './components/ModelBreakdownSheet'; // Added import for ModelBreakdownSheet
@@ -256,7 +256,7 @@ export default function SummaryPage() {
       <div className="p-4 h-[calc(100vh-4rem)] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4 max-w-md text-center">
           <div className="rounded-full bg-primary/10 p-6">
-            <Layers2Icon className="w-12 h-12 text-primary" />
+            <SquareChartGanttIcon className="w-12 h-12 text-primary" />
           </div>
           <h2 className="text-2xl font-bold tracking-tight">No Tiers Created</h2>
           <p className="text-muted-foreground">

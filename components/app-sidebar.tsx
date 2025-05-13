@@ -3,21 +3,26 @@
 import {
   BotIcon,
   CrownIcon,
-  GalleryHorizontal,
-  GalleryVerticalEndIcon,
-  Layers2Icon
+  Layers2Icon,
+  PiggyBankIcon,
+  SquareChartGanttIcon
 } from "lucide-react";
 import * as React from "react";
 
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem
 } from "@/components/ui/sidebar";
 import { User } from "@supabase/supabase-js";
 import { NavMain } from "./nav-main";
 import { NavSecondary } from "./nav-secondary";
 import { NavUser } from "./nav-user";
+import { ProjectSwitcher } from "./project-switcher";
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   user: User;
 }
@@ -37,17 +42,17 @@ const data = {
     {
       title: "Summary",
       url: "/summary",
-      icon: GalleryVerticalEndIcon,
+      icon: SquareChartGanttIcon,
     },
     {
       title: "Revenue Simulator",
       url: "/revenue-simulator",
-      icon: GalleryHorizontal,
+      icon: PiggyBankIcon,
     },
   ],
   navSecondary: [
     {
-      title: "Upgrade",
+      title: "Upgrade to Pro",
       url: "/upgrade",
       icon: CrownIcon,
     },
@@ -65,7 +70,19 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
 
 
   return (
-    <Sidebar variant="floating" collapsible="icon"  {...props}>
+    <Sidebar variant="floating" collapsible="offcanvas"  {...props}>
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              className="data-[slot=sidebar-menu-button]:!p-1.5 bg-red-100 w-full"
+            >
+              <ProjectSwitcher />
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />

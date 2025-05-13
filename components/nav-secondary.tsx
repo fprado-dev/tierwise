@@ -11,7 +11,6 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
-import { ThemeSwitcher } from "./theme-switcher";
 
 export function NavSecondary({
   items,
@@ -37,11 +36,6 @@ export function NavSecondary({
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
-          <SidebarMenuItem key="theme">
-            <SidebarMenuButton asChild>
-              <ThemeSwitcher />
-            </SidebarMenuButton>
-          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>

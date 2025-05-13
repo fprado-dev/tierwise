@@ -14,7 +14,6 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Tier } from "@/lib/tier.types";
-import { Plus } from "lucide-react";
 import { useState } from "react";
 
 type TierCreationSheetProps = {
@@ -43,11 +42,11 @@ export function TierCreationSheet({ onAddTier, tiers }: TierCreationSheetProps) 
       <SheetTrigger asChild>
         <Button
           variant="outline"
-          size="icon"
           className="bg-primary text-primary-foreground hover:bg-primary/90"
 
+
         >
-          <Plus size={16} />
+          {tiers && tiers?.length <= 0 ? "Create Your First Tier" : "Create"}
         </Button>
       </SheetTrigger>
       <SheetContent>
