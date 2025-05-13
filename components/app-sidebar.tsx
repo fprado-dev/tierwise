@@ -25,7 +25,7 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 const data = {
   navMain: [
     {
-      title: "Tiers",
+      title: "Tier Builder",
       url: "/tiers",
       icon: Layers2Icon,
     },
