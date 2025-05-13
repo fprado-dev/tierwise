@@ -152,27 +152,24 @@ export default function RevenueSimulatorPage() {
               />
             </div>
             <div className="pt-2 border-t">
-              <div className="flex justify-between items-baseline mb-2">
+              <div className="flex flex-col justify-start items-center my-4">
                 <span className="text-sm text-muted-foreground">Projected Revenue:</span>
                 <p className="text-4xl font-bold tracking-tight text-green-600">
                   <NumberFlow value={totalProjectedRevenue} format={{ style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 }} />
                 </p>
               </div>
-              {targetMRR && (
-                <div className="mt-4">
+              <div className="mt-4">
+                <div className="space-y-2">
 
-                  <div className="space-y-2">
-
-                    {Number(targetMRR) > 0 && (
-                      <RevenueForecastChart
-                        TotalProjectedRevenue={totalProjectedRevenue}
-                        targetMMR={Number(targetMRR)}
-
-                      />
-                    )}
-                  </div>
+                  {Number(targetMRR) > 0 && (
+                    <RevenueForecastChart
+                      TotalProjectedRevenue={totalProjectedRevenue}
+                      targetMMR={Number(targetMRR)}
+                      tierRevenueDetails={revenueDetails}
+                    />
+                  )}
                 </div>
-              )}
+              </div>
             </div>
           </CardContent>
         </Card>
