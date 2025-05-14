@@ -8,15 +8,9 @@ export default async function Login(props: { searchParams: Promise<Message>; }) 
   const searchParams = await props.searchParams;
   return (
     <form className="w-full">
-      <div className="space-y-2 mb-8">
-        <h1 className="text-3xl font-semibold tracking-tight">Welcome back</h1>
-        <p className="text-muted-foreground">
-          Enter your email to sign in to your account
-        </p>
-      </div>
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="email" className="text-sm font-medium">Email address</Label>
+          <Label htmlFor="email" className="text-sm font-medium text-sidebar">Email address</Label>
           <Input
             name="email"
             placeholder="you@example.com"
@@ -32,6 +26,7 @@ export default async function Login(props: { searchParams: Promise<Message>; }) 
         >
           Continue with Email
         </SubmitButton>
+
         <FormMessage message={searchParams} />
       </div>
     </form>

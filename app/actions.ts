@@ -5,6 +5,34 @@ import { encodedRedirect } from "@/utils/utils";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 
+export const signUpAction = async (formData: FormData) => {
+  const email = formData.get("email") as string;
+  const supabase = await createClient();
+  const origin = (await headers()).get("origin");
+
+  if (!email) {
+    return encodedRedirect("error", "/sign-up", "Email is required");
+  }
+
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: {
+      emailRedirectTo: `${origin}/auth/callback`,
+    },
+
+  });
+
+  if (error) {
+    return encodedRedirect("error", "/sign-up", error.message);
+  }
+
+  return encodedRedirect(
+    "success",
+    "/sign-up",
+    "Check your email for the magic link to sign up."
+  );
+};
+
 export const signInAction = async (formData: FormData) => {
   const email = formData.get("email") as string;
   const supabase = await createClient();
