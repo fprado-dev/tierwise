@@ -195,16 +195,13 @@ const LandingPage: React.FC = () => {
           </div>
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="ghost" className="text-violet-500">
-              <Link href="/sign-in" passHref>
-                Login
-              </Link>
-            </Button>
             <Button
               className="rounded-full px-6 bg-gradient-to-r from-violet-500  to-purple-800 hover:opacity-90 hover:scale-105 transition-all"
 
             >
-              Sign Up
+              <Link href="/sign-in" passHref>
+                Login
+              </Link>
             </Button>
           </div>
           {/* Mobile Navigation */}
@@ -281,7 +278,9 @@ const LandingPage: React.FC = () => {
               className="rounded-full px-8 py-6 bg-violet-500 hover:bg-violet-800 font-medium shadow-lg transition-all"
 
             >
-              Get Started Free
+              <Link href={"/sign-in"}>
+                Get Started Free
+              </Link>
             </Button>
             <Button
               size="lg"
@@ -289,7 +288,7 @@ const LandingPage: React.FC = () => {
               className="rounded-full px-8 py-6 border-violet-500 hover:bg-violet-600 hover:text-white font-medium text-violet-500 transition-all"
 
             >
-              See How It Works
+              Watch Demo
             </Button>
           </motion.div>
           <motion.div
@@ -300,10 +299,6 @@ const LandingPage: React.FC = () => {
             <div className="flex items-center text-muted-foreground">
               <span className="rounded-full w-2 h-2 mr-2 bg-violet-300" ></span>
               No credit card required
-            </div>
-            <div className="flex items-center text-muted-foreground">
-              <span className="rounded-full w-2 h-2 mr-2 bg-violet-300" ></span>
-              14-day free trial
             </div>
           </motion.div>
         </motion.div>
@@ -328,7 +323,7 @@ const LandingPage: React.FC = () => {
           className="relative p-8"
         >
 
-          <div className="absolute inset-0 bg-gradient-to-br from-red-100 to-orange-50 rounded-2xl transform rotate-4"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-red-100 to-orange-50 rounded-2xl transform rotate-2"></div>
           <div className="space-y-6 relative">
             <div className="inline-block px-4 py-1 bg-red-50 text-red-600 rounded-full text-sm font-medium mb-2">The Challenge</div>
             <h2 className="text-3xl md:text-4xl font-bold mb-6">Pricing Shouldn't Be Guesswork</h2>
@@ -356,15 +351,15 @@ const LandingPage: React.FC = () => {
         </motion.div>
 
         <motion.div
-          whileHover={{ scale: 1.03 }}
+          whileHover={{ scale: 1.1 }}
           transition={{ type: "spring", stiffness: 300 }}
           className="relative p-8"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-indigo-50 rounded-2xl transform -rotate-1"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-indigo-50 rounded-2xl transform -rotate-2"></div>
 
           <div className="relative space-y-6">
             <div className="inline-block px-4 py-1 bg-blue-50 text-blue-600 rounded-full text-sm font-medium mb-2">The Solution</div>
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">Data-Driven Pricing Decisions</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">Ai-Driven Pricing Decisions easy!</h2>
             <p className="text-lg text-gray-600">
               TierWise transforms gut feelings into strategic pricing with:
             </p>
