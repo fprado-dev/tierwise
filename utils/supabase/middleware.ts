@@ -40,7 +40,7 @@ export const updateSession = async (request: NextRequest) => {
     const user = await supabase.auth.getUser();
 
     // protected routes
-    const protectedRoutes = ["/tiers", "/dashboard", "/models"];
+    const protectedRoutes = ["/tiers", "/revenue-simulator", "summary", "upgrade", "/models"];
     if (protectedRoutes.some(route => request.nextUrl.pathname.startsWith(route)) && user.error) {
       return NextResponse.redirect(new URL("/sign-in", request.url));
     }
