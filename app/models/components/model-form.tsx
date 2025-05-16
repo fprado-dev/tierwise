@@ -40,7 +40,7 @@ export function ModelForm({
             required
           />
         </div>
-        <div className="space-y-2">
+        {mode === "create" && <div className="space-y-2">
           <Label>Model Type</Label>
           <Select
             value={model.model_type}
@@ -56,7 +56,7 @@ export function ModelForm({
               <SelectItem value="video">Video</SelectItem>
             </SelectContent>
           </Select>
-        </div>
+        </div>}
         <div className="space-y-2">
           <div className="flex items-center space-x-2">
             <Checkbox

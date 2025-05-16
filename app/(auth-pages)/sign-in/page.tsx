@@ -22,7 +22,7 @@ export default async function Login(props: { searchParams: Promise<Message>; }) 
         <SubmitButton
           pendingText="Sending magic link..."
           formAction={signInAction}
-          className="w-full bg-[#0d1b2a] hover:bg-[#0d1b2a]/90 text-white py-2 rounded-md transition-colors"
+          className="w-full bg-gradient-to-r from-violet-500  to-purple-800 hover:opacity-90 hover:scale-105 transition-all text-white py-2 rounded-md "
         >
           Continue with Email
         </SubmitButton>

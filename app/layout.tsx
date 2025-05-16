@@ -3,15 +3,12 @@ import { Geist } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 
-import { AppSidebar } from "@/components/app-sidebar";
+import { ClientSidebar, HeaderControls } from "@/components/ClientSidebar";
 import OnboardingModal from "@/components/onboarding-modal";
-import { ThemeSwitcher } from "@/components/theme-switcher";
 import {
   SidebarInset,
-  SidebarProvider,
-  SidebarTrigger
+  SidebarProvider
 } from "@/components/ui/sidebar";
-import { createClient } from "@/utils/supabase/server";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -54,8 +51,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
   return (
     <html lang="en" className={geistSans.className} suppressHydrationWarning>
       <body className="bg-background text-foreground">
@@ -67,19 +62,11 @@ export default async function RootLayout({
         >
           <Providers>
             <SidebarProvider>
-              {user?.id && (
-                <>
-                  <AppSidebar user={user} />
-                </>
-              )}
+              <ClientSidebar />
               <SidebarInset>
                 <div className="relative flex flex-1 flex-col gap-4">
                   <OnboardingModal />
-                  {user?.id && <div className="absolute right-4 top-4 flex gap-2 items-center">
-                    <SidebarTrigger className="-ml-1" />
-                    <ThemeSwitcher />
-                  </div>}
-
+                  <HeaderControls />
                   {children}
                 </div>
               </SidebarInset>
