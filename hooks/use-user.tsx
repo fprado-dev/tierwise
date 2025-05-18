@@ -8,27 +8,39 @@ import { useEffect } from 'react';
 
 export function useUser() {
   const queryClient = useQueryClient();
-
-  // Create a query key for the user
   const userQueryKey = ['auth', 'user'];
 
-  // Set up auth state change listener
+  // Check for success redirect after signup
+  useEffect(() => {
+    // Parse URL parameters
+    const searchParams = new URLSearchParams(window.location.search);
+    const successMessage = searchParams.get('success');
+
+    if (successMessage) {
+      // Validate session when we have a success redirect
+      queryClient.invalidateQueries({ queryKey: userQueryKey });
+
+      // Clean up URL after validation
+      searchParams.delete('success');
+      const newUrl = `${window.location.pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+      window.history.replaceState(null, '', newUrl);
+    }
+  }, [queryClient, userQueryKey]);
+
+  // Auth state listener
   useEffect(() => {
     const supabase = createClient();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
-        // Update query data when auth state changes
         queryClient.setQueryData(userQueryKey, session?.user || null);
       }
     );
 
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [queryClient]);
+    return () => subscription.unsubscribe();
+  }, [queryClient, userQueryKey]);
 
-  // Query for the current user
+  // User query
   const query = useQuery<User | null>({
     queryKey: userQueryKey,
     queryFn: async () => {
@@ -36,10 +48,8 @@ export function useUser() {
       const { data: { user } } = await supabase.auth.getUser();
       return user;
     },
-    // Start with no stale time to ensure it's fresh on mount
     staleTime: 0,
-    // After initial load, we can keep it for longer
-    gcTime: 1000 * 60 * 60, // 1 hour
+    gcTime: 1000 * 60 * 60,
   });
 
   return {

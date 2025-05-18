@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 
 export default function AuthCallback() {
   const router = useRouter();
-
+  console.log('AuthCallback component mounted');
   useEffect(() => {
     const handleAuth = async () => {
       try {
@@ -14,7 +14,7 @@ export default function AuthCallback() {
 
         // First check if there's already a session
         const { data: { session } } = await supabase.auth.getSession();
-
+        console.log({ session });
         if (session) {
           console.log('Session already exists, redirecting...');
           router.push('/tiers');

@@ -1,80 +1,96 @@
 "use server";
 
-import { sendEmail } from "@/lib/email/email.service";
 import { createClient, } from "@/utils/supabase/server";
 import { createServiceClient } from "@/utils/supabase/service-client";
 import { encodedRedirect } from "@/utils/utils";
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 
 
+export const signupAction = async (formData: FormData) => {
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+  const fullName = formData.get("fullName") as string;
+  const companyName = formData.get("companyName") as string;
+
+  const supabaseAdmin = createServiceClient();
+  const supabase = await createClient();
+
+  if (!email || !password || !fullName || !companyName) {
+    return encodedRedirect("error", "/sign-up", "All fields are required");
+  }
+
+  try {
+    // 1. Create user with admin API
+    const { data: user, error: createError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: {
+        full_name: fullName,
+        company_name: companyName
+      }
+    });
+
+    if (createError) {
+      return encodedRedirect("error", "/sign-up", "User Already Exists");
+    }
+
+    // 2. Sign in the user directly
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (signInError) {
+      return encodedRedirect("error", "/sign-up", signInError.message);
+    }
+
+    // 3. Redirect to protected page
+    return encodedRedirect(
+      "success",
+      "/tiers?success=true",
+      "Account created! Welcome to TierWise."
+    );
+
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Failed to create account";
+    return encodedRedirect("error", "/sign-up", errorMessage);
+  }
+};
 
 export const signInAction = async (formData: FormData) => {
   const email = formData.get("email") as string;
-  const supabase = createServiceClient();
-  const origin = (await headers()).get("origin");
+  const password = formData.get("password") as string;
+  const supabase = await createClient();
 
-  if (!email) {
-    return encodedRedirect("error", "/sign-in", "Email is required");
+  if (!email || !password) {
+    return encodedRedirect("error", "/sign-in", "Email and password are required");
   }
 
-  // Generate a magic link instead of sending it directly
-  const { data, error } = await supabase.auth.admin.generateLink({
-    type: 'magiclink',
-    email,
-    options: {
-      redirectTo: `${origin}/auth/callback`,
+  try {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      return encodedRedirect("error", "/sign-in", "Invalid credentials");
     }
-  });
 
-  if (error) {
-    console.error("Error generating magic link:", error);
-    return encodedRedirect("error", "/sign-in", error.message);
+    return encodedRedirect(
+      "success",
+      "/tiers",
+      "Welcome back! You are now signed in."
+    );
+  } catch (error) {
+    console.error("SignIn error:", error);
+    return encodedRedirect(
+      "error",
+      "/sign-in",
+      "Failed to sign in"
+    );
   }
-
-  // The exact path to access the link depends on the response structure
-  // You may need to adjust this after checking the actual response
-  const actionLink = data.properties.action_link;
-
-  if (!actionLink) {
-    return encodedRedirect("error", "/sign-in", "Failed to generate magic link");
-  }
-
-  // Create HTML email template
-  const htmlContent = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #0d1b2a;">Sign in to TierWise</h1>
-        <p>Click the button below to sign in to your account:</p>
-        <a href="${actionLink}" style="display: inline-block; background-color: #0d1b2a; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin: 15px 0;">
-          Sign In
-        </a>
-        <p style="margin-top: 20px; font-size: 14px; color: #666;">
-          If you didn't request this link, you can safely ignore this email.
-        </p>
-      </div>
-    `;
-
-  // Send the email using Resend
-  const emailResult = await sendEmail({
-    from: `TierWise <tierwise@tierwise.pro>`,
-    to: [email],
-    subject: "Your Magic Link to Sign In to TierWise",
-    html: htmlContent,
-  });
-
-  if (!emailResult.success) {
-    console.error("Failed to send email:", emailResult.error);
-    return encodedRedirect("error", "/sign-in", "Failed to send magic link email");
-  }
-
-  return encodedRedirect(
-    "success",
-    "/sign-in",
-    "Check your email for the magic link to sign in."
-  );
-
 };
-
 export async function signOutAction() {
   const supabase = await createClient();
   const { error } = await supabase.auth.signOut();
@@ -86,5 +102,7 @@ export async function signOutAction() {
   revalidatePath("/", "layout");
   return encodedRedirect("success", "/", "Successfully signed out");
 }
+
+
 
 
