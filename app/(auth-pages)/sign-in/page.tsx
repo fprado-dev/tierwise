@@ -140,11 +140,8 @@ export default function SignIn() {
           Sign In
         </SubmitButton>
       </form>
-      <div className="mt-8 text-center text-xs text-muted-foreground">
-        <Link href="/forgot-password" className="text-brand hover:underline">
-          Forgot your password?
-        </Link>
-      </div>
     </div>
   );
 }
+
+

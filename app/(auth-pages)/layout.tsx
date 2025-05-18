@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 import MagicLinkHandler from "./sign-in/MagicLinkHandler";
 
 export default async function Layout({
@@ -20,7 +21,9 @@ export default async function Layout({
           </Link>
 
           <div className=" w-full">
-            {children}
+            <Suspense fallback={<div className="max-w-md mx-auto mt-8 p-8 bg-white rounded-xl shadow-lg">Loading...</div>}>
+              {children}
+            </Suspense>
           </div>
 
           <div className="pt-4 border-t border-gray-100 flex justify-between text-xs text-gray-400">
