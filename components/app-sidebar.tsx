@@ -2,7 +2,6 @@
 
 import {
   BotIcon,
-  CrownIcon,
   Layers2Icon,
   PiggyBankIcon,
   SquareChartGanttIcon
@@ -51,11 +50,7 @@ const data = {
     },
   ],
   navSecondary: [
-    {
-      title: "Upgrade to Pro",
-      url: "/upgrade",
-      icon: CrownIcon,
-    },
+
   ],
 };
 

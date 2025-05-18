@@ -40,7 +40,7 @@ function DraggableTierButton({ tier, isActive, onClick }: { tier: ProcessedTier,
 }
 
 export default function AICostCalculator() {
-  const { addTier, tiers: initialTiers, isLoading } = useTiers();
+  const { addTier, createTierMutation, deleteTierMutation, updateTierMutation, addModelsToTierMutation, tiers: initialTiers, isLoading } = useTiers();
   const [tiers, setTiers] = useState(initialTiers);
   const [activeTab, setActiveTab] = useState(initialTiers[0]?.id);
 
@@ -114,7 +114,7 @@ export default function AICostCalculator() {
     }
   }, [tiers]); // Only depend on tiers
 
-  if (isLoading) {
+  if (isLoading || createTierMutation.isPending || deleteTierMutation.isPending || updateTierMutation.isPending || addModelsToTierMutation.isPending) {
     return (
       <Skeleton />
     );

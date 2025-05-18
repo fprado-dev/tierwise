@@ -15,9 +15,10 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { motion } from 'framer-motion';
 import { Menu } from 'lucide-react';
+import { useTheme } from "next-themes";
 import Image from "next/image";
 import Link from 'next/link';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 // Brand Colors
 const BRAND = {
@@ -143,6 +144,11 @@ const staggerContainer = {
 };
 
 const LandingPage: React.FC = () => {
+  const { setTheme } = useTheme();
+
+  useEffect(() => {
+    setTheme('light');
+  }, []);
   return (
     <div
       className="min-h-screen overflow-x-hidden"
@@ -152,11 +158,11 @@ const LandingPage: React.FC = () => {
       <div
         className="sticky top-0 z-40 w-full backdrop-blur-md border-b shadow-sm"
       >
-        <div className="container max-w-7xl flex h-16 items-center justify-between mx-auto px-4">
+        <div className="container max-w-7xl flex  py-2 items-center justify-between mx-auto px-4">
           {/* Logo */}
           <div className="flex ">
             {/* SVG logo */}
-            <Image src="/icon-logo.svg" width={50} height={10} className="h-12 " alt="TierWise Logo" />
+            <Image src="/logo-full.png" width={120} height={5} className="hover:rotate-3 transition-transform cursor-pointer" alt="TierWise Logo" />
 
           </div>
           {/* Desktop Navigation */}
@@ -620,11 +626,11 @@ const LandingPage: React.FC = () => {
           style={{ backgroundImage: "url('/images/gradient-bg.svg')" }}
         />
         <div className="absolute inset-0 opacity-10 bg-pattern-grid"></div>
-        <div className="max-w-5xl mx-auto px-4 py-24 relative z-10 text-center">
+        <div className="max-w-3xl mx-auto px-4 py-24 relative z-10 text-center">
           <h2 className="text-3xl md:text-5xl font-bold mb-6" style={{ color: "#fff" }}>
             Ready to Transform Your Pricing Strategy?
           </h2>
-          <p className="text-lg md:text-xl mb-10" style={{ color: "#fff", opacity: 0.8 }}>
+          <p className="text-lg mb-10 text-balance" style={{ color: "#fff", opacity: 0.8 }}>
             Join hundreds of founders who increased their revenue by 15-25% with TierWise's data-driven pricing recommendations.
           </p>
           <motion.div
@@ -640,10 +646,12 @@ const LandingPage: React.FC = () => {
                 boxShadow: `0 8px 32px 0 ${BRAND.primary}22`
               }}
             >
-              Start Your Free Trial
+              <Link href="/sign-in">
+                Get Started for Free
+              </Link>
             </Button>
           </motion.div>
-          <p className="mt-6 text-sm" style={{ color: "#fff", opacity: 0.6 }}>No credit card required • 14-day free trial • Cancel anytime</p>
+          <p className="mt-6 text-sm" style={{ color: "#fff", opacity: 0.6 }}>No credit card required</p>
         </div>
       </motion.section>
 
@@ -652,11 +660,6 @@ const LandingPage: React.FC = () => {
       >
         <div className="max-w-7xl mx-auto w-full  px-4 flex justify-between p-4 text-muted-foreground">
           <div className="text-sm">&copy; 2025 TierWise, Inc. All rights reserved.</div>
-          <div className="text-sm flex space-x-4 mt-4 md:mt-0">
-            <a href="#" className="hover:text-[${BRAND.primary}]">Privacy</a>
-            <a href="#" className="hover:text-[${BRAND.primary}]">Terms</a>
-            <a href="#" className="hover:text-[${BRAND.primary}]">Cookie Policy</a>
-          </div>
         </div>
       </footer>
 

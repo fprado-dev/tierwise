@@ -7,15 +7,15 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { toast } from '@/hooks/use-toast';
 import { useTiers } from '@/hooks/useTiers';
 import { useTierSummary } from '@/hooks/useTierSummary';
 import { ProcessedTier } from '@/lib/tier.types';
 import NumberFlow from '@number-flow/react';
 import { ChevronsRightIcon, InfoIcon, SquareChartGanttIcon } from 'lucide-react'; // Added ChevronsRightIcon
-import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { ModelBreakdownSheet } from './components/ModelBreakdownSheet'; // Added import for ModelBreakdownSheet
+import { TierSummarySkeletonGrid } from './components/TierSummarySkeleton'; // Import skeleton components
 
 const getTypeColor = (type: string) => {
   switch (type) {
@@ -30,15 +30,7 @@ const getTypeColor = (type: string) => {
 
 function TierSummaryCard({ tier }: { tier: ProcessedTier; }) {
   const [isBreakdownSheetOpen, setIsBreakdownSheetOpen] = useState(false); // Added state for sheet
-  if (tier.models.length === 0) {
-    toast({
-      title: `No models found for the tier ${tier.name}`,
-      description: 'Please add some models to this tier',
-      variant: 'destructive',
-    });
-    redirect('/tiers');
 
-  }
   const { summary, isLoading: isSummaryLoading, updateSummary, isUpdating } = useTierSummary(tier.id);
   const [operationalOverheadPercentage, setOperationalOverheadPercentage] = useState<number>(20);
 
@@ -90,6 +82,9 @@ function TierSummaryCard({ tier }: { tier: ProcessedTier; }) {
     }
   }, [summary]);
 
+
+
+  const tierModelsEmpty = tier.models.length === 0;
   return (
     <div className='w-full bg-sidebar rounded-xl p-8 shadow-md border border-primary/10 overflow-hidden relative'>
       <div className="relative z-10">
@@ -142,91 +137,102 @@ function TierSummaryCard({ tier }: { tier: ProcessedTier; }) {
             <Button
               size="sm"
               variant="outline"
-              className="px-2 py-1 min-w-16 text-xs bg-sidebar-foreground text-primary-foreground hover:text-primary-foreground hover:bg-primary/90 transition-colors"
+              className="px-2 py-1 min-w-20 text-xs bg-sidebar-foreground text-primary-foreground hover:text-primary-foreground hover:bg-primary/90 transition-colors"
               onClick={() => {
                 updateSummary({
                   tier_id: tier.id,
                   operational_overhead_percentage: operationalOverheadPercentage,
                 });
               }}
-              disabled={isSummaryLoading}
             >
-              {isSummaryLoading || isUpdating ? 'Saving...' : 'Save'}
+              {isUpdating ? 'Saving...' : 'Save'}
             </Button>
           </div>
         </div>
 
         {/* Main pricing card */}
-        <div className='grid grid-cols-4 gap-4 my-4 min-h-40'>
-          <div className="flex col-span-4 flex-col items-center border justify-center bg-sidebar rounded-lg">
-            <div className='flex items-center justify-center gap-1'>
-              <p className="text-xs font-medium text-muted-foreground ">SUGGESTED</p>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <InfoIcon className="h-3 w-3 text-muted-foreground hover:text-primary transition-colors" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="text-xs text-center text-muted-foreground ">Including {operationalOverheadPercentage}% operational overhead</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <p className="text-xl font-bold text-primary">
-              <NumberFlow
-                format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                value={(textTotalCost + imageTotalCost + videoTotalCost) * (1 + operationalOverheadPercentage / 100)} />
 
-            </p>
+        {tierModelsEmpty ? (
+          <div className="flex flex-col items-center justify-center  min-h-40 h-full gap-4">
+            <p className="text-muted-foreground text-sm">No models added to this tier yet.</p>
+            <Button
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              <Link href="/tiers">
+                Add Models
+              </Link>
+            </Button>
           </div>
-          {/* BASE COST */}
-          <div className="col-span-2 flex flex-col items-center border justify-center bg-sidebar rounded-lg">
-            <div className='flex items-center justify-center gap-1'>
-              <p className="text-xs font-medium text-muted-foreground ">BASE COST</p>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <InfoIcon className="h-3 w-3 text-muted-foreground hover:text-primary transition-colors" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="text-xs text-center text-muted-foreground ">Raw price of each model</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <p className="text-xl font-bold text-primary">
-              <NumberFlow
-                format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                value={textTotalBaseCost + imageTotalBaseCost + videoTotalBaseCost} />
-            </p>
-          </div>
+        ) : (
+          <div className='grid grid-cols-4 gap-4 my-4 min-h-40'>
+            <div className="flex col-span-4 flex-col items-center border justify-center bg-sidebar rounded-lg">
+              <div className='flex items-center justify-center gap-1'>
+                <p className="text-xs font-medium text-muted-foreground ">SUGGESTED</p>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <InfoIcon className="h-3 w-3 text-muted-foreground hover:text-primary transition-colors" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-xs text-center text-muted-foreground ">Including {operationalOverheadPercentage}% operational overhead</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <p className="text-xl font-bold text-primary">
+                <NumberFlow
+                  format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
+                  value={(textTotalCost + imageTotalCost + videoTotalCost) * (1 + operationalOverheadPercentage / 100)} />
 
-          {/* PROFIT MARGIN */}
-          <div className="col-span-2 flex flex-col items-center justify-center border bg-sidebar rounded-lg">
-            <div className='flex items-center justify-center gap-1'>
-              <p className="text-xs font-medium text-muted-foreground ">PROFIT MARGIN
               </p>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <InfoIcon className="h-3 w-3 text-muted-foreground hover:text-primary transition-colors" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="text-xs">Includes {operationalOverheadPercentage}% buffer for operational overhead</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
             </div>
-            <p className="text-xl font-bold text-green-500">
-              <NumberFlow
-                format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
-                value={(textTotalProfitValue + imageTotalProfitValue + videoTotalProfitValue) + (textTotalCost + imageTotalCost + videoTotalCost) * (operationalOverheadPercentage / 100)} />
+            {/* BASE COST */}
+            <div className="col-span-2 flex flex-col items-center border justify-center bg-sidebar rounded-lg">
+              <div className='flex items-center justify-center gap-1'>
+                <p className="text-xs font-medium text-muted-foreground ">BASE COST</p>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <InfoIcon className="h-3 w-3 text-muted-foreground hover:text-primary transition-colors" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-xs text-center text-muted-foreground ">Raw price of each model</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <p className="text-xl font-bold text-primary">
+                <NumberFlow
+                  format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
+                  value={textTotalBaseCost + imageTotalBaseCost + videoTotalBaseCost} />
+              </p>
+            </div>
 
-            </p>
+            {/* PROFIT MARGIN */}
+            <div className="col-span-2 flex flex-col items-center justify-center border bg-sidebar rounded-lg">
+              <div className='flex items-center justify-center gap-1'>
+                <p className="text-xs font-medium text-muted-foreground ">PROFIT MARGIN
+                </p>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <InfoIcon className="h-3 w-3 text-muted-foreground hover:text-primary transition-colors" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-xs">Includes {operationalOverheadPercentage}% buffer for operational overhead</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <p className="text-xl font-bold text-green-500">
+                <NumberFlow
+                  format={{ style: 'currency', currency: 'USD', trailingZeroDisplay: 'stripIfInteger' }}
+                  value={(textTotalProfitValue + imageTotalProfitValue + videoTotalProfitValue) + (textTotalCost + imageTotalCost + videoTotalCost) * (operationalOverheadPercentage / 100)} />
+
+              </p>
+            </div>
           </div>
-        </div>
-
-        {/* ModelBreakdownSheet component */}
+        )}
         <ModelBreakdownSheet
           isOpen={isBreakdownSheetOpen}
           onOpenChange={setIsBreakdownSheetOpen}
@@ -249,9 +255,24 @@ function TierSummaryCard({ tier }: { tier: ProcessedTier; }) {
 }
 
 export default function SummaryPage() {
-  const { tiers } = useTiers();
+  const { tiers, isLoading: isLoadingTiers } = useTiers();
 
-  if (tiers.length <= 0) {
+
+  if (isLoadingTiers) {
+    return (
+      <div className="flex flex-col gap-6 w-full">
+        <div className="flex p-4 items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Tier Summaries</h1>
+            <p className="text-muted-foreground text-xs sm:text-base">Overview of all your tier configurations and costs</p>
+          </div>
+        </div>
+        <TierSummarySkeletonGrid />
+      </div>
+    );
+  }
+
+  if (!isLoadingTiers && tiers.length <= 0) {
     return (
       <div className="p-4 h-[calc(100vh-4rem)] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4 max-w-md text-center">

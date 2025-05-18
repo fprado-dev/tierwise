@@ -14,7 +14,7 @@ import { useModels } from "@/hooks/use-models";
 import { useTiers } from "@/hooks/useTiers";
 import { Model } from "@/lib/supabase/model.service";
 import { ProcessedTier } from "@/lib/tier.types";
-import { SearchX } from "lucide-react";
+import { SearchCheckIcon, SearchX } from "lucide-react";
 import { useState } from "react";
 import { SelectableModelCard } from "./selectable-model-card";
 
@@ -28,7 +28,7 @@ type ModelSelectionSheetProps = {
 
 export function ModelSelectionSheet({ tier, isOpen, modelType, onOpenChange }: ModelSelectionSheetProps) {
   const [activeTab, setActiveTab] = useState<'text' | 'image' | 'video'>(modelType);
-  const { defaultModels } = useModels();
+  const { defaultModels, loading } = useModels();
   const { addModelToTier, removeModelFromTier, isLoading } = useTiers();
 
   // Track selected models for each category separately
@@ -103,91 +103,105 @@ export function ModelSelectionSheet({ tier, isOpen, modelType, onOpenChange }: M
 
   const getTitle = () => `Select ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Models`;
 
+
+
+
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-[800px] sm:max-w-full p-0 overflow-hidden flex flex-col">
+        {loading ? (
+          <div className="flex flex-col items-center justify-center h-full p-8">
+            <div className="rounded-full bg-muted p-3 mb-4">
+              <SearchCheckIcon className="h-6 w-6 text-muted-foreground" />
+            </div>
 
-        {/* Header Section */}
-        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b">
-          <SheetHeader className="flex flex-row justify-between items-center p-4 gap-4">
-            <div className="flex flex-col">
-              <SheetTitle className="text-xl font-semibold">{getTitle()}</SheetTitle>
-              <SheetDescription className="text-sm text-muted-foreground">
-                Select the models you want to include in this tier.
-              </SheetDescription>
-              <Tabs value={activeTab} onValueChange={(value) => {
-                const newTab = value as 'text' | 'image' | 'video';
-                setActiveTab(newTab);
-              }}>
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="text">Text</TabsTrigger>
-                  <TabsTrigger value="image">Image</TabsTrigger>
-                  <TabsTrigger value="video">Video</TabsTrigger>
-                </TabsList>
-              </Tabs>
-              <div className="flex items-center gap-1 mt-2">
-                <Badge variant={selectedModels.length >= 6 ? "destructive" : "secondary"} className="text-xs">
-                  {selectedModels.length}/6
-                </Badge>
-                <span className="text-sm text-muted-foreground">Models per category</span>
-              </div>
-            </div>
-          </SheetHeader>
-        </div>
+            <SheetTitle className="text-xl font-semibold">Loading...</SheetTitle>
 
-        {/* Model Cards Grid - Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-4">
-          {getModelOptions().length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center p-8">
-              <div className="rounded-full bg-muted p-3 mb-4">
-                <SearchX className="h-6 w-6 text-muted-foreground" />
-              </div>
-              <h3 className="font-semibold text-lg mb-1">No models found</h3>
-              <p className="text-muted-foreground max-w-md">
-                Try adjusting your search or filters to find what you're looking for.
-              </p>
-            </div>
-          ) : (
-            <div className="grid gap-4 grid-cols-2  auto-rows-fr">
-              {getModelOptions().map((model) => (
-                <SelectableModelCard
-                  key={model.id}
-                  model={model}
-                  isSelected={selectedModels.includes(model.id)}
-                  onSelect={handleModelSelect}
-                  isLoading={isLoading}
-                />
-              ))}
-            </div>
-          )}
-        </div>
 
-        {/* Optional: Footer with Actions */}
-        <div className="border-t p-4 bg-background/95 backdrop-blur-sm">
-          <div className="flex justify-between items-center">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="secondary"
-                onClick={() => setSelectedModelsByCategory(prev => ({
-                  ...prev,
-                  [activeTab]: []
-                }))}
-                disabled={selectedModels.length === 0 || isLoading}
-              >
-                Clear Selection
-              </Button>
-              <Button
-                onClick={handleUpdateModels}
-                disabled={isLoading}
-              >
-                {isLoading ? 'Updating...' : 'Update Models'}
-              </Button>
-            </div>
+            <p className="text-muted-foreground max-w-md">
+              Fetching models...
+            </p>
           </div>
-        </div>
+        ) : (
+          <>
+            <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b">
+              <SheetHeader className="flex flex-row justify-between items-center p-4 gap-4">
+                <div className="flex flex-col">
+                  <SheetTitle className="text-xl font-semibold">{getTitle()}</SheetTitle>
+                  <SheetDescription className="text-sm text-muted-foreground">
+                    Select the models you want to include in this tier.
+                  </SheetDescription>
+                  <Tabs value={activeTab} onValueChange={(value) => {
+                    const newTab = value as 'text' | 'image' | 'video';
+                    setActiveTab(newTab);
+                  }}>
+                    <TabsList className="grid w-full grid-cols-3">
+                      <TabsTrigger value="text">Text</TabsTrigger>
+                      <TabsTrigger value="image">Image</TabsTrigger>
+                      <TabsTrigger value="video">Video</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+                  <div className="flex items-center gap-1 mt-2">
+                    <Badge variant={selectedModels.length >= 6 ? "destructive" : "secondary"} className="text-xs">
+                      {selectedModels.length}/6
+                    </Badge>
+                    <span className="text-sm text-muted-foreground">Models per category</span>
+                  </div>
+                </div>
+              </SheetHeader>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4">
+              {getModelOptions().length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-center p-8">
+                  <div className="rounded-full bg-muted p-3 mb-4">
+                    <SearchX className="h-6 w-6 text-muted-foreground" />
+                  </div>
+                  <h3 className="font-semibold text-lg mb-1">No models found</h3>
+                  <p className="text-muted-foreground max-w-md">
+                    Try adjusting your search or filters to find what you're looking for.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid gap-4 grid-cols-2  auto-rows-fr">
+                  {getModelOptions().map((model) => (
+                    <SelectableModelCard
+                      key={model.id}
+                      model={model}
+                      isSelected={selectedModels.includes(model.id)}
+                      onSelect={handleModelSelect}
+                      isLoading={isLoading}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="border-t p-4 bg-background/95 backdrop-blur-sm">
+              <div className="flex justify-between items-center">
+                <Button variant="outline" onClick={() => onOpenChange(false)}>
+                  Cancel
+                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="secondary"
+                    onClick={() => setSelectedModelsByCategory(prev => ({
+                      ...prev,
+                      [activeTab]: []
+                    }))}
+                    disabled={selectedModels.length === 0 || isLoading}
+                  >
+                    Clear Selection
+                  </Button>
+                  <Button
+                    onClick={handleUpdateModels}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? 'Updating...' : 'Update Models'}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </SheetContent>
     </Sheet>
   );
