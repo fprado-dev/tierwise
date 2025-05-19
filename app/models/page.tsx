@@ -119,17 +119,21 @@ export default function ModelsPage() {
             <ModelEmpty onCreateModel={() => setOpenCreateModel(true)} />
           )}
 
-          {isLoadingModels || isCreating && <ModelSkeleton title='Models' />}
+          {isLoadingModels && <ModelSkeleton title='Models' />}
 
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
-            {customModels.map((customModel) => (
-              <ModelCard
-                key={customModel.id}
-                model={customModel}
-                {...actions}
-              />
-            ))}
-          </div>
+          {isCreating ? <ModelSkeleton title='Models' /> : (
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
+              {customModels.map((customModel) => (
+                <ModelCard
+                  key={customModel.id}
+                  model={customModel}
+                  {...actions}
+                />
+              ))}
+            </div>
+          )
+
+          }
         </div>
 
         <Separator className='my-6 bg-brand/10' />
@@ -143,16 +147,18 @@ export default function ModelsPage() {
 
           {isLoadingModels && <ModelSkeleton title='Models' />}
 
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
-            {defaultModels.map((defaultModel) => (
-              <ModelCard
-                key={defaultModel.id}
-                model={defaultModel}
-                {...actions}
-                isDefault
-              />
-            ))}
-          </div>
+          {isCreating ? <ModelSkeleton title='Models' /> : (
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
+              {defaultModels.map((defaultModel) => (
+                <ModelCard
+                  key={defaultModel.id}
+                  model={defaultModel}
+                  {...actions}
+                  isDefault
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
