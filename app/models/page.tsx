@@ -121,7 +121,7 @@ export default function ModelsPage() {
 
           {isLoadingModels && <ModelSkeleton title='Models' />}
 
-          {isCreating ? <ModelSkeleton title='Models' /> : (
+          {isCreating || isUpdating || isDeleting ? <ModelSkeleton title='Models' /> : (
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
               {customModels.map((customModel) => (
                 <ModelCard
@@ -147,7 +147,7 @@ export default function ModelsPage() {
 
           {isLoadingModels && <ModelSkeleton title='Models' />}
 
-          {isCreating ? <ModelSkeleton title='Models' /> : (
+          {isCreating || isUpdating || isDeleting ? <ModelSkeleton title='Models' /> : (
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
               {defaultModels.map((defaultModel) => (
                 <ModelCard
