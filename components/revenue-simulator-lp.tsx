@@ -471,12 +471,12 @@ const MinimalRevenueSimulator: React.FC = () => {
 
             <div className="flex flex-col gap-4">
               {/* Results */}
-              <div className="bg-brand/5 grid grid-cols-3 rounded-lg p-4">
+              <div className="bg-brand/5 grid grid-cols-1 sm:grid-cols-3 rounded-lg p-4">
                 <div className="text-center mb-4">
                   <div className="text-sm text-gray-500 mb-1">Total Monthly Cost</div>
                   <div className="text-3xl font-bold text-brand">{formatCurrency(totalCost)}</div>
                 </div>
-                <div className="text-center mb-4 border-x">
+                <div className="text-center mb-4 border-y py-4 sm:border-y-0 sm:border-x sm:py-0">
                   <div className="text-sm text-gray-500 mb-1">Cost Per User</div>
                   <div className="text-3xl font-bold text-brand">{formatCurrency(perUserCost)}</div>
                 </div>

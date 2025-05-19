@@ -62,25 +62,6 @@ interface Step {
   icon?: string;
 }
 
-// Define tier and model types
-type TierType = 'hobby' | 'pro' | 'premium';
-type ModelType = 'deepseek' | 'anthropic';
-
-// Define pricing tier structure
-interface PricingTier {
-  basePrice: number;
-  userMultiplier: number;
-  modelMultipliers: {
-    [key in ModelType]: number;
-  };
-}
-
-// Define pricing tiers object with proper typing
-interface PricingTiers {
-  hobby: PricingTier;
-  pro: PricingTier;
-  premium: PricingTier;
-}
 
 const features: Feature[] = [
   { title: 'Guided Tier Builder', icon: <Layers className="h-10 w-10 text-brand" />, description: 'Create optimal pricing tiers with our interactive step-by-step guide' },
@@ -179,43 +160,6 @@ const fadeIn = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
 };
 
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.2
-    }
-  }
-};
-
-// Pricing tiers data for the simulator with proper typing
-const pricingTiers: PricingTiers = {
-  hobby: {
-    basePrice: 19,
-    userMultiplier: 0.05,
-    modelMultipliers: {
-      deepseek: 1,
-      anthropic: 1.2
-    }
-  },
-  pro: {
-    basePrice: 49,
-    userMultiplier: 0.1,
-    modelMultipliers: {
-      deepseek: 1,
-      anthropic: 1.3
-    }
-  },
-  premium: {
-    basePrice: 99,
-    userMultiplier: 0.15,
-    modelMultipliers: {
-      deepseek: 1,
-      anthropic: 1.5
-    }
-  }
-};
 
 // Arcade embed for demo
 const ArcadeEmbed = () => {
@@ -324,26 +268,11 @@ const DemoModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void; 
 
 const LandingPage: React.FC = () => {
   const { setTheme } = useTheme();
-  const [users, setUsers] = useState(100);
-  const [tier, setTier] = useState<TierType>('pro');
-  const [model, setModel] = useState<ModelType>('deepseek');
-  const [revenue, setRevenue] = useState(0);
   const [showDemo, setShowDemo] = useState(false);
 
-  // Calculate revenue based on simulator inputs
-  useEffect(() => {
-    const selectedTier = pricingTiers[tier];
-    const basePrice = selectedTier.basePrice;
-    const userFactor = selectedTier.userMultiplier * users;
-    const modelMultiplier = selectedTier.modelMultipliers[model];
-
-    const calculatedRevenue = (basePrice + userFactor) * modelMultiplier;
-    setRevenue(Math.round(calculatedRevenue));
-  }, [users, tier, model]);
 
   useEffect(() => {
     setTheme('light');
-
   }, []);
   return (
     <>
@@ -972,9 +901,8 @@ const LandingPage: React.FC = () => {
                     <h3 className="text-xl font-bold text-gray-900 mb-2">Need a custom solution?</h3>
                     <p className="text-gray-600">Contact us for enterprise pricing and custom features.</p>
                   </div>
-                  <Button className="rounded-full bg-white border border-brand text-brand hover:bg-brand hover:text-white transition-colors">
-                    <Link href="/contact">Contact Sales</Link>
-                  </Button>
+                  <p className="text-muted-foreground text-sm">Send us a email: <b>tierwise@tierwise.pro</b></p>
+
                 </div>
               </div>
             </div>
