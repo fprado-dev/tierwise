@@ -51,11 +51,11 @@ export default function ModelsPage() {
       toast({ title: 'Model updated successfully' });
       setOpenUpdateModel(false);
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         variant: 'destructive',
         title: 'Update error',
-        description: error.message,
+        description: "Erro while updating model",
       });
     }
   });
@@ -67,11 +67,11 @@ export default function ModelsPage() {
       queryClient.invalidateQueries({ queryKey: ['models'] });
       toast({ title: 'Model deleted successfully' });
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         variant: 'destructive',
         title: 'Deletion error',
-        description: error.message,
+        description: "Error while deleting model",
       });
     }
   });
@@ -121,7 +121,7 @@ export default function ModelsPage() {
 
           {isLoadingModels && <ModelSkeleton title='Models' />}
 
-          <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4'>
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
             {customModels.map((customModel) => (
               <ModelCard
                 key={customModel.id}
@@ -136,13 +136,14 @@ export default function ModelsPage() {
 
         {/* Default Models Section */}
         <div className='flex flex-col'>
-          <h2 className='text-brand font-semibold my-4 bg-brand/20 px-4 py-2 rounded-md w-44 text-center'>
-            TierWise Models
-          </h2>
+          <div className='flex gap-4 items-center my-4'>
+            <div className='bg-brand/20 px-4 py-2 rounded-md w-4 h-full' />
+            <h2 className='text-brand font-semibold text-center'> TierWise Models</h2>
+          </div>
 
           {isLoadingModels && <ModelSkeleton title='Models' />}
 
-          <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4'>
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
             {defaultModels.map((defaultModel) => (
               <ModelCard
                 key={defaultModel.id}

@@ -70,7 +70,7 @@ export function ModelCard({ model, onEdit, onDelete, isDeleting, isDefault = fal
   };
 
   return (
-    <Card key={model.id} className="w-full min-h-60 flex flex-col justify-between gap-2 p-0 hover:shadow-md transition-shadow bg-sidebar">
+    <Card key={model.id} className={`w-full min-h-60 flex flex-col justify-between gap-2 p-0 hover:shadow-md transition-shadow bg-sidebar ${isDeleting && "opacity-25"}`}>
 
       <CardHeader className='max-h-28'>
         <CardDescription className='my-2'>
