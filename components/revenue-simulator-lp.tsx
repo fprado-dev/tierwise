@@ -450,18 +450,18 @@ const MinimalRevenueSimulator: React.FC = () => {
               </div>
 
               {/* Tier Details */}
-              <div className="bg-gray-50 rounded p-3 text-sm">
+              <div className="bg-gray-50 rounded p-3 text-sm ">
                 <div className="font-medium mb-2 capitalize">{tier} Tier Includes:</div>
                 <div className="grid grid-cols-3 gap-2">
-                  <div>
+                  <div className="flex items-center gap-2">
                     <div className="font-medium">{tierPricing[tier].models.text.length}</div>
                     <div className="text-xs text-gray-500">Text Models</div>
                   </div>
-                  <div>
+                  <div className="flex items-center gap-2">
                     <div className="font-medium">{tierPricing[tier].models.image.length}</div>
                     <div className="text-xs text-gray-500">Image Models</div>
                   </div>
-                  <div>
+                  <div className="flex items-center gap-2">
                     <div className="font-medium">{tierPricing[tier].models.video.length}</div>
                     <div className="text-xs text-gray-500">Video Models</div>
                   </div>
@@ -492,7 +492,7 @@ const MinimalRevenueSimulator: React.FC = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="bg-gradient-to-r from-brand/10 to-brand/5 rounded-lg p-4"
+                className="bg-gradient-to-r from-brand/10 to-brand/5 rounded-lg p-4 text-center"
               >
                 <h4 className="font-medium text-brand mb-2">TierWise Recommendation</h4>
                 <p className="text-sm text-gray-700">
@@ -503,12 +503,6 @@ const MinimalRevenueSimulator: React.FC = () => {
                 </div>
               </motion.div>
             </div>
-
-
-
-
-
-
           </div>
         </div>
       </div>

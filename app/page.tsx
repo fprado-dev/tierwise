@@ -205,9 +205,8 @@ const CountdownTimer = () => {
   return (
     <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white py-3 px-4 flex items-center justify-center">
       <div className="container max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between">
-        <div className="flex items-center mb-2 md:mb-0">
-          <span className="mr-2">🎉</span>
-          <span className="font-medium">Product Hunt Launch Special:</span>
+        <div className="flex flex-col sm:flex-row items-center mb-2 md:mb-0">
+          <span className="font-medium">🎉 Product Hunt Launch Special:</span>
           <span className="ml-2">Get 3 months FREE!</span>
         </div>
 
