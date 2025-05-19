@@ -90,6 +90,11 @@ export default function ModelsPage() {
     setModelToDelete(id);
     setDeleteConfirmOpen(true);
   };
+
+  console.log(isCreating || isUpdating || isDeleting);
+  if (isCreating || isUpdating || isDeleting) {
+    return <div>Loading...</div>;
+  }
   return (
     <div className="w-full">
       <div className="space-y-2 p-4 ">

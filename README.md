@@ -182,3 +182,25 @@ Features
 • Comprehensive analytics dashboard with visualizations
 How is it different?
 The only platform that combines guided pricing strategy development, AI-powered recommendations, and practical implementation tools specifically designed for modern products including AI-driven services
+
+### Authentication Flow
+- [ ] Create forgot-password page  
+- [ ] Implement forgot password logic (email recovery flow)
+
+### Tier Management
+- [ ] Fix loading state when creating a Tier  
+- [ ] Fix logic for adding models by category in Tier Builder  
+- [ ] Fix Tier Tab loading performance  
+- [ ] Fix loading states when deleting/updating Tiers  
+
+### UI/UX Improvements
+- [ ] Enforce max 15-character limit for Tier names  
+- [ ] Persist last selected Tab in Tier Builder  
+- [ ] Add "Edit Tier" button in Tier Summary to reopen Builder  
+- [ ] Fix layout shift in Revenue Simulator Gap Sections  
+
+### Data Handling & Persistence
+- [ ] Fix Operation Buffer value reset when returning to Tier Builder  
+
+### Content & Filtering
+- [ ] Remove hardware references from Models Page filters  
