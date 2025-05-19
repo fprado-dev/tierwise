@@ -181,6 +181,8 @@ const CountdownTimer = () => {
     minutes: 59,
     seconds: 59
   });
+  const [showCoupon, setShowCoupon] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -200,7 +202,25 @@ const CountdownTimer = () => {
     return () => clearInterval(timer);
   }, []);
 
+  // Reset copied state after 2 seconds
+  useEffect(() => {
+    if (copied) {
+      const timeout = setTimeout(() => setCopied(false), 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [copied]);
+
   const formatTime = (time: number) => time.toString().padStart(2, '0');
+
+  const handleClaimClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setShowCoupon(true);
+  };
+
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText('PHUNT3');
+    setCopied(true);
+  };
 
   return (
     <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white py-3 px-4 flex items-center justify-center">
@@ -227,14 +247,30 @@ const CountdownTimer = () => {
             </div>
           </div>
 
-          <a
-            href="https://www.producthunt.com/posts/tierwise"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-white text-red-500 hover:bg-gray-100 transition-colors px-4 py-1 rounded-full font-medium text-sm"
-          >
-            Claim Now
-          </a>
+          {showCoupon ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white text-red-500 px-4 py-1 rounded-full font-medium text-sm flex items-center shadow-md"
+            >
+              <span className="mr-2">Coupon Code:</span>
+              <span className="font-bold tracking-wide">PHUNT3</span>
+              <button
+                onClick={handleCopyCode}
+                className="ml-2 bg-red-500 text-white hover:bg-red-600 px-2 py-0.5 rounded-full text-xs transition-colors"
+              >
+                {copied ? "Copied!" : "Copy"}
+              </button>
+            </motion.div>
+          ) : (
+            <button
+              onClick={handleClaimClick}
+              className="bg-white text-red-500 hover:bg-gray-100 transition-colors px-4 py-1 rounded-full font-medium text-sm hover:shadow-md"
+            >
+              Claim Now
+            </button>
+          )}
         </div>
       </div>
     </div>
