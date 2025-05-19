@@ -9,7 +9,7 @@ export function useModels() {
   const queryClient = useQueryClient(mainQueryClient);
 
 
-  const { data: defaultModels = [], isLoading: loadingDefaults } = useQuery<Model[]>({
+  const { data: defaultModels = [], isLoading: loadingDefaults } = useQuery<Model[] | [] | undefined>({
     queryKey: ['defaultModels'],
     queryFn: ModelServices.getDefaultModels
   });
