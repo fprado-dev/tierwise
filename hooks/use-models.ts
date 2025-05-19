@@ -1,4 +1,5 @@
 "use client";
+
 import * as ModelServices from '@/lib/supabase/model.service';
 import { CreateModelParams, Model } from '@/lib/supabase/model.service';
 import { mainQueryClient } from '@/providers/projects-provider';
@@ -15,7 +16,8 @@ export function useModels() {
 
   const createModelMutation = useMutation({
     mutationFn: (params: CreateModelParams) => ModelServices.createModel(params),
-    onSuccess: async () => {
+    onSuccess: async (data) => {
+
       await queryClient.invalidateQueries({ queryKey: ['defaultModels'] });
     },
   });
@@ -38,9 +40,9 @@ export function useModels() {
   return {
     defaultModels,
     loading: loadingDefaults,
-    createModel: createModelMutation.mutateAsync,
-    updateModel: updateModelMutation.mutateAsync,
-    deleteModel: deleteModelMutation.mutateAsync,
+    createModel: createModelMutation.mutate,
+    updateModel: updateModelMutation.mutate,
+    deleteModel: deleteModelMutation.mutate,
     createModelMutation,
     updateModelMutation,
     deleteModelMutation,

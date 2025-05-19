@@ -30,7 +30,7 @@ export interface Model {
 
 
 
-export async function getDefaultModels() {
+export async function getDefaultModels(): Promise<Model[] | [] | undefined> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -40,7 +40,8 @@ export async function getDefaultModels() {
     .order('created_at', { ascending: false });
 
   if (error) throw error;
-  return models;
+
+  return models as Model[];
 }
 
 export interface CreateModelParams {

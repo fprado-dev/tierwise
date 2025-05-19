@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardFooter, CardHeader } from '@/components/ui/card';
 import { ModelType } from '@/lib/model.types';
 import { Model } from '@/lib/supabase/model.service';
+import { useState } from 'react';
+import { ModelConfirmDelete } from './model-confirm';
 
 interface ModelCardProps {
   model: {
@@ -28,6 +30,7 @@ interface ModelCardProps {
 }
 
 export function ModelCard({ model, onEdit, onDelete, isDeleting, isDefault = false }: ModelCardProps) {
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const getTypeColor = (type: string) => {
     switch (type) {
       case 'text': return 'bg-blue-100 text-blue-800';
@@ -97,14 +100,23 @@ export function ModelCard({ model, onEdit, onDelete, isDeleting, isDefault = fal
             <Button
               variant="destructive"
               size="sm"
-              onClick={() => onDelete(model.id)}
+              onClick={() => setIsDeleteDialogOpen(true)}
               disabled={isDeleting}
             >
-              {isDeleting ? 'Deleting...' : 'Delete'}
+              Delete
             </Button>
+
+            <ModelConfirmDelete
+              isOpen={isDeleteDialogOpen}
+              onOpenChange={setIsDeleteDialogOpen}
+              onConfirm={() => onDelete(model.id)}
+              modelName={model.model_name}
+              isDeleting={isDeleting}
+            />
           </div>}
         </div>
       </CardFooter>
+
     </Card>
   );
 }

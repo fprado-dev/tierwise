@@ -6,7 +6,6 @@ import { useEffect } from 'react';
 
 export default function AuthCallback() {
   const router = useRouter();
-  console.log('AuthCallback component mounted');
   useEffect(() => {
     const handleAuth = async () => {
       try {
@@ -14,16 +13,13 @@ export default function AuthCallback() {
 
         // First check if there's already a session
         const { data: { session } } = await supabase.auth.getSession();
-        console.log({ session });
         if (session) {
-          console.log('Session already exists, redirecting...');
           router.push('/tiers');
           return;
         }
 
         // If hash exists, process it
         if (window.location.hash && window.location.hash.includes('access_token')) {
-          console.log('Hash parameters found, processing...');
 
           // Set the session from hash - this is crucial
           const hashParams = new URLSearchParams(
@@ -46,7 +42,6 @@ export default function AuthCallback() {
             const { data: sessionData } = await supabase.auth.getSession();
 
             if (sessionData.session) {
-              console.log('Session established successfully');
               router.push('/tiers');
             } else {
               throw new Error('Failed to establish session after setting tokens');
@@ -55,7 +50,6 @@ export default function AuthCallback() {
             throw new Error('Missing tokens in hash parameters');
           }
         } else {
-          console.log('No authentication parameters found');
           router.push('/sign-in?error=No+authentication+parameters');
         }
       } catch (error: any) {

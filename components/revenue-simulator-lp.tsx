@@ -269,8 +269,8 @@ const modelData: {
 // Define tier pricing
 const tierPricing: TierPricingMap = {
   basic: {
-    basePrice: 19,
-    userMultiplier: 0.05,
+    basePrice: 9,
+    userMultiplier: 0.2,
     models: {
       text: modelData.text.slice(0, 3),
       image: modelData.image.slice(0, 3),
@@ -278,8 +278,8 @@ const tierPricing: TierPricingMap = {
     }
   },
   pro: {
-    basePrice: 49,
-    userMultiplier: 0.1,
+    basePrice: 29,
+    userMultiplier: 0.5,
     models: {
       text: modelData.text.slice(0, 5),
       image: modelData.image.slice(0, 4),
@@ -287,8 +287,8 @@ const tierPricing: TierPricingMap = {
     }
   },
   premium: {
-    basePrice: 99,
-    userMultiplier: 0.15,
+    basePrice: 69,
+    userMultiplier: 0.7,
     models: {
       text: modelData.text,
       image: modelData.image,

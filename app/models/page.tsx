@@ -1,201 +1,178 @@
-'use client';
+"use client";
 
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Separator } from '@/components/ui/separator';
-import { Sheet, SheetTrigger } from '@/components/ui/sheet';
-import { useModels } from '@/hooks/use-models';
-import { useToast } from '@/hooks/use-toast';
-import { CreateModelParams } from '@/lib/supabase/model.service';
+import { toast } from '@/hooks/use-toast';
+import * as ModelServices from '@/lib/supabase/model.service';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { PlusIcon } from 'lucide-react';
 import { useState } from 'react';
 import { ModelCard } from './components/model-card';
-import { ModelFilter } from './components/model-filter';
-import { ModelForm } from './components/model-form';
+import { CreateModelModal } from './components/model-create-form';
+import { ModelEmpty } from './components/model-empty';
 import { ModelSkeleton } from './components/model-skeleton';
+import { UpdateModelModal } from './components/model-update-form'; // Add this import
+import { getCustomModels, getDefaultModels } from './helpers';
 
 export default function ModelsPage() {
-  const { defaultModels, loading, createModel, updateModel, deleteModel } = useModels();
-  const { toast } = useToast();
-  const { isPending: isCreating } = useModels().createModelMutation;
-  const { isPending: isUpdating } = useModels().updateModelMutation;
-  const { isPending: isDeleting } = useModels().deleteModelMutation;
+  const [openCreateModel, setOpenCreateModel] = useState(false);
+  const [openUpdateModel, setOpenUpdateModel] = useState(false);
+  const [selectedModel, setSelectedModel] = useState<any>(null);
+  const queryClient = useQueryClient();
 
-  const [newModel, setNewModel] = useState<CreateModelParams>({ model_name: '', model_type: 'text', is_public: false });
-  const [editingModel, setEditingModel] = useState<{ id?: string; } & CreateModelParams>({ id: '', model_name: '', model_type: 'text', is_public: false });
-  const [isCreateSheetOpen, setIsCreateSheetOpen] = useState(false);
-  const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [modelToDelete, setModelToDelete] = useState<string | null>(null);
-
-  const filteredDefaultModels = defaultModels.filter(model => {
-    const matchesSearch = model.model_name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = selectedTypes.length === 0 || selectedTypes.includes(model.model_type);
-    return matchesSearch && matchesType;
+  const { data: models, isLoading: isLoadingModels } = useQuery({
+    queryKey: ['models'],
+    queryFn: ModelServices.getDefaultModels,
   });
 
-  const handleCreateModel = async () => {
-    if (!newModel.model_name.trim()) return;
-    try {
-      await createModel(newModel);
-      setNewModel({ model_name: '', model_type: 'text', is_public: false });
-      setIsCreateSheetOpen(false);
-    } catch (error) {
-      console.error('Failed to create model:', error);
+  // Create mutation
+  const { isPending: isCreating, mutate: creatingModel } = useMutation({
+    mutationFn: ModelServices.createModel,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['models'] });
+      toast({ title: 'Model created successfully' });
+      setOpenCreateModel(false);
+    },
+    onError: (error) => {
+      toast({
+        variant: 'destructive',
+        title: 'Creation error',
+        description: error.message,
+      });
     }
-  };
+  });
 
-  const handleUpdateModel = async () => {
-    if (!editingModel.model_name.trim()) return;
-    try {
-      const { id, ...modelData } = editingModel;
-      if (id) {
-        await updateModel({ id, ...modelData });
-      }
-      setEditingModel({ id: '', model_name: '', model_type: 'text', is_public: false });
-      setIsEditSheetOpen(false);
-    } catch (error) {
-      console.error('Failed to update model:', error);
+  // Update mutation
+  const { isPending: isUpdating, mutate: updatingModel } = useMutation({
+    mutationFn: (updatedModel: Partial<Omit<ModelServices.CreateModelParams, "owner_id">>) =>
+      ModelServices.updateModel(selectedModel?.id, updatedModel),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['models'] });
+      toast({ title: 'Model updated successfully' });
+      setOpenUpdateModel(false);
+    },
+    onError: (error) => {
+      toast({
+        variant: 'destructive',
+        title: 'Update error',
+        description: error.message,
+      });
     }
-  };
+  });
 
-  const handleDeleteConfirm = async () => {
-    if (!modelToDelete) return;
-    try {
-      await deleteModel(modelToDelete);
-      setDeleteConfirmOpen(false);
-      setModelToDelete(null);
-    } catch (error) {
-      if ((error as { digest?: string; }).digest === "3936284582") {
-        toast({
-          variant: "destructive",
-          title: "Cannot Delete Model",
-          description: "This model is currently being used in a tier. Please remove it from all tiers first."
-        });
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "An error occurred while deleting the model."
-        });
-      }
-      setDeleteConfirmOpen(false);
-      setModelToDelete(null);
+  // Delete mutation
+  const { isPending: isDeleting, mutate: deletingModel } = useMutation({
+    mutationFn: ModelServices.deleteModel,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['models'] });
+      toast({ title: 'Model deleted successfully' });
+    },
+    onError: (error) => {
+      toast({
+        variant: 'destructive',
+        title: 'Deletion error',
+        description: error.message,
+      });
     }
+  });
+
+  const customModels = getCustomModels(models);
+  const defaultModels = getDefaultModels(models);
+
+  const handleEditModel = (model: any) => {
+    setSelectedModel(model);
+    setOpenUpdateModel(true);
   };
 
-  const handleDeleteModel = (id: string) => {
-    setModelToDelete(id);
-    setDeleteConfirmOpen(true);
+  const handleDeleteModel = (modelId: string) => {
+    deletingModel(modelId);
   };
 
-  console.log(isCreating || isUpdating || isDeleting);
-  if (isCreating || isUpdating || isDeleting) {
-    return <div>Loading...</div>;
-  }
+  const actions = {
+    isDeleting,
+    onEdit: handleEditModel, // Updated to use handleEditModel
+    onDelete: handleDeleteModel
+  };
+
   return (
     <div className="w-full">
-      <div className="space-y-2 p-4 ">
+      <div className="space-y-2 p-4 text-brand">
         <h1 className="text-3xl font-bold">AI Models</h1>
         <p className="text-muted-foreground">Manage and customize your AI models for cost tracking.</p>
-
       </div>
-      <Card className="p-4 shadow-none border-none rounded-sm">
-        <div className="flex flex-col gap-4">
-          <div className="flex justify-between items-center">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <ModelFilter
-                searchTerm={searchTerm}
-                onSearchChange={setSearchTerm}
-                selectedTypes={selectedTypes}
-                onTypeChange={setSelectedTypes}
-              />
 
-              <Sheet open={isCreateSheetOpen} onOpenChange={setIsCreateSheetOpen}>
-                <SheetTrigger asChild>
-                  <Button>New Model</Button>
-                </SheetTrigger>
-                <ModelForm
-                  model={newModel}
-                  onSubmit={handleCreateModel}
-                  onModelChange={setNewModel}
-                  isLoading={isCreating}
-                  mode="create"
-                />
-              </Sheet>
-            </div>
+      <div className='px-4'>
+        {/* Your Models Section */}
+        <div className='flex flex-col'>
+          <div className='flex gap-4 items-center my-4'>
+            <div className='bg-brand/20 px-4 py-2 rounded-md w-4 h-full' />
+            <h2 className='text-brand font-semibold text-center'>Your Models</h2>
+            <Button
+              className='bg-brand/20 hover:bg-brand/40'
+              onClick={() => setOpenCreateModel(true)}
+            >
+              <PlusIcon className='h-6 w-6 text-brand' />
+            </Button>
+          </div>
+
+          {!isLoadingModels && customModels.length <= 0 && (
+            <ModelEmpty onCreateModel={() => setOpenCreateModel(true)} />
+          )}
+
+          {isLoadingModels && <ModelSkeleton title='Models' />}
+
+          <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4'>
+            {customModels.map((customModel) => (
+              <ModelCard
+                key={customModel.id}
+                model={customModel}
+                {...actions}
+              />
+            ))}
           </div>
         </div>
-        <Separator className='my-5 max-w-20' />
-        {loading ? (
-          <div className="space-y-8">
-            <ModelSkeleton title="Custom Models" />
-            <ModelSkeleton title="Default Models" />
+
+        <Separator className='my-6 bg-brand/10' />
+
+        {/* Default Models Section */}
+        <div className='flex flex-col'>
+          <h2 className='text-brand font-semibold my-4 bg-brand/20 px-4 py-2 rounded-md w-44 text-center'>
+            TierWise Models
+          </h2>
+
+          {isLoadingModels && <ModelSkeleton title='Models' />}
+
+          <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4'>
+            {defaultModels.map((defaultModel) => (
+              <ModelCard
+                key={defaultModel.id}
+                model={defaultModel}
+                {...actions}
+                isDefault
+              />
+            ))}
           </div>
-        ) : (
-          <div className="space-y-8">
-            <div>
-              <h2 className="text-xl font-semibold mb-4">Custom Models</h2>
-              {filteredDefaultModels.filter(model => model.is_custom).length === 0 ? (
-                <div className="flex items-center justify-center min-h-60 py-8 bg-sidebar rounded-lg">
-                  <p className="text-muted-foreground">No custom models available</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {filteredDefaultModels.filter(model => model.is_custom).map((model) => (
-                    <ModelCard
-                      key={model.id}
-                      model={model}
-                      onEdit={(model) => {
-                        setEditingModel(model);
-                        setIsEditSheetOpen(true);
-                      }}
-                      onDelete={handleDeleteModel}
-                      isDeleting={isDeleting}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
+        </div>
+      </div>
 
-            <div>
-              <h2 className="text-xl font-semibold mb-4">Our Models</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {filteredDefaultModels.filter(model => !model.is_custom).map((model) => (
-                  <ModelCard
-                    key={model.id}
-                    isDefault
-                    model={model}
-                    onEdit={() => { }}
-                    onDelete={() => { }}
-                    isDeleting={false}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-      </Card>
+      {/* Create Model Modal */}
+      <CreateModelModal
+        open={openCreateModel}
+        onClose={() => setOpenCreateModel(false)}
+        onSubmit={creatingModel}
+        isLoading={isCreating}
+      />
 
-      <Sheet open={isEditSheetOpen} onOpenChange={setIsEditSheetOpen}>
-        <ModelForm
-          model={editingModel}
-          onSubmit={handleUpdateModel}
-          onModelChange={setEditingModel}
-          isLoading={isUpdating}
-          mode="edit"
-        />
-      </Sheet>
-
-      <ConfirmDialog
-        isOpen={deleteConfirmOpen}
-        onOpenChange={setDeleteConfirmOpen}
-        onConfirm={handleDeleteConfirm}
-        title="Delete Model"
-        description="Are you sure you want to delete this model? This action cannot be undone."
-        confirmText="Delete"
+      {/* Update Model Modal */}
+      <UpdateModelModal
+        open={openUpdateModel}
+        onClose={() => {
+          setOpenUpdateModel(false);
+          setSelectedModel(null);
+        }}
+        onSubmit={updatingModel}
+        isLoading={isUpdating}
+        initialValues={selectedModel}
       />
     </div>
   );
