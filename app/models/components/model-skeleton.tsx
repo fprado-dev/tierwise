@@ -3,36 +3,44 @@
 import { Card } from '@/components/ui/card';
 
 interface ModelSkeletonProps {
-  title: string;
   count?: number;
 }
 
-export function ModelSkeleton({ title, count = 4 }: ModelSkeletonProps) {
+export function ModelSkeleton({ count = 4 }: ModelSkeletonProps) {
   return (
-    <div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {[...Array(count)].map((_, i) => (
-          <Card key={i} className="p-4 min-h-60">
-            <div className="flex flex-col h-full justify-between gap-3">
-              <div className="flex items-center justify-between">
-                <div className="h-6 w-1/6 bg-muted rounded-full animate-pulse" />
-              </div>
-              <div className="h-6 w-1/2 bg-muted rounded animate-pulse" />
-              <div className="space-y-1">
-                <div className="h-3 w-20 bg-muted rounded animate-pulse" />
-                <div className="h-3 w-10 bg-muted rounded animate-pulse" />
-              </div>
-              <div className="flex items-center justify-between pt-4 border-t border-muted">
-                <div className="h-4 w-20  bg-muted rounded animate-pulse" />
-                <div className="flex gap-2">
-                  <div className="h-8 w-16 bg-muted rounded animate-pulse" />
-                  <div className="h-8 w-16 bg-muted rounded animate-pulse" />
-                </div>
-              </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {[...Array(count)].map((_, i) => (
+        <Card
+          key={i}
+          className="flex flex-col justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm animate-pulse"
+        >
+          {/* Header: Badge placeholders */}
+          <div className="flex justify-between items-center">
+            <div className="h-6 w-12 rounded-full bg-gray-300" />
+            <div className="flex gap-2">
+              <div className="h-6 w-16 rounded-full bg-gray-300" />
             </div>
-          </Card>
-        ))}
-      </div>
+          </div>
+
+          {/* Model name placeholder */}
+          <div className="h-5 w-3/4 rounded bg-gray-300 mb-3" />
+
+          {/* Cost info placeholders */}
+          <div className="space-y-2 mb-4">
+            <div className="h-4 w-1/2 rounded bg-gray-300" />
+            <div className="h-4 w-1/3 rounded bg-gray-300" />
+          </div>
+
+          {/* Footer: date and buttons placeholders */}
+          <div className="flex justify-between items-center pt-4 border-t border-gray-300">
+            <div className="h-4 w-24 rounded bg-gray-300" />
+            <div className="flex gap-3">
+              <div className="h-8 w-12 rounded bg-gray-300" />
+              <div className="h-8 w-12 rounded bg-gray-300" />
+            </div>
+          </div>
+        </Card>
+      ))}
     </div>
   );
 }

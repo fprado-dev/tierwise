@@ -26,10 +26,11 @@ export function ModelConfirmDelete({
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       onConfirm={handleConfirm}
-      title={`Delete ${modelName}`}
+      title={`Delete Model: ${modelName}`}
       description={`Are you sure you want to delete ${modelName}? This action cannot be undone.`}
       confirmText={isDeleting ? 'Deleting...' : 'Delete'}
       cancelText="Cancel"
+
     />
   );
 }

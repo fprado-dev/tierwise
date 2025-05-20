@@ -15,24 +15,21 @@ function SidebarSkeleton() {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full bg-brand/10" />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
         <div className="px-2 py-2">
-          <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">
-            <Skeleton className="h-6 w-20" />
-          </h2>
           <div className="space-y-1">
             {[BotIcon, Layers2Icon, SquareChartGanttIcon, PiggyBankIcon].map((_, i) => (
-              <Skeleton key={i} className="h-9 w-full" />
+              <Skeleton key={i} className="h-9 w-full bg-brand/10" />
             ))}
           </div>
         </div>
       </SidebarContent>
       <SidebarFooter>
-        <Skeleton className="h-14 w-full" />
+        <Skeleton className="h-14 w-full bg-brand/10" />
       </SidebarFooter>
     </Sidebar>
   );
@@ -57,8 +54,8 @@ export function HeaderControls() {
   if (isLoading) {
     return (
       <div className="absolute right-4 top-4 flex gap-2 items-center">
-        <Skeleton className="h-8 w-8 rounded-full" />
-        <Skeleton className="h-8 w-8 rounded-full" />
+        <Skeleton className="h-8 w-8 rounded-md bg-brand/10" />
+        <Skeleton className="h-8 w-8 rounded-md bg-brand/10" />
       </div>
     );
   }

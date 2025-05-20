@@ -26,14 +26,23 @@ export default function ModelsPage() {
   });
 
   // Create mutation
-  const { isPending: isCreating, mutate: creatingModel } = useMutation({
+  const { mutate: creatingModel, isPending: isCreating } = useMutation({
     mutationFn: ModelServices.createModel,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['models'] });
+    onMutate: async (newModel) => {
+      await queryClient.cancelQueries({ queryKey: ['models'] });
+      const previousModels = queryClient.getQueryData(['models']);
+      queryClient.setQueryData(['models'], (old: ModelServices.Model[]) => [...old, { ...newModel, id: 'temp-id' }]);
+      return { previousModels };
+    },
+    onSuccess: (createdModel) => {
+      queryClient.setQueryData(['models'], (old: ModelServices.Model[]) =>
+        old.map(model => model.id === 'temp-id' ? createdModel : model)
+      );
       toast({ title: 'Model created successfully' });
       setOpenCreateModel(false);
     },
-    onError: (error) => {
+    onError: (error, _, context) => {
+      queryClient.setQueryData(['models'], context?.previousModels);
       toast({
         variant: 'destructive',
         title: 'Creation error',
@@ -42,12 +51,15 @@ export default function ModelsPage() {
     }
   });
 
+
   // Update mutation
   const { isPending: isUpdating, mutate: updatingModel } = useMutation({
     mutationFn: (updatedModel: Partial<Omit<ModelServices.CreateModelParams, "owner_id">>) =>
       ModelServices.updateModel(selectedModel?.id, updatedModel),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['models'] });
+    onSuccess: (updatedModel) => {
+      queryClient.setQueryData(['models'], (old: ModelServices.Model[]) =>
+        old.map(model => model.id === updatedModel.id ? updatedModel : model)
+      );
       toast({ title: 'Model updated successfully' });
       setOpenUpdateModel(false);
     },
@@ -55,16 +67,19 @@ export default function ModelsPage() {
       toast({
         variant: 'destructive',
         title: 'Update error',
-        description: "Erro while updating model",
+        description: "Error while updating model",
       });
     }
   });
 
+
   // Delete mutation
   const { isPending: isDeleting, mutate: deletingModel } = useMutation({
     mutationFn: ModelServices.deleteModel,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['models'] });
+    onSuccess: (deletedId) => {
+      queryClient.setQueryData(['models'], (old: ModelServices.Model[]) =>
+        old.filter(model => model.id !== deletedId)
+      );
       toast({ title: 'Model deleted successfully' });
     },
     onError: () => {
@@ -75,6 +90,7 @@ export default function ModelsPage() {
       });
     }
   });
+
 
   const customModels = getCustomModels(models);
   const defaultModels = getDefaultModels(models);
@@ -107,33 +123,31 @@ export default function ModelsPage() {
           <div className='flex gap-4 items-center my-4'>
             <div className='bg-brand/20 px-4 py-2 rounded-md w-4 h-full' />
             <h2 className='text-brand font-semibold text-center'>Your Models</h2>
-            <Button
+            {customModels.length > 0 && <Button
               className='bg-brand/20 hover:bg-brand/40'
               onClick={() => setOpenCreateModel(true)}
             >
               <PlusIcon className='h-6 w-6 text-brand' />
-            </Button>
+            </Button>}
           </div>
 
           {!isLoadingModels && customModels.length <= 0 && (
             <ModelEmpty onCreateModel={() => setOpenCreateModel(true)} />
           )}
 
-          {isLoadingModels && <ModelSkeleton title='Models' />}
+          {isLoadingModels && <ModelSkeleton />}
 
-          {isCreating || isUpdating || isDeleting ? <ModelSkeleton title='Models' /> : (
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
-              {customModels.map((customModel) => (
-                <ModelCard
-                  key={customModel.id}
-                  model={customModel}
-                  {...actions}
-                />
-              ))}
-            </div>
-          )
 
-          }
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
+            {customModels.map((customModel) => (
+              <ModelCard
+                key={customModel.id}
+                model={customModel}
+                {...actions}
+              />
+            ))}
+          </div>
+
         </div>
 
         <Separator className='my-6 bg-brand/10' />
@@ -145,10 +159,10 @@ export default function ModelsPage() {
             <h2 className='text-brand font-semibold text-center'> TierWise Models</h2>
           </div>
 
-          {isLoadingModels && <ModelSkeleton title='Models' />}
+          {isLoadingModels && <ModelSkeleton />}
 
-          {isCreating || isUpdating || isDeleting ? <ModelSkeleton title='Models' /> : (
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
+          {isCreating || isUpdating || isDeleting ? <ModelSkeleton /> : (
+            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
               {defaultModels.map((defaultModel) => (
                 <ModelCard
                   key={defaultModel.id}

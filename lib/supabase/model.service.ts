@@ -79,7 +79,7 @@ export async function createModel(params: CreateModelParams) {
     .single();
 
   if (error) throw error;
-  return data;
+  return data as Model;
 }
 
 export async function updateModel(id: string, params: Partial<Omit<CreateModelParams, "owner_id">>) {
@@ -112,4 +112,5 @@ export async function deleteModel(id: string) {
     .eq('owner_id', user?.id);
 
   if (error) throw error;
+  return id;
 }

@@ -57,8 +57,8 @@ export function ProjectSwitcher() {
 
   if (loading) {
     return <div className="flex items-center gap-2">
-      <span className="animate-pulse h-3 w-3 rounded-full bg-gray-400"></span>
-      <span className="h-3 w-12 rounded-full bg-gray-300"></span>
+      <span className="animate-pulse h-8 w-12 rounded-md bg-brand/30"></span>
+      <span className="animate-pulse  h-8 w-full rounded-md bg-brand/30"></span>
     </div>;
   }
 
