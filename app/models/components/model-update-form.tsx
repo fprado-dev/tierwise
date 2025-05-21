@@ -1,7 +1,6 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -270,15 +269,6 @@ export function UpdateModelModal({
               {validationErrors.model_type && (
                 <p className="text-red-500 text-xs mt-1">{validationErrors.model_type}</p>
               )}
-            </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="public-model"
-                checked={model.is_public}
-                onCheckedChange={(checked) => handleInput('is_public', checked as boolean)}
-                disabled={isLoading}
-              />
-              <Label htmlFor="public-model">Public Model</Label>
             </div>
           </div>
         )}

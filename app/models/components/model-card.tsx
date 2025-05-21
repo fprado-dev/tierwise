@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ModelType } from '@/lib/model.types';
+import { CpuIcon, HeadphonesIcon, ImageIcon, TextIcon, VideoIcon } from 'lucide-react';
 import { useState } from 'react';
 import { ModelConfirmDelete } from './model-confirm';
 
@@ -40,17 +41,17 @@ export function ModelCard({
   const getTypeColor = (type: string) => {
     switch (type) {
       case 'text':
-        return 'bg-blue-100 text-blue-800 hover:bg-blue-200';
+        return 'text-blue-800 hover:bg-blue-200';
       case 'image':
-        return 'bg-green-100 text-green-800 hover:bg-green-200';
+        return 'text-green-800 hover:bg-green-200';
       case 'video':
-        return 'bg-purple-100 text-purple-800 hover:bg-purple-200';
+        return 'ext-purple-800 hover:bg-purple-200';
       case 'audio':
-        return 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200';
+        return 'text-yellow-800 hover:bg-yellow-200';
       case 'hardware':
-        return 'bg-red-100 text-red-800 hover:bg-red-200';
+        return 'text-red-800 hover:bg-red-200';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'text-gray-800';
     }
   };
 
@@ -60,10 +61,10 @@ export function ModelCard({
         return (
           <div className="flex flex-col gap-0.5 text-xs text-muted-foreground">
             <span>
-              ${model.input_cost_per_million}/1M Input tokens
+              Input - ${model.input_cost_per_million}/1M tokens
             </span>
             <span>
-              ${model.output_cost_per_million}/1M Output tokens
+              Output - ${model.output_cost_per_million}/1M tokens
             </span>
           </div>
         );
@@ -96,17 +97,21 @@ export function ModelCard({
 
   return (
     <Card
-      className={`flex flex-col justify-between rounded-xl border border-brand/40 shadow-sm transition-all duration-150 hover:shadow-lg bg-white ${isDeleting ? 'opacity-50 pointer-events-none' : ''
+      className={`flex flex-col justify-between rounded-xl border border-brand/20 transition-all duration-150 hover:-translate-y-2  bg-white ${isDeleting ? 'opacity-50 pointer-events-none' : ''
         }`}
     >
       {/* Header */}
       <div className="flex items-center justify-between px-5 pt-5 pb-2">
-        <Badge className={getTypeColor(model.model_type)}>
-          {model.model_type}
-        </Badge>
+        <span className={getTypeColor(model.model_type)}>
+          {model.model_type === 'text' && <TextIcon className="h-4 w-4" />}
+          {model.model_type === 'image' && <ImageIcon className="h-4 w-4" />}
+          {model.model_type === 'video' && <VideoIcon className="h-4 w-4" />}
+          {model.model_type === 'audio' && <HeadphonesIcon className="h-4 w-4" />}
+          {model.model_type === 'hardware' && <CpuIcon className="h-4 w-4" />}
+        </span>
         <div className="flex gap-2 items-center">
           {model.is_public && (
-            <Badge variant="outline" className="border-brand text-brand">
+            <Badge variant="outline" className="text-xs border-brand text-brand">
               Public
             </Badge>
           )}
@@ -114,13 +119,13 @@ export function ModelCard({
       </div>
       {/* Main Content */}
       <div className="px-5 pb-2">
-        <h3 className="font-semibold text-xs sm:text-sm text-primary truncate">
+        <h3 className="font-semibold text-brand text-xs sm:text-sm truncate">
           {model.model_name}
         </h3>
         <div className="mt-1">{getCostDisplay(model)}</div>
       </div>
       {/* Footer */}
-      <div className="flex items-center justify-between border-t px-5 py-3 bg-brand/10 rounded-b-xl">
+      <div className="flex items-center justify-between border-t px-5 py-3 bg-brand/5 rounded-b-xl">
         <span className="text-xs text-brand">
           {new Date(model.created_at).toLocaleDateString()}
         </span>
