@@ -14,6 +14,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Tier } from "@/lib/tier.types";
+import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 
 type TierCreationSheetProps = {
@@ -24,7 +25,8 @@ type TierCreationSheetProps = {
 export function TierCreationSheet({ onAddTier, tiers }: TierCreationSheetProps) {
   const [newTierName, setNewTierName] = useState('');
   const [isOpen, setIsOpen] = useState(false);
-  const [inheritModels, setInheritModels] = useState(false);
+  const [inheritModels, setInheritModels] = useState(true);
+
 
   // Check if there are existing tiers to inherit from
   const hasPreviousTier = tiers && tiers.length > 0;
@@ -40,25 +42,21 @@ export function TierCreationSheet({ onAddTier, tiers }: TierCreationSheetProps) 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button
-          variant="outline"
-          className="bg-primary text-primary-foreground hover:bg-primary/90"
-
-
-        >
-          {tiers && tiers?.length <= 0 ? "Create Your First Tier" : "Create"}
+        <Button className="border-brand text-white bg-brand hover:bg-brand/90">
+          {tiers && tiers?.length <= 0 ? "Create Your First Tier" : "New Tier"}
+          <PlusIcon className="h-4 w-4" />
         </Button>
       </SheetTrigger>
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>Create New Tier</SheetTitle>
+          <SheetTitle className="text-brand">Create New Tier</SheetTitle>
           <SheetDescription>
-            Create a new tier with the selected models.
+            Create a new pricing tier to organize your AI model offerings. You can customize which models are available in each tier and optionally inherit models from previous tiers to build a hierarchical structure.
           </SheetDescription>
         </SheetHeader>
         <div className="grid gap-4 py-4">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="tierName" className="text-sm font-medium">
+            <Label htmlFor="tierName" className="text-sm text-brand">
               Tier Name
             </Label>
             <Input
@@ -67,7 +65,7 @@ export function TierCreationSheet({ onAddTier, tiers }: TierCreationSheetProps) 
               value={newTierName}
               onChange={(e) => setNewTierName(e.target.value)}
               placeholder="e.g. Premium/Pro/Enterprise"
-              className="focus:ring-2 focus:ring-primary"
+              className="focus:ring-2 focus:ring-brand border-brand"
             />
           </div>
 
@@ -76,11 +74,11 @@ export function TierCreationSheet({ onAddTier, tiers }: TierCreationSheetProps) 
               <Checkbox
                 id="inheritModels"
                 checked={inheritModels}
-                onCheckedChange={(checked) => setInheritModels(checked as boolean)}
-                className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                onCheckedChange={() => setInheritModels(!inheritModels)}
+                className="data-[state=checked]:bg-brand data-[state=checked]:border-brand"
               />
               <Label htmlFor="inheritModels" className="text-sm font-medium cursor-pointer">
-                Inherit models from previous tier
+                Use Models from Previous Tier
               </Label>
             </div>
           )}
@@ -88,8 +86,10 @@ export function TierCreationSheet({ onAddTier, tiers }: TierCreationSheetProps) 
         <SheetFooter>
           <Button
             type="submit"
+            size="lg"
             onClick={handleAddTier}
             disabled={!newTierName}
+            className="border-brand text-white bg-brand hover:bg-brand/90 w-full"
           >
             Create Tier
           </Button>

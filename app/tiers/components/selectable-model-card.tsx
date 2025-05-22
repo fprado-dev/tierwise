@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Model } from '@/lib/supabase/model.service';
-import { Check, DollarSign } from 'lucide-react';
+import { CheckCircle2, DollarSign } from 'lucide-react';
 
 interface SelectableModelCardProps {
   model: Model;
@@ -14,7 +14,7 @@ interface SelectableModelCardProps {
   isLoading?: boolean;
 }
 
-export function SelectableModelCard({ model, isSelected, onSelect, isDefault = false, isLoading = false }: SelectableModelCardProps) {
+export function SelectableModelCard({ model, isSelected, onSelect, isLoading = false }: SelectableModelCardProps) {
 
 
   // Get model specifications based on type
@@ -25,14 +25,14 @@ export function SelectableModelCard({ model, isSelected, onSelect, isDefault = f
     switch (model.model_type) {
       case 'text':
         return (
-          <div className="flex flex-col gap-1 mt-2">
+          <div className="flex flex-col gap-1">
             <div className="flex items-center gap-1">
               <DollarSign className="w-3 h-3 text-emerald-500" />
-              <span className="text-xs font-medium">${model.input_cost_per_million}/1M input tokens</span>
+              <span className="text-xs font-medium text-muted-foreground">${model.input_cost_per_million}/1M input tokens</span>
             </div>
             <div className="flex items-center gap-1">
               <DollarSign className="w-3 h-3 text-emerald-500" />
-              <span className="text-xs font-medium">${model.output_cost_per_million}/1M output tokens</span>
+              <span className="text-xs font-medium text-muted-foreground">${model.output_cost_per_million}/1M output tokens</span>
             </div>
           </div>
         );
@@ -40,7 +40,7 @@ export function SelectableModelCard({ model, isSelected, onSelect, isDefault = f
         return (
           <div className="flex items-center gap-1 mt-2">
             <DollarSign className="w-3 h-3 text-emerald-500" />
-            <span className="text-xs font-medium">${model.cost_per_image}/image</span>
+            <span className="text-xs font-medium text-muted-foreground">${model.cost_per_image}/image</span>
           </div>
         );
       case 'video':
@@ -48,7 +48,7 @@ export function SelectableModelCard({ model, isSelected, onSelect, isDefault = f
         return (
           <div className="flex items-center gap-1 mt-2">
             <DollarSign className="w-3 h-3 text-emerald-500" />
-            <span className="text-xs font-medium">${model.cost_per_second}/second</span>
+            <span className="text-xs font-medium text-muted-foreground">${model.cost_per_second}/second</span>
           </div>
         );
       case 'hardware':
@@ -56,11 +56,11 @@ export function SelectableModelCard({ model, isSelected, onSelect, isDefault = f
           <div className="flex flex-col gap-1 mt-2">
             <div className="flex items-center gap-1">
               <DollarSign className="w-3 h-3 text-emerald-500" />
-              <span className="text-xs font-medium">${model.price_per_sec}/second</span>
+              <span className="text-xs font-medium text-muted-foreground">${model.price_per_sec}/second</span>
             </div>
             <div className="flex items-center gap-1">
               <DollarSign className="w-3 h-3 text-emerald-500" />
-              <span className="text-xs font-medium">${model.price_per_hour}/hour</span>
+              <span className="text-xs font-medium text-muted-foreground">${model.price_per_hour}/hour</span>
             </div>
           </div>
         );
@@ -75,36 +75,38 @@ export function SelectableModelCard({ model, isSelected, onSelect, isDefault = f
         <TooltipTrigger asChild>
           <Card
             key={model.id}
-            className={`w-full h-full flex flex-col justify-between hover:shadow-md transition-all bg-sidebar relative cursor-pointer ${isLoading ? 'opacity-70 pointer-events-none' : ''
-              } ${isSelected ? 'ring-2 ring-primary border-primary' : 'hover:border-primary/50'}`}
+            className={`
+              w-full h-full flex flex-col justify-between  gap-2
+              transition-all 
+              bg-sidebar relative cursor-pointer 
+              `}
             onClick={() => !isLoading && onSelect(model)}
           >
-            {isSelected && (
-              <div className="absolute top-2 right-2 bg-primary rounded-full p-1 z-10">
-                <Check className="w-3 h-3 text-primary-foreground" />
-              </div>
-            )}
 
-            <CardHeader className="pb-2">
-              <div className="flex items-center gap-2">
-                <div className="flex-1">
-                  <h3 className="font-semibold text-sm line-clamp-1">{model.model_name}</h3>
-                </div>
+
+            <CardHeader className='p-0'>
+              <div className='p-4 flex items-center justify-between w-full gap-2'>
+                <Badge variant="default" className="text-[10px] bg-brand">
+                  {model.is_custom ? "Custom Model" : "Public Model"}
+                </Badge>
+
+
+                <CheckCircle2 className={`w-6 h-6 font-semibold ${isSelected ? "text-brand" : "text-brand/20"}`} />
+
               </div>
             </CardHeader>
 
-            <CardContent className="pb-2 pt-0">
+            <CardContent className="p-0 px-4 ">
               {getPricingInfo()}
             </CardContent>
-
-            <CardFooter className="pt-0 flex justify-between items-center">
-
-              <Badge variant="default" className="text-[10px]">
-                {model.is_custom ? "Custom Model" : "Public Model"}
-              </Badge>
-
-
+            <CardFooter className='p-4 border-t mt-2'>
+              <div className="flex items-center gap-2">
+                <div className="flex-1">
+                  <h3 className="font-semibold text-sm line-clamp-1  text-brand">{model.model_name}</h3>
+                </div>
+              </div>
             </CardFooter>
+
           </Card>
         </TooltipTrigger>
         <TooltipContent>

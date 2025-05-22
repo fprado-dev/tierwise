@@ -22,7 +22,7 @@ export async function getTiers({ }: TGetTiers) {
     `)
     .eq('project_id', activeProject?.id)
     .eq('user_id', user?.id)
-    .order('created_at', { ascending: true });
+    .order('isActive');
 
   if (error) throw error;
 
@@ -47,22 +47,22 @@ export async function createTier(newTierName: string) {
   const activeProject = await getActiveProject();
 
   const { data: tier, error } = await supabase.from('tiers')
-    .insert({ name: newTierName, project_id: activeProject?.id, user_id: user?.id })
+    .insert({ name: newTierName, project_id: activeProject?.id, user_id: user?.id, isActive: true })
     .select('*')
     .single();
 
   if (error) throw error;
-  return tier;
+  return tier as ProcessedTier;
 }
 
-export async function updateTier(id: string, name: string) {
+export async function updateTier(tierToUpdate: { id: string, name?: string, isActive?: boolean; }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const activeProject = await getActiveProject();
 
   const { data: tier, error } = await supabase.from('tiers')
-    .update({ name })
-    .eq('id', id)
+    .update({ ...tierToUpdate })
+    .eq('id', tierToUpdate.id)
     .eq('user_id', user?.id)
     .eq('project_id', activeProject?.id)
     .select('*')

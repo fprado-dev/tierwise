@@ -1,43 +1,12 @@
 'use client';
 
-import { ProcessedTier } from '@/lib/tier.types';
-import { closestCenter, DndContext, DragEndEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable } from '@dnd-kit/sortable';
-import { GripIcon, Layers3 } from 'lucide-react'; // Modified: Removed BarChartIcon, LightbulbIcon
+import { arrayMove } from '@dnd-kit/sortable';
+import { Layers3 } from 'lucide-react'; // Modified: Removed BarChartIcon, LightbulbIcon
 import { useEffect, useState } from 'react';
 import { useTiers } from "../../../hooks/useTiers";
-import { TierCreationSheet } from "./tier-creation-sheet";
 import { TierCard } from "./TierCard";
 
-function DraggableTierButton({ tier, isActive, onClick }: { tier: ProcessedTier, isActive: boolean, onClick: () => void; }) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: tier.id });
-  const style = transform ? {
-    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-    transition,
-  } : undefined;
 
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      className="flex items-center group"
-    >
-      <div className="cursor-move p-2 opacity-50 group-hover:opacity-100 transition-opacity" {...listeners}>
-        <GripIcon className='w-4 h-4 text-gray-400 group-hover:text-gray-600' />
-      </div>
-      <button
-        onClick={onClick}
-        className={`whitespace-nowrap border-b-2 py-3 px-3 text-sm font-medium rounded-t-md transition-all duration-150 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 ${isActive
-          ? 'border-indigo-600 text-indigo-700 bg-indigo-50 shadow-sm'
-          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50'
-          }`}
-      >
-        {tier.name}
-      </button>
-    </div>
-  );
-}
 
 export default function AICostCalculator() {
   const { addTier, createTierMutation, deleteTierMutation, updateTierMutation, addModelsToTierMutation, tiers: initialTiers, isLoading } = useTiers();
@@ -81,14 +50,7 @@ export default function AICostCalculator() {
     }
   }, [initialTiers]); // REMOVED tiers from dependency array
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = (event: any) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
       setTiers((items) => {
@@ -131,7 +93,6 @@ export default function AICostCalculator() {
           <p className="text-muted-foreground">
             Get started by creating your first tier. Add AI models and configure pricing to see your cost breakdown.
           </p>
-          <TierCreationSheet onAddTier={addTier} tiers={tiers} />
         </div>
       </div>
 
@@ -147,31 +108,7 @@ export default function AICostCalculator() {
         </div>
       </div>
       <div className="w-ful">
-        <div className="border-b border-gray-200 px-4">
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <nav className="-mb-px flex space-x-2 items-center border-b border-gray-200 pb-px" aria-label="Tiers">
-              <SortableContext items={tiers.map(t => t.id)}>
-                <div className="flex flex-grow space-x-2 overflow-x-auto scrollbar-hide">
-                  {tiers.map((tier) => (
-                    <DraggableTierButton
-                      key={tier.id}
-                      tier={tier}
-                      isActive={tier.id === activeTab}
-                      onClick={() => setActiveTab(tier.id)}
-                    />
-                  ))}
-                </div>
-              </SortableContext>
-              <div className="ml-auto pl-4">
-                <TierCreationSheet onAddTier={addTier} tiers={tiers} />
-              </div>
-            </nav>
-          </DndContext>
-        </div>
+
         <div className='my-4 p-4'>
           {tiers.map((tier) => (
             <div

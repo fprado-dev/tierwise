@@ -9,9 +9,7 @@ import {
   SheetHeader,
   SheetTitle
 } from "@/components/ui/sheet";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useModels } from "@/hooks/use-models";
-import { useTiers } from "@/hooks/useTiers";
 import { Model } from "@/lib/supabase/model.service";
 import { ProcessedTier } from "@/lib/tier.types";
 import { SearchCheckIcon, SearchX } from "lucide-react";
@@ -22,14 +20,14 @@ type ModelSelectionSheetProps = {
   tier: ProcessedTier;
   isOpen: boolean;
   modelType: 'text' | 'image' | 'video';
+  isLoading: boolean;
   onOpenChange: (open: boolean) => void;
-  onUpdateTier: (name: string, id: string) => void;
+  onRemoveModelsFromTier: (tierId: string, modelIds: string[]) => void;
+  onAddModelsToTier: (tierId: string, modelIds: string[]) => void;
 };
 
-export function ModelSelectionSheet({ tier, isOpen, modelType, onOpenChange }: ModelSelectionSheetProps) {
-  const [activeTab, setActiveTab] = useState<'text' | 'image' | 'video'>(modelType);
+export function ModelSelectionSheet({ tier, isOpen, modelType, isLoading, onOpenChange, onAddModelsToTier, onRemoveModelsFromTier }: ModelSelectionSheetProps) {
   const { defaultModels, loading } = useModels();
-  const { addModelToTier, removeModelFromTier, isLoading } = useTiers();
 
   // Track selected models for each category separately
   const [selectedModelsByCategory, setSelectedModelsByCategory] = useState<{
@@ -50,11 +48,11 @@ export function ModelSelectionSheet({ tier, isOpen, modelType, onOpenChange }: M
   });
 
   // Get selected models for the current active tab
-  const selectedModels = selectedModelsByCategory[activeTab];
+  const selectedModels = selectedModelsByCategory[modelType];
 
   const getModelOptions = () => {
     const availableModels = [...defaultModels];
-    return availableModels.filter(m => m.model_type === activeTab);
+    return availableModels.filter(m => m.model_type === modelType);
   };
 
   const handleModelSelect = async (model: Model) => {
@@ -64,26 +62,26 @@ export function ModelSelectionSheet({ tier, isOpen, modelType, onOpenChange }: M
       // Remove model from the current category
       setSelectedModelsByCategory(prev => ({
         ...prev,
-        [activeTab]: prev[activeTab].filter(id => id !== model.id)
+        [modelType]: prev[modelType].filter(id => id !== model.id)
       }));
     } else if (selectedModels.length < 6) {
       // Add model to the current category if under the limit
       setSelectedModelsByCategory(prev => ({
         ...prev,
-        [activeTab]: [...prev[activeTab], model.id]
+        [modelType]: [...prev[modelType], model.id]
       }));
     }
   };
 
   const handleUpdateModels = () => {
     // Get current selected models for the active tab
-    const currentSelectedModels = selectedModelsByCategory[activeTab];
+    const currentSelectedModels = selectedModelsByCategory[modelType];
 
     // Validate selection count
     if (currentSelectedModels.length > 6) return;
 
     // Get existing models of the current type in the tier
-    const modelsByType = tier.models.filter(model => model.model_type === activeTab);
+    const modelsByType = tier.models.filter(model => model.model_type === modelType);
     const modelsInTier = modelsByType.map(model => model.id);
 
     // Find models to add and remove
@@ -92,16 +90,16 @@ export function ModelSelectionSheet({ tier, isOpen, modelType, onOpenChange }: M
 
     // Update the tier with added and removed models
     if (modelsToAdd.length > 0) {
-      addModelToTier(tier.id, modelsToAdd);
+      onAddModelsToTier(tier.id, modelsToAdd);
     }
     if (modelsToRemove.length > 0) {
-      removeModelFromTier(tier.id, modelsToRemove);
+      onRemoveModelsFromTier(tier.id, modelsToRemove);
     }
 
-    onOpenChange(false);
+    // onOpenChange(false);
   };
 
-  const getTitle = () => `Select ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Models`;
+  const getTitle = () => `Select ${modelType.charAt(0).toUpperCase() + modelType.slice(1)} Models`;
 
 
 
@@ -131,16 +129,6 @@ export function ModelSelectionSheet({ tier, isOpen, modelType, onOpenChange }: M
                   <SheetDescription className="text-sm text-muted-foreground">
                     Select the models you want to include in this tier.
                   </SheetDescription>
-                  <Tabs value={activeTab} onValueChange={(value) => {
-                    const newTab = value as 'text' | 'image' | 'video';
-                    setActiveTab(newTab);
-                  }}>
-                    <TabsList className="grid w-full grid-cols-3">
-                      <TabsTrigger value="text">Text</TabsTrigger>
-                      <TabsTrigger value="image">Image</TabsTrigger>
-                      <TabsTrigger value="video">Video</TabsTrigger>
-                    </TabsList>
-                  </Tabs>
                   <div className="flex items-center gap-1 mt-2">
                     <Badge variant={selectedModels.length >= 6 ? "destructive" : "secondary"} className="text-xs">
                       {selectedModels.length}/6
@@ -185,17 +173,16 @@ export function ModelSelectionSheet({ tier, isOpen, modelType, onOpenChange }: M
                     variant="secondary"
                     onClick={() => setSelectedModelsByCategory(prev => ({
                       ...prev,
-                      [activeTab]: []
+                      [modelType]: []
                     }))}
-                    disabled={selectedModels.length === 0 || isLoading}
+                    disabled={selectedModels.length === 0}
                   >
                     Clear Selection
                   </Button>
                   <Button
                     onClick={handleUpdateModels}
-                    disabled={isLoading}
                   >
-                    {isLoading ? 'Updating...' : 'Update Models'}
+                    {isLoading ? "Updating Models" : "Update Models"}
                   </Button>
                 </div>
               </div>
