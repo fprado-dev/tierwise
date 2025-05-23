@@ -47,7 +47,7 @@ export function useTiers() {
   const updateTierMutation = useMutation({
     mutationKey: ['updateTier'],
     mutationFn: ({ id, name }: { id: string; name: string; }) =>
-      TierServices.updateTier(id, name),
+      TierServices.updateTier(({ id, name })),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: TIERS_QUERY_KEY });
     },
