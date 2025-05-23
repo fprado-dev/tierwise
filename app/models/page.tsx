@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { toast } from '@/hooks/use-toast';
 import * as ModelServices from '@/lib/supabase/model.service';
+import { mainQueryClient } from '@/providers/projects-provider';
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PlusIcon } from 'lucide-react';
 import { useState } from 'react';
@@ -18,7 +19,7 @@ export default function ModelsPage() {
   const [openCreateModel, setOpenCreateModel] = useState(false);
   const [openUpdateModel, setOpenUpdateModel] = useState(false);
   const [selectedModel, setSelectedModel] = useState<any>(null);
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient(mainQueryClient);
 
   const { data: models, isLoading: isLoadingModels } = useQuery({
     queryKey: ['models'],

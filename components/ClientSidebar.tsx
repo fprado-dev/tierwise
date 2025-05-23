@@ -47,7 +47,10 @@ export function ClientSidebar() {
 }
 
 export function HeaderControls() {
+  const pathName = usePathname();
   const { user, isLoading } = useUser();
+  const publicPaths = ["/", "/sign-up", "/sign-in"];
+  if (publicPaths.includes(pathName)) return null;
 
   if (!user) return null;
 

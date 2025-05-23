@@ -1,13 +1,15 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Separator } from "@/components/ui/separator";
+import { useSidebar } from "@/components/ui/sidebar";
 import { ProcessedTier } from "@/lib/tier.types";
 import NumberFlow from "@number-flow/react";
-import { SaveIcon } from "lucide-react";
+import { CalculatorIcon, PlusIcon, SaveIcon } from "lucide-react";
 import { useState } from "react";
 import { ActionsTier } from "./actions-tier";
+import { CostProfitOverview } from "./cost-profit";
 import { EmptyTierModels } from "./empty-tier-models";
+import { ModelCalculatorSheet } from "./model-calculator-sheet";
 import { ModelSelectionSheet } from "./model-selection-sheet";
 import { ModelTypeNavigation } from "./model-type-navigation";
 import { TierEditSheet } from "./tier-edit-sheet";
@@ -21,10 +23,13 @@ type TTierProps = {
   isLoading: boolean;
 };
 
+
 function TierCard({ tier, onAddModelsToTier, onRemoveModelsFromTier, onUpdateTier, onDeleteTier, isLoading }: TTierProps) {
+  const { open } = useSidebar();
   const [isModelSheetOpen, setModelSheetOpen] = useState(false);
   const [isEditSheetOpen, setEditSheetOpen] = useState(false);
   const [isDeletingConfirmationOpen, setDeletingConfirmationSheetOpen] = useState(false);
+  const [isCalculatorSheetOpen, setCalculatorSheetOpen] = useState(false);
 
   const [modelType, setModelType] = useState<"text" | "image" | "video">("text");
 
@@ -48,12 +53,26 @@ function TierCard({ tier, onAddModelsToTier, onRemoveModelsFromTier, onUpdateTie
       <div className="border-dashed border border-brand/20 p-4 rounded-md flex flex-col">
         <div className="flex items-center justify-between">
           <div className="flex gap-4 items-center">
+            <h3 className="text-sm font-semibold text-brand">{tier.name} Tier</h3>
             <Badge className="border-brand text-brand" variant="outline">
               {tier.models.length} Models
             </Badge>
           </div>
           <div className="flex items-center gap-2">
+            <ModelTypeNavigation
+              models={tier.models}
+              activeModelType={modelType}
+              onSelectModelType={(type) => setModelType(type)}
+            />
 
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={() => setCalculatorSheetOpen(true)}
+              className="text-xs px-4 border-brand/30 text-brand hover:bg-brand/10 hover:text-brand transition-colors flex items-center justify-center"
+            >
+              <CalculatorIcon className="w-4 h-4 text-brand" />
+            </Button>
             <Button variant="outline" size="icon" className="border-brand/40">
               <SaveIcon className="w-4 h-4 text-brand" />
             </Button>
@@ -87,9 +106,20 @@ function TierCard({ tier, onAddModelsToTier, onRemoveModelsFromTier, onUpdateTie
               tier={tier}
               onUpdateTier={onUpdateTier}
             />
+
+            <ModelCalculatorSheet
+              isOpen={isCalculatorSheetOpen}
+              onOpenChange={setCalculatorSheetOpen}
+              tier={tier}
+              modelType={modelType}
+            />
           </div>
         </div>
       </div>
+
+
+      <CostProfitOverview tier={tier} modelType={modelType} />
+
       <div className="border  border-dashed border-brand/20 p-5 rounded-lg bg-background/30 flex flex-col">
         {tier.models.length === 0 ? (
           <EmptyTierModels tierName={tier.name} />)
@@ -103,27 +133,22 @@ function TierCard({ tier, onAddModelsToTier, onRemoveModelsFromTier, onUpdateTie
                   </Badge>
                 </div>
                 <div className="flex gap-2">
-
-                  <ModelTypeNavigation
-                    models={tier.models}
-                    activeModelType={modelType}
-                    onSelectModelType={(type) => setModelType(type)}
-                  />
                   <Button
                     size="lg"
                     variant="outline"
                     onClick={() => handleSetModelType(modelType)}
-                    className="text-xs border-brand/30 text-brand hover:bg-brand/10 hover:text-brand transition-colors"
+                    className="text-xs px-4 border-brand/30 text-brand hover:bg-brand/10 hover:text-brand transition-colors flex items-center justify-center"
                   >
-                    Manage Models
+                    <PlusIcon className="w-4 h-4 text-brand" />
                   </Button>
+
                 </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+              <div className={`grid grid-cols-1 sm:grid-cols-2 ${open ? "md:grid-cols-3" : "md:grid-cols-4"} gap-4`} >
                 {tier.models
                   .filter(model => model.model_type === modelType)
                   .map(model => (
-                    <div key={model.id} className="border border-brand/30 rounded-lg p-4 bg-background shadow-sm hover:shadow-md hover:border-brand/30 transition-all duration-200">
+                    <div key={model.id} className="rounded-lg p-4 bg-background/50 border border-dashed border-brand/30 transition-all duration-200">
                       <div className="flex flex-col gap-2">
                         <div className="flex items-center justify-between">
                           <div className="font-medium truncate text-sm text-muted-foreground">{model.model_name}</div>
@@ -132,30 +157,30 @@ function TierCard({ tier, onAddModelsToTier, onRemoveModelsFromTier, onUpdateTie
                           </Badge>
                         </div>
 
-                        <Separator className="my-2 bg-brand/30" />
-
                         <div className="pt-1">
                           {model.model_type === 'text' && (
                             <div className="grid grid-cols-2 gap-2 text-xs">
                               {model.input_cost_per_million && (
                                 <div className="flex flex-col">
-                                  <span className="text-muted-foreground">Input Cost - 1M Tokens</span>
+                                  <span className="text-muted-foreground">Input Cost</span>
                                   <span className="font-medium text-foreground">
                                     <NumberFlow
                                       value={model.input_cost_per_million}
                                       format={{ style: 'currency', currency: 'USD', minimumFractionDigits: 3, trailingZeroDisplay: 'stripIfInteger' }}
                                     />
+                                    <span className="text-xs font-light text-muted-foreground/50">/1M tokens</span>
                                   </span>
                                 </div>
                               )}
                               {model.output_cost_per_million && (
                                 <div className="flex flex-col">
-                                  <span className="text-muted-foreground">Output Cost - 1M Tokens</span>
+                                  <span className="text-muted-foreground">Output Cost</span>
                                   <span className="font-medium text-foreground">
                                     <NumberFlow
                                       value={model.output_cost_per_million}
                                       format={{ style: 'currency', currency: 'USD', minimumFractionDigits: 3, trailingZeroDisplay: 'stripIfInteger' }}
-                                    />/token
+                                    />
+                                    <span className="text-xs font-light text-muted-foreground/50">/1M tokens</span>
                                   </span>
                                 </div>
                               )}

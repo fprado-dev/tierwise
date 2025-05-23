@@ -47,8 +47,8 @@ export function NavUser({
 
   const handleLogout = async () => {
     const supabase = createClient();
-    await supabase.auth.signOut();
     queryClient.clear();
+    await supabase.auth.signOut();
     router.push("/");
   };
 
